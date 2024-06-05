@@ -1,0 +1,23 @@
+﻿@model NFC.Models.RoleViewModel
+
+@{
+    ViewData["Title"] = "System Role";
+    ViewData["SubTitle"] = "Details";
+}
+
+<div>
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.RoleName)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.RoleName)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.RoleId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

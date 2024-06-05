@@ -1,0 +1,83 @@
+﻿@model NFC.Models.UserViewModel
+
+@{
+	ViewData["Title"] = "History Upload";
+	ViewData["SubTitle"] = "Details";
+}
+
+<div>
+	<h4>@ViewData["Title"]</h4>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.FirstName)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.FirstName)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.Code)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.Code)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.UserName)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.UserName)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.MiddleName)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.MiddleName)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.LastName)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.LastName)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.DateOfBirth)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.DateOfBirth)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.Email)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.Email)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.PhoneNumber)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.PhoneNumber)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.Address)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.Address)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.ProductionLine.Name)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.ProductionLine.Name)
+		</dd>
+		<dt class="col-sm-3">
+			@Html.DisplayNameFor(model => model.Role.Name)
+		</dt>
+		<dd class="col-sm-9">
+			@Html.DisplayFor(model => model.Role.Name)
+		</dd>
+	</dl>
+</div>
+<div>
+	<a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+	<a asp-action="Index">Back to List</a>
+</div>

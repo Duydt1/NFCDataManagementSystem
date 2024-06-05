@@ -1,0 +1,202 @@
+﻿@model IEnumerable<NFC.Models.NFCModel>
+@{
+	ViewData["Title"] = "Home Page";
+}
+
+<!-- Small boxes (Stat box) -->
+<div class="row">
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-info">
+			<div class="inner">
+				<h3>@ViewData["HistoryUploadCount"]</h3>
+
+				<p>Request Upload Data</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-bag"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-success">
+			<div class="inner">
+				<h3>53<sup style="font-size: 20px">%</sup></h3>
+
+				<p>Bounce Rate</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-stats-bars"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-warning">
+			<div class="inner">
+				<h3>@ViewData["UserCount"]</h3>
+
+				<p>User Registrations</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-person-add"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-6">
+		<!-- small box -->
+		<div class="small-box bg-danger">
+			<div class="inner">
+				<h3>65</h3>
+
+				<p>Unique Visitors</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-pie-graph"></i>
+			</div>
+			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+		</div>
+	</div>
+	<!-- ./col -->
+</div>
+<!-- /.row -->
+<!-- Main row -->
+<div class="row">
+	<table id="example1" class="table table-bordered table-striped" style="width:100%; table-layout:fixed;text-align:center;display: inline;overflow-x:auto;">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>MODEL</th>
+				<th>DATE</th>
+				<th colspan="7">KT TW SPL</th>
+				<th colspan="3">SENSOR</th>
+
+				<th colspan="8">KT MIC &amp; WF SPL</th>
+				<th colspan="4">HEARING</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td> Speaker GRADE </td>
+				<td> SPL[1kHz]</td>
+				<td> Polarity</td>
+				<td> THD[1KHz]</td>
+				<td> Impedance[1KHz]</td>
+				<td>RESULT</td>
+				<td>CH</td>
+				<td>RESULT</td>
+				<td>DEVICE NO</td>
+				<td>BATT. VOLT.</td>
+				<td>SPL[100Hz]</td>
+				<td>SPL[1kHz]</td>
+				<td>Polarity</td>
+				<td>Impedance[1kHz]</td>
+				<td>MIC1 SENS at 1kHz</td>
+				<td>MIC1 Current</td>
+				<td>RESULT</td>
+				<td>CH</td>
+				<td> SPL[1kHz]</td>
+				<td>RESULT</td>
+				<td>NUM</td>
+				<td>CH</td>
+			</tr>
+			<tr>
+				<td>Lower</td>
+				<td></td>
+				<td></td>
+				<td>112,1</td>
+				<td>101,1</td>
+				<td>1</td>
+				<td>0</td>
+				<td>30,6</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>3,6</td>
+				<td>105</td>
+				<td>98,7</td>
+				<td></td>
+				<td>28,9</td>
+				<td>-41,5</td>
+				<td>110</td>
+				<td></td>
+				<td></td>
+				<td>70</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Upper</td>
+				<td></td>
+				<td></td>
+				<td>116,2</td>
+				<td>107,1</td>
+				<td>1</td>
+				<td>10</td>
+				<td>41,1</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>4,2</td>
+				<td>109</td>
+				<td>102,7</td>
+				<td></td>
+				<td>39,1</td>
+				<td>-33,5</td>
+				<td>150</td>
+				<td></td>
+				<td></td>
+				<td>100</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>1</td>
+					<td>AMW524R1D00001</td>
+					<td>R630</td>
+					<td>001</td>
+					<td>13/11/2023 17:06</td>
+					<td>112,8</td>
+					<td>105,1</td>
+					<td>1</td>
+					<td>0,1</td>
+					<td>38,48</td>
+					<td>FAIL</td>
+					<td>1</td>
+					<td>PASS</td>
+					<td>1</td>
+					<td></td>
+					<td></td>
+					<td>100,5</td>
+					<td>OK</td>
+					<td></td>
+					<td></td>
+					<td>133,7</td>
+					<td>PASS</td>
+					<td>1</td>
+					<td>86,3</td>
+					<td>PASS</td>
+					<td>1</td>
+					<td>1</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<!-- /.row (main row) -->

@@ -1,0 +1,43 @@
+﻿@model NFC.Models.RoleViewModel
+
+@{
+    ViewData["Title"] = "System Role";
+    ViewData["SubTitle"] = "Create";
+}
+@if (User.IsInRole("Admin"))
+{
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label asp-for="RoleName" class="control-label"></label>
+                            <input asp-for="RoleName" type="text" class="form-control" />
+                            <span asp-validation-for="RoleName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+}
+else
+{
+    <p class="text-danger">You do not have access to this page.</p>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

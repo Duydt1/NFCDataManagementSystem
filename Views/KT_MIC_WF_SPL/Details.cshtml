@@ -1,0 +1,113 @@
+﻿@model NFC.Data.Entities.KT_MIC_WF_SPL
+
+@{
+    ViewData["Title"] = "KT MIC & WF SPL";
+    ViewData["SubTitle"] = "Details";
+}
+
+<div>
+    <h4>KT_MIC_WF_SPL</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.SPL_100Hz)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.SPL_100Hz)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.SPL_1kHz)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.SPL_1kHz)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.Polarity)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.Polarity)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.Impedance_1kHz)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.Impedance_1kHz)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.MIC1SENS_1kHz)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.MIC1SENS_1kHz)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.MIC1Current)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.MIC1Current)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.NUM)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.NUM)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.Model)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.Model)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.CH)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.CH)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.Result)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.Result)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.DateTime)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.DateTime)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.ProductionLine)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.ProductionLine.Id)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.CreatedBy.Id)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.CreatedOn)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.CreatedOn)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.ModifiedBy)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.ModifiedBy.Id)
+        </dd>
+        <dt class = "col-sm-3">
+            @Html.DisplayNameFor(model => model.ModifiedOn)
+        </dt>
+        <dd class = "col-sm-9">
+            @Html.DisplayFor(model => model.ModifiedOn)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

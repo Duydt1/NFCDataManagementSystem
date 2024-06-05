@@ -1,0 +1,101 @@
+﻿@model IEnumerable<NFC.Data.Entities.HistoryUpload>
+
+@{
+	ViewData["Title"] = "History Upload";
+}
+@if (User.IsInRole("Admin") || User.IsInRole("Create Data"))
+{
+	<div class="col-md-2">
+		<p>
+			<a asp-action="Create" class="btn btn-block bg-gradient-primary"><i class="fa fa-plus"></i> Create New</a>
+		</p>
+	</div>
+}
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">DataTable with default features</h3>
+	</div>
+	<!-- /.card-header -->
+	<div class="card-body">
+		<table id="example1" class="table table-bordered table-striped" style="width:100%; table-layout:fixed">
+			<thead>
+				<tr>
+					<th>
+						@Html.DisplayNameFor(model => model.Title)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Type)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CreatedOn)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Message)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CreatedBy)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Status)
+					</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						<td>
+							@Html.DisplayFor(modelItem => item.Title)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Type)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CreatedOn)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Message)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CreatedBy!.FullName)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.strStatus)
+						</td>
+						<td>
+							<div class="input-group input-group">
+								<div class="input-group-prepend">
+									<button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
+										Action
+									</button>
+									<ul class="dropdown-menu" style="align-items:center">
+										
+										<li>
+											<a asp-action="Details" asp-route-id="@item.Id" class="btn bg-gradient-warning"><i class="fa fa-eye"></i> Details</a>
+										</li>
+										@if (User.IsInRole("Admin") || User.IsInRole("Create Data"))
+										{
+											<li class="dropdown-divider"></li>
+											<li>
+												<a asp-action="Edit" asp-route-id="@item.Id" class="btn bg-gradient-primary"><i class="ion ion-edit"></i> Edit</a>
+											</li>
+											<li class="dropdown-divider"></li>
+											<li>
+												<a asp-action="Process" asp-route-id="@item.Id" class="btn bg-gradient-gray"><i class="ion ion-ios-reload"></i> Reload</a>
+											</li>
+											<li class="dropdown-divider"></li>
+											<li>
+												<a asp-action="Delete" asp-route-id="@item.Id" class="btn bg-gradient-danger"><i class="fa fa-trash"></i> Delete</a>
+											</li>
+										}
+									</ul>
+								</div>
+							</div>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

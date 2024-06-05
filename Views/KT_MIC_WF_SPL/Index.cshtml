@@ -1,0 +1,150 @@
+﻿@model IEnumerable<NFC.Data.Entities.KT_MIC_WF_SPL>
+
+@{
+	ViewData["Title"] = "KT MIC & WF SPL List";
+}
+<div class="row">
+	<div class="col-lg-4 col-6">
+		<!-- small box -->
+		<div class="small-box bg-info">
+			<div class="inner">
+				<h3>@ViewData["NewDataUpload"]</h3>
+
+				<p>New Datas Upload</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-ios-list"></i>
+			</div>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-4 col-6">
+		<!-- small box -->
+		<div class="small-box bg-success">
+			<div class="inner">
+				<h3>@ViewData["ToTalPass"]<sup style="font-size: 20px">%</sup></h3>
+
+				<p>Passed</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-checkmark-round"></i>
+			</div>
+		</div>
+	</div>
+	<!-- ./col -->
+	<div class="col-lg-4 col-6">
+		<!-- small box -->
+		<div class="small-box bg-danger">
+			<div class="inner">
+				<h3>@ViewData["ToTalFail"]<sup style="font-size: 20px">%</sup></h3>
+
+				<p>Failed</p>
+			</div>
+			<div class="icon">
+				<i class="ion ion-close-round"></i>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">DataTable with default features</h3>
+	</div>
+	<!-- /.card-header -->
+	<div class="card-body">
+		<table id="example1" class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>
+						@Html.DisplayNameFor(model => model.NUM)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Model)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CH)
+					</th>
+					
+					<th>
+						@Html.DisplayNameFor(model => model.DateTime)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.SPL_100Hz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.SPL_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Polarity)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Impedance_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.MIC1SENS_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.MIC1Current)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Result)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.ProductionLine)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CreatedBy)
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+
+						<td>
+							@Html.DisplayFor(modelItem => item.NUM)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Model)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CH)
+						</td>
+						
+						<td>
+							@Html.DisplayFor(modelItem => item.DateTime)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.SPL_100Hz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.SPL_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Polarity)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Impedance_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.MIC1SENS_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.MIC1Current)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Result)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.ProductionLine.Name)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CreatedBy.UserName)
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

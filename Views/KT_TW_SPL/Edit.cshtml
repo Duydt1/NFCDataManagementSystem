@@ -1,0 +1,103 @@
+﻿@model NFC.Data.Entities.KT_TW_SPL
+
+@{
+    ViewData["Title"] = "KT TW SPL";
+    ViewData["SubTitle"] = "Edit";
+}
+
+<h4>KT_TW_SPL</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Grade" class="control-label"></label>
+                <input asp-for="Grade" class="form-control" />
+                <span asp-validation-for="Grade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SPL_1kHz" class="control-label"></label>
+                <input asp-for="SPL_1kHz" class="form-control" />
+                <span asp-validation-for="SPL_1kHz" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Polarity" class="control-label"></label>
+                <input asp-for="Polarity" class="form-control" />
+                <span asp-validation-for="Polarity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="THD_1kHz" class="control-label"></label>
+                <input asp-for="THD_1kHz" class="form-control" />
+                <span asp-validation-for="THD_1kHz" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Impedance_1kHz" class="control-label"></label>
+                <input asp-for="Impedance_1kHz" class="form-control" />
+                <span asp-validation-for="Impedance_1kHz" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="NUM" class="control-label"></label>
+                <input asp-for="NUM" class="form-control" />
+                <span asp-validation-for="NUM" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Model" class="control-label"></label>
+                <input asp-for="Model" class="form-control" />
+                <span asp-validation-for="Model" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CH" class="control-label"></label>
+                <input asp-for="CH" class="form-control" />
+                <span asp-validation-for="CH" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Result" class="control-label"></label>
+                <input asp-for="Result" class="form-control" />
+                <span asp-validation-for="Result" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateTime" class="control-label"></label>
+                <input asp-for="DateTime" class="form-control" />
+                <span asp-validation-for="DateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductionLineId" class="control-label"></label>
+                <select asp-for="ProductionLineId" class="form-control" asp-items="ViewBag.ProductionLineId"></select>
+                <span asp-validation-for="ProductionLineId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedById" class="control-label"></label>
+                <select asp-for="CreatedById" class="form-control" asp-items="ViewBag.CreatedById"></select>
+                <span asp-validation-for="CreatedById" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedOn" class="control-label"></label>
+                <input asp-for="CreatedOn" class="form-control" />
+                <span asp-validation-for="CreatedOn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ModifiedById" class="control-label"></label>
+                <select asp-for="ModifiedById" class="form-control" asp-items="ViewBag.ModifiedById"></select>
+                <span asp-validation-for="ModifiedById" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ModifiedOn" class="control-label"></label>
+                <input asp-for="ModifiedOn" class="form-control" />
+                <span asp-validation-for="ModifiedOn" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

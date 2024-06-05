@@ -1,0 +1,83 @@
+﻿@model IEnumerable<NFC.Data.Entities.ProductionLine>
+
+@{
+	ViewData["Title"] = "Production Line List";
+}
+@if (User.IsInRole("Create Data") || User.IsInRole("Admin"))
+{
+	<div class="col-md-2">
+		<p>
+			<a asp-action="Create" class="btn btn-block bg-gradient-primary"><i class="fa fa-plus"></i> Create New</a>
+		</p>
+	</div>
+}
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">DataTable with default features</h3>
+	</div>
+	<!-- /.card-header -->
+	<div class="card-body">
+		<table id="example1" class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>
+						@Html.DisplayNameFor(model => model.Name)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Description)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CreatedBy)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CreatedOn)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.ModifiedBy)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.ModifiedOn)
+					</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						<td>
+							@Html.DisplayFor(modelItem => item.Name)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Description)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CreatedBy.UserName)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CreatedOn)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.ModifiedBy.Id)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.ModifiedOn)
+						</td>
+						<td>
+							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-block bg-gradient-warning btn-sm"><i class="fa fa-eye"></i> Details</a>
+						</td>
+						@if (User.IsInRole("Create Data") || User.IsInRole("Admin"))
+						{
+							<td>
+								<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-block bg-gradient-primary btn-sm"><i class="ion ion-edit"></i> Edit</a>
+							</td>
+							<td>
+								<a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-block bg-gradient-danger btn-sm"><i class="fa fa-trash"></i> Delete</a>
+							</td>
+						}
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>
