@@ -68,135 +68,331 @@
 </div>
 <!-- /.row -->
 <!-- Main row -->
-<div class="row">
-	<table id="example1" class="table table-bordered table-striped" style="width:100%; table-layout:fixed;text-align:center;display: inline;overflow-x:auto;">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>MODEL</th>
-				<th>DATE</th>
-				<th colspan="7">KT TW SPL</th>
-				<th colspan="3">SENSOR</th>
-
-				<th colspan="8">KT MIC &amp; WF SPL</th>
-				<th colspan="4">HEARING</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td> Speaker GRADE </td>
-				<td> SPL[1kHz]</td>
-				<td> Polarity</td>
-				<td> THD[1KHz]</td>
-				<td> Impedance[1KHz]</td>
-				<td>RESULT</td>
-				<td>CH</td>
-				<td>RESULT</td>
-				<td>DEVICE NO</td>
-				<td>BATT. VOLT.</td>
-				<td>SPL[100Hz]</td>
-				<td>SPL[1kHz]</td>
-				<td>Polarity</td>
-				<td>Impedance[1kHz]</td>
-				<td>MIC1 SENS at 1kHz</td>
-				<td>MIC1 Current</td>
-				<td>RESULT</td>
-				<td>CH</td>
-				<td> SPL[1kHz]</td>
-				<td>RESULT</td>
-				<td>NUM</td>
-				<td>CH</td>
-			</tr>
-			<tr>
-				<td>Lower</td>
-				<td></td>
-				<td></td>
-				<td>112,1</td>
-				<td>101,1</td>
-				<td>1</td>
-				<td>0</td>
-				<td>30,6</td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td>3,6</td>
-				<td>105</td>
-				<td>98,7</td>
-				<td></td>
-				<td>28,9</td>
-				<td>-41,5</td>
-				<td>110</td>
-				<td></td>
-				<td></td>
-				<td>70</td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>Upper</td>
-				<td></td>
-				<td></td>
-				<td>116,2</td>
-				<td>107,1</td>
-				<td>1</td>
-				<td>10</td>
-				<td>41,1</td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td>4,2</td>
-				<td>109</td>
-				<td>102,7</td>
-				<td></td>
-				<td>39,1</td>
-				<td>-33,5</td>
-				<td>150</td>
-				<td></td>
-				<td></td>
-				<td>100</td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
-			@foreach (var item in Model)
-			{
-				<tr>
-					<td>1</td>
-					<td>AMW524R1D00001</td>
-					<td>R630</td>
-					<td>001</td>
-					<td>13/11/2023 17:06</td>
-					<td>112,8</td>
-					<td>105,1</td>
-					<td>1</td>
-					<td>0,1</td>
-					<td>38,48</td>
-					<td>FAIL</td>
-					<td>1</td>
-					<td>PASS</td>
-					<td>1</td>
-					<td></td>
-					<td></td>
-					<td>100,5</td>
-					<td>OK</td>
-					<td></td>
-					<td></td>
-					<td>133,7</td>
-					<td>PASS</td>
-					<td>1</td>
-					<td>86,3</td>
-					<td>PASS</td>
-					<td>1</td>
-					<td>1</td>
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">DataTable with default features</h3>
+	</div>
+	<!-- /.card-header -->
+	<div class="card-body">
+		<table id="example" class="table table-bordered table-striped" style="overflow:auto">
+			<thead>
+				<tr style="text-align:center">
+					<th>
+						@Html.DisplayNameFor(model => model.NUM)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Model)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.DateTime)
+					</th>
+					<th colspan="7">
+						KT TW SPL
+					</th>
+					<th colspan="3">
+						SENSOR
+					</th>
+					<th colspan="8">
+						KT MIC &amp; WF SPL
+					</th>
+					<th colspan="4">
+						HEARING
+					</th>
 				</tr>
-			}
-		</tbody>
-	</table>
+				<tr>
+
+					<th>
+					</th>
+					<th>
+					</th>
+
+					<th>
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Grade)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.SPL_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Polarity)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.THD_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Impedance_1kHz)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Result)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_TW_SPL!.CH)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.Sensor!.Result)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Sensor!.DeviceNo)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Sensor!.BattVolt)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.SPL_100Hz)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.SPL_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.Polarity)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.Impedance_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.MIC1SENS_1kHz)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.MIC1Current)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.Result)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.CH)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Hearing!.Speaker1SPL_1kHz)
+					</th>
+
+					<th>
+						@Html.DisplayNameFor(model => model.Hearing!.Result)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Hearing!.CH)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.Hearing!.NUM)
+					</th>
+				</tr>
+				<tr>
+
+					<th>Lower</th>
+					<th></th>
+					<th></th>
+					<th>112,1</th>
+					<th>101,1</th>
+					<th>1</th>
+					<th>0</th>
+					<th>30,6</th>
+					<th>
+					</th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th>3,6</th>
+					<th>105</th>
+
+					<th>
+						98,7
+					</th>
+					<th>
+
+					</th>
+
+					<th>
+						28,9
+					</th>
+					<th>
+						-41,5
+					</th>
+					<th>
+						110
+					</th>
+					<th>
+					</th>
+
+					<th>
+					</th>
+					<th>
+						70
+					</th>
+
+					<th>
+					</th>
+					<th>
+					</th>
+					<th>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						Upper
+					</th>
+					<th>
+					</th>
+
+					<th>
+					</th>
+					<th>
+						116,2
+					</th>
+
+					<th>
+						107,1
+					</th>
+					<th>
+						1
+					</th>
+
+					<th>
+						10
+					</th>
+					<th>
+						41,1
+					</th>
+
+					<th>
+					</th>
+					<th>
+					</th>
+
+					<th>
+					</th>
+					<th>
+					</th>
+					<th>
+						4,2
+					</th>
+					<th>
+						109
+					</th>
+
+					<th>
+						102,7
+					</th>
+					<th>
+					</th>
+
+					<th>
+						39,1
+					</th>
+					<th>
+						-33,5
+					</th>
+					<th>
+						150
+					</th>
+					<th>
+					</th>
+
+					<th>
+					</th>
+					<th>
+						100
+					</th>
+
+					<th>
+					</th>
+					<th>
+					</th>
+					<th>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+
+						<td>
+							@Html.DisplayFor(modelItem => item.NUM)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Model)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.DateTime)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Grade)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.SPL_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Polarity)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.THD_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Impedance_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Result)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.CH)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Sensor!.Result)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Sensor!.DeviceNo)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Sensor!.BattVolt)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_100Hz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Polarity)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Impedance_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1SENS_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1Current)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Result)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.CH)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Hearing!.Speaker1SPL_1kHz)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Hearing!.Result)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Hearing!.NUM)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Hearing!.CH)
+						</td>
+
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
 </div>
 <!-- /.row (main row) -->

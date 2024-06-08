@@ -2,24 +2,25 @@
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NFC.Services
 {
 	public interface INFCService
 	{
-		Task<List<NFCModel>> GetNFCDashboard(string? userId, int? productionLineId);
+		Task<List<NFCModel>> GetNFCDashboard(List<int> productionLineIds);
 	}
 	public class NFCService(NFCDbContext context) : INFCService
 	{
 		private readonly NFCDbContext _context = context;
 
-		public async Task<List<NFCModel>> GetNFCDashboard(string? userId, int? productionLineId)
+		public async Task<List<NFCModel>> GetNFCDashboard(List<int> productionLineIds)
 		{
 			var nfcModels = new List<NFCModel>();
-			var lstTW = await GetListKTTW(userId, productionLineId);
-			var lstMIC = await GetListKTMIC(userId, productionLineId);
-			var lstSensor = await GetListSensor(userId, productionLineId);
-			var lstHearing = await GetListHearing(userId, productionLineId);
+			var lstTW = await GetListKTTW(productionLineIds);
+			var lstMIC = await GetListKTMIC(productionLineIds);
+			var lstSensor = await GetListSensor(productionLineIds);
+			var lstHearing = await GetListHearing(productionLineIds);
 			foreach(var item in lstTW)
 			{
 				nfcModels.Add(new NFCModel
@@ -34,13 +35,12 @@ namespace NFC.Services
 					Sensor = lstSensor.FirstOrDefault(x => x.NUM == item.NUM),
 				});
 			}
-			return nfcModels;
+			return [.. nfcModels.OrderByDescending(x => x.DateTime)];
 		}
 
-		private async Task<List<KT_TW_SPL>> GetListKTTW(string? userId, int? productionLineId)
+		private async Task<List<KT_TW_SPL>> GetListKTTW(List<int> productionLineIds)
 		{
-			var result = new List<KT_TW_SPL>();
-			result = await _context.KT_TW_SPLs.Select(x => new KT_TW_SPL
+			var query = _context.KT_TW_SPLs.Select(x => new KT_TW_SPL
 			{
 				CH = x.CH,
 				NUM = x.NUM,
@@ -54,15 +54,17 @@ namespace NFC.Services
 				DateTime = x.DateTime,
 				CreatedById = x.CreatedById,
 				ProductionLineId = x.ProductionLineId
-			}).Where(x => string.IsNullOrEmpty(userId) || x.CreatedById == userId)
-			.Where(x => productionLineId != null || x.ProductionLineId == productionLineId)
-			.ToListAsync();
-			return result;
+			})
+			.AsQueryable();
+
+			if(productionLineIds.Count > 0)
+				query.Where(x => productionLineIds.Contains(x.ProductionLineId));
+
+			return await query.ToListAsync();
 		}
-		private async Task<List<KT_MIC_WF_SPL>> GetListKTMIC(string? userId, int? productionLineId)
+		private async Task<List<KT_MIC_WF_SPL>> GetListKTMIC(List<int> productionLineIds)
 		{
-			var result = new List<KT_MIC_WF_SPL>();
-			result = await _context.KT_MIC_WF_SPLs.Select(x => new KT_MIC_WF_SPL
+			var query = _context.KT_MIC_WF_SPLs.Select(x => new KT_MIC_WF_SPL
 			{
 				CH = x.CH,
 				NUM = x.NUM,
@@ -77,15 +79,16 @@ namespace NFC.Services
 				DateTime = x.DateTime,
 				CreatedById = x.CreatedById,
 				ProductionLineId = x.ProductionLineId
-			}).Where(x => string.IsNullOrEmpty(userId) || x.CreatedById == userId)
-			.Where(x => productionLineId != null || x.ProductionLineId == productionLineId)
-			.ToListAsync();
-			return result;
+			}).AsQueryable();
+
+			if (productionLineIds.Count > 0)
+				query.Where(x => productionLineIds.Contains(x.ProductionLineId));
+
+			return await query.ToListAsync();
 		}
-		private async Task<List<Sensor>> GetListSensor(string? userId, int? productionLineId)
+		private async Task<List<Sensor>> GetListSensor(List<int> productionLineIds)
 		{
-			var result = new List<Sensor>();
-			result = await _context.Sensors.Select(x => new Sensor
+			var query = _context.Sensors.Select(x => new Sensor
 			{
 				CH = x.CH,
 				NUM = x.NUM,
@@ -96,15 +99,16 @@ namespace NFC.Services
 				DateTime = x.DateTime,
 				CreatedById = x.CreatedById,
 				ProductionLineId = x.ProductionLineId
-			}).Where(x => string.IsNullOrEmpty(userId) || x.CreatedById == userId)
-			.Where(x => productionLineId != null || x.ProductionLineId == productionLineId)
-			.ToListAsync();
-			return result;
+			}).AsQueryable();
+
+			if (productionLineIds.Count > 0)
+				query.Where(x => productionLineIds.Contains(x.ProductionLineId));
+
+			return await query.ToListAsync();
 		}
-		private async Task<List<Hearing>> GetListHearing(string? userId, int? productionLineId)
+		private async Task<List<Hearing>> GetListHearing(List<int> productionLineIds)
 		{
-			var result = new List<Hearing>();
-			result = await _context.Hearings.Select(x => new Hearing
+			var query = _context.Hearings.Select(x => new Hearing
 			{
 				CH = x.CH,
 				NUM = x.NUM,
@@ -114,10 +118,12 @@ namespace NFC.Services
 				DateTime = x.DateTime,
 				CreatedById = x.CreatedById,
 				ProductionLineId = x.ProductionLineId
-			}).Where(x => string.IsNullOrEmpty(userId) || x.CreatedById == userId)
-			.Where(x => productionLineId != null || x.ProductionLineId == productionLineId)
-			.ToListAsync();
-			return result;
+			}).AsQueryable();
+
+			if (productionLineIds.Count > 0)
+				query.Where(x => productionLineIds.Contains(x.ProductionLineId));
+
+			return await query.ToListAsync();
 		}
 	}
 }

@@ -14,15 +14,13 @@ builder.Services.AddDbContext<NFCDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddIdentity<NFCUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+	.AddRoles<IdentityRole>()
+	.AddEntityFrameworkStores<NFCDbContext>().AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(options =>
 {
 	options.LoginPath = "/Identity/Account/Login";
 });
-
-builder.Services.AddIdentity<NFCUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-	.AddRoles<IdentityRole>()
-	.AddEntityFrameworkStores<NFCDbContext>().AddDefaultTokenProviders();
-
 builder.Services.AddControllersWithViews();
 
 //Authentication/Authorization

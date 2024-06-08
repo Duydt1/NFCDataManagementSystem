@@ -182,10 +182,19 @@
 				"paging": true,
 				"lengthChange": false,
 				"searching": false,
+				"scrollCollapse": true,
 				"ordering": true,
 				"info": true,
 				"autoWidth": false,
 				"responsive": true,
+			});
+			new DataTable('#example', {
+				paging: false,
+				scrollCollapse: true,
+				scrollY: '500px',
+				scrollX: true,
+				ordering: false,
+				paging: true,
 			});
 		});
 	</script>
