@@ -8,8 +8,9 @@ namespace NFC.Data.Entities
         public long Id { get; set; }
         public int Status { get; set; }
         public int Type { get; set; }
+        public string TypeStr => NFCCommon.GetNFCType(Type);
         public string Title => $"Upload {NFCCommon.GetNFCType(Type)} data";
-        public string strStatus => NFCCommon.GetHistoryStatus(Status);
+        public string StatusStr => NFCCommon.GetHistoryStatus(Status);
         public string? FileContent { get; set; }
         [MaxLength(255)]
         public string? Message { get; set; }

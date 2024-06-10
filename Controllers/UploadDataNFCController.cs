@@ -5,6 +5,7 @@ using NFC.Common;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Models;
+using NFC.Services;
 using NuGet.Protocol;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -17,19 +18,13 @@ namespace NFC.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class UploadDataNFCController : ControllerBase
+	public class UploadDataNFCController(UserManager<NFCUser> userManager, RoleManager<IdentityRole> roleManager,
+		NFCDbContext context, IFileUploadService fileUploadService) : ControllerBase
 	{
-		private readonly UserManager<NFCUser> _userManager;
-		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly NFCDbContext _context;
-
-		public UploadDataNFCController(UserManager<NFCUser> userManager, RoleManager<IdentityRole> roleManager,
-			NFCDbContext context)
-		{
-			_userManager = userManager;
-			_roleManager = roleManager;
-			_context = context;
-		}
+		private readonly UserManager<NFCUser> _userManager = userManager;
+		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+		private readonly NFCDbContext _context = context;
+		private readonly IFileUploadService _fileUploadService = fileUploadService;
 
 		// GET: api/<ValuesController>
 		[HttpGet]
@@ -93,6 +88,8 @@ namespace NFC.Controllers
 				response.Message = "Invalid NFCType";
 				response.Code = HttpStatusCode.PreconditionFailed;
 			}
+			response = await _fileUploadService.ValidateFileCsvAsync(request.NFCType, request.NFCContent);
+
 			await CreateHistoryUploadAsync(request, response, productionLineId, user);
 			return response;
 		}

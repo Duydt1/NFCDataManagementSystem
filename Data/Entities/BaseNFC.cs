@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace NFC.Data.Entities
 {
@@ -6,16 +7,22 @@ namespace NFC.Data.Entities
     {
         public long Id { get; set; }
         [MaxLength(20)]
+        [Required]
         public string? NUM { get; set; }
         [MaxLength(20)]
-        public string? Model { get; set; }
+		[Required]
+		public string? Model { get; set; }
         [MaxLength(10)]
-        public string? CH { get; set; }
+		[Required]
+		public string? CH { get; set; }
         [MaxLength(10)]
-        public string? Result { get; set; }
-        public DateTime DateTime { get; set; }
+		[Required]
+		public string? Result { get; set; }
+		[DisplayName("Date Time")]
+		public DateTime DateTime { get; set; }
         [Required]
-        public int ProductionLineId { get; set; }
+		[DisplayName("Production Line")]
+		public int ProductionLineId { get; set; }
         public ProductionLine? ProductionLine { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using NFC.Data;
 using NFC.Data.Entities;
 using Quartz;
 using System.Buffers.Text;
+using System.Transactions;
 
 namespace NFC.Services
 {
@@ -16,32 +17,36 @@ namespace NFC.Services
 
 		public async Task Execute(IJobExecutionContext context)
 		{
-			try
+			using (var transaction = await _context.Database.BeginTransactionAsync())
 			{
-				var historyUploadFiles = await _context.HistoryUploads.Where(x => x.Status == (int)NFCCommon.HistoryStatus.New).ToListAsync();
-				foreach (var historyUploadFile in historyUploadFiles)
+				try
 				{
-					var isValidBase64 = Base64.IsValid(historyUploadFile.FileContent, out int decodedLength);
-					if (!isValidBase64)
+					var historyUploadFiles = await _context.HistoryUploads.Where(x => x.Status == (int)NFCCommon.HistoryStatus.New).ToListAsync();
+					foreach (var historyUploadFile in historyUploadFiles)
 					{
-						historyUploadFile.Status = (int)NFCCommon.HistoryStatus.Declined;
-						historyUploadFile.Message = "File không đúng định dạng base64";
+						var isValidBase64 = Base64.IsValid(historyUploadFile.FileContent, out int decodedLength);
+						if (!isValidBase64)
+						{
+							historyUploadFile.Status = (int)NFCCommon.HistoryStatus.Declined;
+							historyUploadFile.Message = "File không đúng định dạng base64";
+							_context.Update(historyUploadFile);
+							await _context.SaveChangesAsync();
+							continue;
+						}
+
+						historyUploadFile.Status = (int)NFCCommon.HistoryStatus.Processing;
 						_context.Update(historyUploadFile);
 						await _context.SaveChangesAsync();
-						continue;
+						await _fileUploadService.ReadFileAndInsertDataAsync(historyUploadFile);
 					}
-
-					historyUploadFile.Status = (int)NFCCommon.HistoryStatus.Processing;
-					_context.Update(historyUploadFile);
-					await _context.SaveChangesAsync();
-					await _fileUploadService.ReadFileCsvAsync(historyUploadFile);
+					transaction.Commit();
+				}
+				catch (Exception ex)
+				{
+					transaction.Rollback();
+					throw new Exception(ex.Message);
 				}
 			}
-			catch(Exception ex)
-			{
-				throw new Exception(ex.Message);
-			}
-			
 		}
 
 		

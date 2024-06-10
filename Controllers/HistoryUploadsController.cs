@@ -154,7 +154,7 @@ namespace NFC.Controllers
 				{
 					try
 					{
-						await _fileUploadService.ReadFileCsvAsync(historyUpload);
+						await _fileUploadService.ReadFileAndInsertDataAsync(historyUpload);
 					}
 					catch (Exception ex)
 					{
