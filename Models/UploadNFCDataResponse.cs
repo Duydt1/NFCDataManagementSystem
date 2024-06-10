@@ -6,7 +6,5 @@ namespace NFC.Models
 	{
 		public HttpStatusCode Code { get; set; }
 		public string Message { get; set; }
-		public bool isSuccessed { get; set; } = false;
-		
 	}
 }

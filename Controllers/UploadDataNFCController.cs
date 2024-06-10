@@ -42,7 +42,7 @@ namespace NFC.Controllers
 		{
 			var response = new UploadNFCDataResponse();
 			int productionLineId = 0;
-			var user = new NFCUser() ;
+			var user = new NFCUser();
 			// Get the Authorization header
 			string authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
 
@@ -87,6 +87,11 @@ namespace NFC.Controllers
 			{
 				response.Message = "Invalid username or password";
 				response.Code = HttpStatusCode.Unauthorized;
+			}
+			if (!Enum.IsDefined(typeof(NFCCommon.NFCType), request.NFCType))
+			{
+				response.Message = "Invalid NFCType";
+				response.Code = HttpStatusCode.PreconditionFailed;
 			}
 			await CreateHistoryUploadAsync(request, response, productionLineId, user);
 			return response;
