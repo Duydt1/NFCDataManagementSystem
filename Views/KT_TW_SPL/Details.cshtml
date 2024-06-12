@@ -1,106 +1,144 @@
-﻿@model NFC.Data.Entities.KT_TW_SPL
+﻿@using NFC.Data.Entities
+@model NFC.Data.Entities.KT_TW_SPL
 
 @{
-    ViewData["Title"] = "KT TW SPL";
-    ViewData["SubTitle"] = "Details";
+	ViewData["Title"] = "KT TW SPL";
+	ViewData["SubTitle"] = "Details";
+	List<KT_TW_SPL> historyUpdateDatas = (List<KT_TW_SPL>)ViewData["HistoryUpdateData"];
 }
 <div>
-    <h4>KT_TW_SPL</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.Grade)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.Grade)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.SPL_1kHz)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.SPL_1kHz)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.Polarity)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.Polarity)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.THD_1kHz)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.THD_1kHz)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.Impedance_1kHz)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.Impedance_1kHz)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.NUM)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.NUM)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.Model)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.Model)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.CH)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.CH)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.Result)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.Result)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.DateTime)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.DateTime)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.ProductionLine)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.ProductionLine.Id)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.CreatedBy.Id)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.CreatedOn)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.CreatedOn)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.ModifiedBy)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.ModifiedBy.Id)
-        </dd>
-        <dt class = "col-sm-3">
-            @Html.DisplayNameFor(model => model.ModifiedOn)
-        </dt>
-        <dd class = "col-sm-9">
-            @Html.DisplayFor(model => model.ModifiedOn)
-        </dd>
-    </dl>
+	<h4>@Html.DisplayFor(model => model.NUM) -  @Html.DisplayFor(model => model.Model)</h4>
+	<hr />
+	<div class="card">
+		<div class="card-body">
+			<table class="table table-bordered">
+				<tbody>
+					<tr>
+						<td><b>@Html.DisplayNameFor(model => model.CH)</b></td>
+						<td>@Html.DisplayFor(model => model.CH)</td>
+						<td><b>@Html.DisplayNameFor(model => model.Result)</b></td>
+						<td>@Html.DisplayFor(model => model.Result)</td>
+					</tr>
+					<tr>
+						<td><b>@Html.DisplayNameFor(model => model.Grade)</b></td>
+						<td>@Html.DisplayFor(model => model.Grade)</td>
+						<td><b>@Html.DisplayNameFor(model => model.SPL_1kHz)</b></td>
+						<td>@Html.DisplayFor(model => model.SPL_1kHz)</td>
+					</tr>
+					<tr>
+						<td><b>@Html.DisplayNameFor(model => model.Polarity)</b></td>
+						<td>@Html.DisplayFor(model => model.Polarity)</td>
+						<td><b>@Html.DisplayNameFor(model => model.THD_1kHz)</b></td>
+						<td>@Html.DisplayFor(model => model.THD_1kHz)</td>
+					</tr>
+					<tr>
+						<td><b>@Html.DisplayNameFor(model => model.Impedance_1kHz)</b></td>
+						<td>@Html.DisplayFor(model => model.Impedance_1kHz)</td>
+						<td><b>@Html.DisplayNameFor(model => model.CreatedBy)</b></td>
+						<td>@Html.DisplayFor(model => model.CreatedBy.FullName)</td>
+					</tr>
+					<tr>
+						<td><b>@Html.DisplayNameFor(model => model.DateTime)</b></td>
+						<td>@Html.DisplayFor(model => model.DateTime)</td>
+						<td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
+						<td>@Html.DisplayFor(model => model.ProductionLine!.Name)</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	@if (historyUpdateDatas.Count > 0)
+	{
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">History Update Data</h3>
+					</div>
+					<!-- ./card-header -->
+					<div class="card-body p-0">
+						<table class="table table-hover">
+							<tbody>
+								@{
+									var stt = 0;
+									foreach (var item in historyUpdateDatas)
+									{
+										stt += 1;
+										<tr class="expandable-body">
+											<td>
+												<div class="p-0">
+													<table class="table table-hover">
+														<tbody>
+															<tr data-widget="expandable-table" aria-expanded="false">
+																<td>
+																	<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+																	Update on: @Html.DisplayFor(item => item.ModifiedOn)
+																</td>
+															</tr>
+															<tr class="expandable-body">
+																<td>
+																	<div class="p-0">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><b>@Html.DisplayNameFor(item => item.CH)</b></td>
+																					<td>@Html.DisplayFor(item => item.CH)</td>
+																					<td><b>@Html.DisplayNameFor(item => item.Result)</b></td>
+																					<td>@Html.DisplayFor(item => item.Result)</td>
+																				</tr>
+																				<tr>
+																					<td><b>@Html.DisplayNameFor(item => item.Grade)</b></td>
+																					<td>@Html.DisplayFor(item => item.Grade)</td>
+																					<td><b>@Html.DisplayNameFor(item => item.SPL_1kHz)</b></td>
+																					<td>@Html.DisplayFor(item => item.SPL_1kHz)</td>
+																				</tr>
+																				<tr>
+																					<td><b>@Html.DisplayNameFor(item => item.Polarity)</b></td>
+																					<td>@Html.DisplayFor(item => item.Polarity)</td>
+																					<td><b>@Html.DisplayNameFor(item => item.THD_1kHz)</b></td>
+																					<td>@Html.DisplayFor(item => item.THD_1kHz)</td>
+																				</tr>
+																				<tr>
+																					<td><b>@Html.DisplayNameFor(item => item.Impedance_1kHz)</b></td>
+																					<td>@Html.DisplayFor(item => item.Impedance_1kHz)</td>
+																					<td><b>@Html.DisplayNameFor(item => item.CreatedBy)</b></td>
+																					<td>@Html.DisplayFor(item => item.CreatedBy.FullName)</td>
+																				</tr>
+																				<tr>
+																					<td><b>@Html.DisplayNameFor(item => item.DateTime)</b></td>
+																					<td>@Html.DisplayFor(item => item.DateTime)</td>
+																					<td><b>@Html.DisplayNameFor(item => item.ProductionLine!.Name)</b></td>
+																					<td>@Html.DisplayFor(item => item.ProductionLine!.Name)</td>
+																				</tr>
+																			</tbody>
+																		</table>
+																	</div>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</td>
+										</tr>
+									}
+								}
+							
+							</tbody>
+						</table>
+					</div>
+					<!-- /.card-body -->
+				</div>
+				<!-- /.card -->
+			</div>
+		</div>
+	}
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="row">
+	<div class="col-sm-1">
+		<a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.Id">Edit</a>
+	</div>
+	<div class="col-sm-1">
+		<a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
+	</div>
 </div>
+

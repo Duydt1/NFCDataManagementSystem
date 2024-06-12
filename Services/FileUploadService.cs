@@ -2,12 +2,15 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NFC.Common;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Models;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Principal;
 
 namespace NFC.Services
 {
@@ -84,12 +87,27 @@ namespace NFC.Services
 				{
 					try
 					{
-						var kttws = await _context.KT_TW_SPLs.ToListAsync();
+						var existNUMs = lstKTTW.Select(x => x.NUM).ToList();
+						var kttws = await _context.KT_TW_SPLs.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
 						foreach (var item in lstKTTW)
 						{
 							var oldEntity = kttws.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
+								string historyUpdate = "";
+								if (!string.IsNullOrEmpty(oldEntity.HistoryUpdate))
+								{
+									var lstUpdateData = JsonConvert.DeserializeObject<List<KT_TW_SPL>>(oldEntity.HistoryUpdate);
+									lstUpdateData.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(lstUpdateData, Formatting.Indented);
+								}
+								else
+								{
+									var newListOldEntity = new List<KT_TW_SPL>();
+									newListOldEntity.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(newListOldEntity, Formatting.Indented);
+								}
+								oldEntity.HistoryUpdate = historyUpdate;
 								oldEntity.NUM = item.NUM;
 								oldEntity.CH = item.CH;
 								oldEntity.Model = item.Model;
@@ -146,12 +164,27 @@ namespace NFC.Services
 				{
 					try
 					{
-						var ktmics = await _context.KT_MIC_WF_SPLs.ToListAsync();
+						var existNUMs = lstKTMIC.Select(x => x.NUM).ToList();
+						var ktmics = await _context.KT_MIC_WF_SPLs.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
 						foreach (var item in lstKTMIC)
 						{
 							var oldEntity = ktmics.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
+								string historyUpdate = "";
+								if (!string.IsNullOrEmpty(oldEntity.HistoryUpdate))
+								{
+									var lstUpdateData = JsonConvert.DeserializeObject<List<KT_MIC_WF_SPL>>(oldEntity.HistoryUpdate);
+									lstUpdateData.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(lstUpdateData, Formatting.Indented);
+								}
+								else
+								{
+									var newListOldEntity = new List<KT_MIC_WF_SPL>();
+									newListOldEntity.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(newListOldEntity, Formatting.Indented);
+								}
+								oldEntity.HistoryUpdate = historyUpdate;
 								oldEntity.NUM = item.NUM;
 								oldEntity.CH = item.CH;
 								oldEntity.Model = item.Model;
@@ -208,12 +241,27 @@ namespace NFC.Services
 				{
 					try
 					{
-						var sensors = await _context.Sensors.ToListAsync();
+						var existNUMs = lstSensor.Select(x => x.NUM).ToList();
+						var sensors = await _context.Sensors.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
 						foreach (var item in lstSensor)
 						{
 							var oldEntity = sensors.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
+								string historyUpdate = "";
+								if (!string.IsNullOrEmpty(oldEntity.HistoryUpdate))
+								{
+									var lstUpdateData = JsonConvert.DeserializeObject<List<Sensor>>(oldEntity.HistoryUpdate);
+									lstUpdateData.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(lstUpdateData, Formatting.Indented);
+								}
+								else
+								{
+									var newListOldEntity = new List<Sensor>();
+									newListOldEntity.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(newListOldEntity, Formatting.Indented);
+								}
+								oldEntity.HistoryUpdate = historyUpdate;
 								oldEntity.NUM = item.NUM;
 								oldEntity.CH = item.CH;
 								oldEntity.Model = item.Model;
@@ -266,12 +314,27 @@ namespace NFC.Services
 				{
 					try
 					{
-						var hearings = await _context.Hearings.ToListAsync();
+						var existNUMs = lstHearing.Select(x => x.NUM).ToList();
+						var hearings = await _context.Hearings.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
 						foreach (var item in lstHearing)
 						{
 							var oldEntity = hearings.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
+								string historyUpdate = "";
+								if (!string.IsNullOrEmpty(oldEntity.HistoryUpdate))
+								{
+									var lstUpdateData = JsonConvert.DeserializeObject<List<Hearing>>(oldEntity.HistoryUpdate);
+									lstUpdateData.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(lstUpdateData, Formatting.Indented);
+								}
+								else
+								{
+									var newListOldEntity = new List<Hearing>();
+									newListOldEntity.Add(oldEntity);
+									historyUpdate = JsonConvert.SerializeObject(newListOldEntity, Formatting.Indented);
+								}
+								oldEntity.HistoryUpdate = historyUpdate;
 								oldEntity.NUM = item.NUM;
 								oldEntity.CH = item.CH;
 								oldEntity.Model = item.Model;
@@ -451,9 +514,8 @@ namespace NFC.Services
 					result.Message += string.IsNullOrEmpty(item.Impedance_1kHz) ? $"Speaker1 Impedance[1KHz] is null; " : "";
 					if (!string.IsNullOrEmpty(result.Message))
 					{
-						string strNum = $"Data in line {line} errors: ";
+						string strNum = $"Error Data in line {line} : ";
 						result.Message = strNum + result.Message;
-						result.Message += "/r/n";
 					}
 				}
 			}
@@ -488,9 +550,8 @@ namespace NFC.Services
 					result.Message += string.IsNullOrEmpty(item.MIC1Current) ? $"MIC1 Current is null;" : "";
 					if (!string.IsNullOrEmpty(result.Message))
 					{
-						string strNum = $"Data in line {line} errors: ";
+						string strNum = $"Error Data in line {line} : ";
 						result.Message = strNum + result.Message;
-						result.Message += "/r/n";
 					}
 
 				}
@@ -522,9 +583,8 @@ namespace NFC.Services
 					result.Message += string.IsNullOrEmpty(item.BattVolt) ? $"BATT. VOLT. is null; " : "";
 					if (!string.IsNullOrEmpty(result.Message))
 					{
-						string strNum = $"Data in line {line} errors: ";
+						string strNum = $"Error Data in line {line} : ";
 						result.Message = strNum + result.Message;
-						result.Message += "/r/n";
 					}
 				}
 			}
@@ -554,9 +614,8 @@ namespace NFC.Services
 					result.Message += string.IsNullOrEmpty(item.Speaker1SPL_1kHz) ? $"Speaker1 SPL[1kHz] is null; " : "";
 					if (!string.IsNullOrEmpty(result.Message))
 					{
-						string strNum = $"Data in line {line} errors: ";
+						string strNum = $"Error Data in line {line} : ";
 						result.Message = strNum + result.Message;
-						result.Message += "/r/n";
 					}
 				}
 			}
@@ -565,5 +624,6 @@ namespace NFC.Services
 
 			return result;
 		}
+
 	}
 }

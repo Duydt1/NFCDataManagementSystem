@@ -24,5 +24,6 @@ namespace NFC.Data.Entities
 		[DisplayName("Production Line")]
 		public int ProductionLineId { get; set; }
         public ProductionLine? ProductionLine { get; set; }
-    }
+		public string? HistoryUpdate { get; set; }
+	}
 }

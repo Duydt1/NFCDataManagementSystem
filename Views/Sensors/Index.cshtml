@@ -90,7 +90,7 @@
 				{
 					<tr>
 						<td>
-							@Html.DisplayFor(modelItem => item.NUM)
+							<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-block bg-gradient-warning btn-sm"><i class="fa fa-eye"></i> @Html.DisplayFor(modelItem => item.NUM)</a>
 						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.Model)

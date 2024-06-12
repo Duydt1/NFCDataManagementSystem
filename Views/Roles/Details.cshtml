@@ -17,7 +17,11 @@
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.RoleId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="row">
+    <div class="col-sm-1">
+        <a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.RoleId">Edit</a>
+    </div>
+    <div class="col-sm-1">
+        <a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
+    </div>
 </div>

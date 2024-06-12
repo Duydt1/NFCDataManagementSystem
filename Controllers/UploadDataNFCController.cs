@@ -60,16 +60,28 @@ namespace NFC.Controllers
 				if (user != null && await _userManager.CheckPasswordAsync(user, password))
 				{
 					var role = !string.IsNullOrEmpty(user.RoleId) ? await _context.Roles.FindAsync(user.RoleId) : null;
-					if (role != null && (role.Name!.Contains("Create Data") || role.Name!.Contains("Admin")))
-					{
-						response.Message = "File uploaded successfully";
-						response.Code = HttpStatusCode.Accepted;
-						productionLineId = user.ProductionLineId;
-					}
-					else
+					if (role == null || (!role.Name!.Contains("Create Data") && !role.Name!.Contains("Admin")))
 					{
 						response.Message = "You do not have permission to upload files";
 						response.Code = HttpStatusCode.Forbidden;
+					}
+					else
+					{
+                        if (!Enum.IsDefined(typeof(NFCCommon.NFCType), request.NFCType))
+                        {
+                            response.Message = "Invalid NFCType";
+                            response.Code = HttpStatusCode.NotFound;
+						}
+						else
+						{
+                            response = await _fileUploadService.ValidateFileCsvAsync(request.NFCType, request.NFCContent);
+                            if (response.Code != HttpStatusCode.BadRequest)
+                            {
+                                response.Code = HttpStatusCode.OK;
+                                response.Message = "File uploaded successfully";
+                            }
+                        }
+						productionLineId = user.ProductionLineId;
 					}
 				}
 				else
@@ -80,35 +92,38 @@ namespace NFC.Controllers
 			}
 			else
 			{
-				response.Message = "Invalid username or password";
-				response.Code = HttpStatusCode.Unauthorized;
+				response.Message = "Authorization not found or not Basic Auth types";
+				response.Code = HttpStatusCode.NotAcceptable;
 			}
-			if (!Enum.IsDefined(typeof(NFCCommon.NFCType), request.NFCType))
-			{
-				response.Message = "Invalid NFCType";
-				response.Code = HttpStatusCode.PreconditionFailed;
-			}
-			response = await _fileUploadService.ValidateFileCsvAsync(request.NFCType, request.NFCContent);
-
 			await CreateHistoryUploadAsync(request, response, productionLineId, user);
 			return response;
 		}
 
-		private async Task CreateHistoryUploadAsync(UploadNFCDataRequest request, UploadNFCDataResponse response, int productionLineId, NFCUser? user)
+		private async Task<UploadNFCDataResponse> CreateHistoryUploadAsync(UploadNFCDataRequest request, UploadNFCDataResponse response, int productionLineId, NFCUser? user)
 		{
-			var historyUpload = new HistoryUpload
+			try
 			{
-				FileContent = request.NFCContent,
-				Status = response.Code != HttpStatusCode.Accepted ? (int)NFCCommon.HistoryStatus.Declined : (int)NFCCommon.HistoryStatus.New,
-				Type = request.NFCType,
-				Message = response.Message,
-				ProductionLineId = productionLineId != 0 ? productionLineId : null,
-				CreatedById = user != null ? user.Id : null,
-				CreatedOn = DateTime.Now,
-			};
+				var historyUpload = new HistoryUpload
+				{
+					FileContent = request.NFCContent,
+					Status = response.Code != HttpStatusCode.OK ? (int)NFCCommon.HistoryStatus.Declined : (int)NFCCommon.HistoryStatus.New,
+					Type = request.NFCType,
+					Message = response.Message,
+					ProductionLineId = productionLineId != 0 ? productionLineId : null,
+					CreatedById = user != null ? user.Id : null,
+					CreatedOn = DateTime.Now,
+				};
 
-			await _context.HistoryUploads.AddAsync(historyUpload);
-			await _context.SaveChangesAsync();
+				await _context.HistoryUploads.AddAsync(historyUpload);
+				await _context.SaveChangesAsync();
+			}
+			catch(Exception ex)
+			{
+				response.Code = HttpStatusCode.Conflict;
+				response.Message = ex.Message;
+			}
+			
+			return response;
 		}
 	}
 }

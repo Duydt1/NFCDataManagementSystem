@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Extensions;
@@ -58,8 +59,9 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-
-            return View(kT_MIC_WF_SPL);
+			var lstUpdateData = !string.IsNullOrEmpty(kT_MIC_WF_SPL.HistoryUpdate) ? JsonConvert.DeserializeObject<List<KT_MIC_WF_SPL>>(kT_MIC_WF_SPL.HistoryUpdate) : new List<KT_MIC_WF_SPL>();
+			ViewData["HistoryUpdateData"] = lstUpdateData;
+			return View(kT_MIC_WF_SPL);
         }
 
         // GET: KT_MIC_WF_SPL/Create

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Extensions;
@@ -58,8 +59,9 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-
-            return View(hearing);
+			var lstUpdateData = !string.IsNullOrEmpty(hearing.HistoryUpdate) ? JsonConvert.DeserializeObject<List<Hearing>>(hearing.HistoryUpdate) : new List<Hearing>();
+			ViewData["HistoryUpdateData"] = lstUpdateData;
+			return View(hearing);
         }
 
         // GET: Hearings/Create

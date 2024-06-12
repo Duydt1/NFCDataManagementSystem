@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Extensions;
@@ -53,13 +55,17 @@ namespace NFC.Controllers
 				.Include(k => k.CreatedBy)
 				.Include(k => k.ModifiedBy)
 				.Include(k => k.ProductionLine)
-				.FirstOrDefaultAsync(m => m.Id == id);
-			if (kT_TW_SPL == null)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (kT_TW_SPL == null)
 			{
 				return NotFound();
 			}
 
-			return View(kT_TW_SPL);
+            var lstUpdateData = !string.IsNullOrEmpty(kT_TW_SPL.HistoryUpdate) ? JsonConvert.DeserializeObject<List<KT_TW_SPL>>(kT_TW_SPL.HistoryUpdate) : new List<KT_TW_SPL>();
+            ViewData["HistoryUpdateData"] = lstUpdateData;
+
+            return View(kT_TW_SPL);
 		}
 
 		// GET: KT_TW_SPL/Create

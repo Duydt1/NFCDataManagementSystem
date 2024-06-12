@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Extensions;
@@ -58,8 +59,9 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-
-            return View(sensor);
+			var lstUpdateData = !string.IsNullOrEmpty(sensor.HistoryUpdate) ? JsonConvert.DeserializeObject<List<Sensor>>(sensor.HistoryUpdate) : new List<Sensor>();
+			ViewData["HistoryUpdateData"] = lstUpdateData;
+			return View(sensor);
         }
 
         // GET: Sensors/Create
