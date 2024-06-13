@@ -33,8 +33,8 @@ namespace NFC.Controllers
 				.ToListAsync();
 			var newDataUploads = results.Where(x => x.CreatedOn.Value >= DateTime.Now.StartOfMonth()).Count();
 			var totalCount = results.Count;
-			var countPass = results.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
-			var countFail = results.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countPass = results.Where(x => x.Result!.Equals("OK", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countFail = results.Where(x => x.Result!.Equals("NG", StringComparison.CurrentCultureIgnoreCase)).Count();
 
 			ViewData["NewDataUpload"] = newDataUploads;
 			ViewData["ToTalPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
