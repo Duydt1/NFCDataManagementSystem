@@ -89,7 +89,7 @@ namespace NFC.Services
 					{
 						var existNUMs = lstKTTW.Select(x => x.NUM).ToList();
 						var kttws = await _context.KT_TW_SPLs.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
-						foreach (var item in lstKTTW)
+						foreach (var item in lstKTTW.GroupBy(x => x.NUM).Select(g => g.Last()).ToList())
 						{
 							var oldEntity = kttws.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
@@ -129,8 +129,9 @@ namespace NFC.Services
 								item.CreatedById = historyUpload.CreatedById;
 								item.CreatedOn = DateTime.Now;
 								await _context.KT_TW_SPLs.AddAsync(item);
+								kttws.Add(item);
 
-							}
+                            }
 						}
 						await _context.SaveChangesAsync();
 
@@ -166,8 +167,8 @@ namespace NFC.Services
 					{
 						var existNUMs = lstKTMIC.Select(x => x.NUM).ToList();
 						var ktmics = await _context.KT_MIC_WF_SPLs.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
-						foreach (var item in lstKTMIC)
-						{
+                        foreach (var item in lstKTMIC.GroupBy(x => x.NUM).Select(g => g.Last()).ToList())
+                        {
 							var oldEntity = ktmics.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
@@ -207,8 +208,8 @@ namespace NFC.Services
 								item.ProductionLineId = (int)historyUpload.ProductionLineId;
 								item.CreatedOn = DateTime.Now;
 								await _context.KT_MIC_WF_SPLs.AddAsync(item);
-
-							}
+                                ktmics.Add(item);
+                            }
 						}
 						await _context.SaveChangesAsync();
 					}
@@ -243,8 +244,8 @@ namespace NFC.Services
 					{
 						var existNUMs = lstSensor.Select(x => x.NUM).ToList();
 						var sensors = await _context.Sensors.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
-						foreach (var item in lstSensor)
-						{
+                        foreach (var item in lstSensor.GroupBy(x => x.NUM).Select(g => g.Last()).ToList())
+                        {
 							var oldEntity = sensors.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
@@ -280,7 +281,8 @@ namespace NFC.Services
 								item.ProductionLineId = (int)historyUpload.ProductionLineId;
 								item.CreatedOn = DateTime.Now;
 								await _context.Sensors.AddAsync(item);
-							}
+                                sensors.Add(item);
+                            }
 						}
 						await _context.SaveChangesAsync();
 					}
@@ -316,8 +318,8 @@ namespace NFC.Services
 					{
 						var existNUMs = lstHearing.Select(x => x.NUM).ToList();
 						var hearings = await _context.Hearings.Where(x => existNUMs.Contains(x.NUM)).ToListAsync();
-						foreach (var item in lstHearing)
-						{
+                        foreach (var item in lstHearing.GroupBy(x => x.NUM).Select(g => g.Last()).ToList())
+                        {
 							var oldEntity = hearings.Where(x => x.NUM == item.NUM).FirstOrDefault();
 							if (oldEntity != null)
 							{
@@ -352,8 +354,8 @@ namespace NFC.Services
 								item.ProductionLineId = (int)historyUpload.ProductionLineId;
 								item.CreatedOn = DateTime.Now;
 								await _context.Hearings.AddAsync(item);
-
-							}
+                                hearings.Add(item);
+                            }
 						}
 						await _context.SaveChangesAsync();
 					}

@@ -11,8 +11,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<NFCDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+	options.UseSqlServer(connectionString);
+});
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+{
+	using (var dbContext = scope.ServiceProvider.GetRequiredService<NFCDbContext>())
+	{
+		if (dbContext.Database.GetPendingMigrations().Any())
+		{
+			dbContext.Database.Migrate();
+		}
+	}
+}
 
 builder.Services.AddIdentity<NFCUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 	.AddRoles<IdentityRole>()

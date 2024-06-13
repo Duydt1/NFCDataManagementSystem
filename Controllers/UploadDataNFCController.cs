@@ -28,9 +28,9 @@ namespace NFC.Controllers
 
 		// GET: api/<ValuesController>
 		[HttpGet]
-		public IEnumerable<string> Get()
+		public string Get()
 		{
-			return new string[] { "He he", "Ha ha" };
+			return new string("OK");
 		}
 		[HttpPost]
 		public async Task<UploadNFCDataResponse> Upload([FromBody] UploadNFCDataRequest request)
