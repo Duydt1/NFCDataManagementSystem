@@ -70,7 +70,36 @@
 <!-- Main row -->
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">DataTable with default features</h3>
+		<form asp-action="Index" method="get">
+
+			<div class="row">
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="fromDate">From Date:</label>
+						<input type="date" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="toDate">To Date:</label>
+						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+					</div>
+				</div>
+				<div class="col-md-4">
+				</div>
+				<div class="col-md-4">
+					<div class="form-actions no-color" style="text-align:end">
+						<label></label>
+						<p>
+							<input type="text" name="SearchString" value="@ViewData["Searching"]" />
+							<input type="submit" value="Search" class="btn btn-default" />
+						</p>
+					</div>
+				</div>
+
+			</div>
+
+		</form>
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">

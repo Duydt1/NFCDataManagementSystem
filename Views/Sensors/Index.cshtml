@@ -1,7 +1,12 @@
-﻿@model IEnumerable<NFC.Data.Entities.Sensor>
-
+﻿@using static NFC.Common.NFCUtil
+@model PaginatedList<NFC.Data.Entities.Sensor>
 @{
 	ViewData["Title"] = "Sensor List";
+	int currentPage = Model.PageIndex;
+	int pageSize = Model.PageSize;
+	int totalPages = Model.TotalPages;
+	int startPage = Math.Max(1, currentPage - 2);
+	int endPage = Math.Min(totalPages, currentPage + 2);
 }
 <div class="row">
 	<div class="col-lg-4 col-6">
@@ -48,7 +53,36 @@
 </div>
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">DataTable with default features</h3>
+		<form asp-action="Index" method="get">
+
+			<div class="row">
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="fromDate">From Date:</label>
+						<input type="date" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="toDate">To Date:</label>
+						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+					</div>
+				</div>
+				<div class="col-md-4">
+				</div>
+				<div class="col-md-4">
+					<div class="form-actions no-color" style="text-align:end">
+						<label></label>
+						<p>
+							<input type="text" name="SearchString" value="@ViewData["Searching"]" />
+							<input type="submit" value="Search" class="btn btn-default" />
+						</p>
+					</div>
+				</div>
+
+			</div>
+
+		</form>
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">
@@ -57,31 +91,28 @@
 				<tr>
 
 					<th>
-						@Html.DisplayNameFor(model => model.NUM)
+						NUM
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Model)
+						Model
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.CH)
+						CH
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.DateTime)
+						DateTime
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.DeviceNo)
+						Device No
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.BattVolt)
+						Batt. Volt.
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Result)
+						Result
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.ProductionLine)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.CreatedBy)
+						Production Line
 					</th>
 				</tr>
 			</thead>
@@ -113,9 +144,6 @@
 						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.ProductionLine.Name)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.CreatedBy.UserName)
 						</td>
 					</tr>
 				}

@@ -6,6 +6,7 @@ using NFC.Models;
 using NFC.Services;
 using System.Diagnostics;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NFC.Controllers
 {
@@ -16,7 +17,7 @@ namespace NFC.Controllers
 		private readonly NFCDbContext _context = context;
 		private readonly INFCService _nfcService = nfcService;
 
-		public async Task<IActionResult> IndexAsync(int? productionLineId)
+		public async Task<IActionResult> IndexAsync(FilterModel filterModel)
 		{
 			var users = await _context.Users.ToListAsync();
 			var historyUploads = await _context.HistoryUploads.ToListAsync();
@@ -25,13 +26,23 @@ namespace NFC.Controllers
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var user = users.FirstOrDefault(x => x.Id == userId);
 			var result = new List<NFCModel>();
-			var productionLines = new List<int>();
 			if (User.IsInRole("Admin"))
-				productionLines = await GetProductionLines(null);
+				filterModel.ProductionLineId = 0;
 			else
-				productionLines = await GetProductionLines(user!.ProductionLineId);
+				filterModel.ProductionLineId =  user!.ProductionLineId;
+			if (!string.IsNullOrEmpty(filterModel.SearchString))
+				ViewData["Searching"] = filterModel.SearchString;
 
-			result = await _nfcService.GetNFCDashboard(productionLines!);
+			if (!filterModel.FromDate.HasValue)
+				filterModel.FromDate = DateTime.Now.AddMonths(-2);
+
+			ViewData["CurrentFromDate"] = filterModel.FromDate;
+
+			if (!filterModel.ToDate.HasValue)
+				filterModel.ToDate = DateTime.Now;
+			ViewData["CurrentToDate"] = filterModel.ToDate;
+
+			result = await _nfcService.GetNFCDashboard(filterModel);
 			return View(result);
 		}
 		public async Task<IActionResult> PrivacyAsync()
@@ -46,15 +57,6 @@ namespace NFC.Controllers
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
 
-		private async Task<List<int>> GetProductionLines(int? productionLineId)
-		{
-			var query = _context.ProductionLines.AsQueryable();
-			if(productionLineId != null)
-			{
-				query = query.Where(x => x.Id == productionLineId);
-			}
-
-			return await query.Select(x => x.Id).ToListAsync();
-		}
+		
 	}
 }
