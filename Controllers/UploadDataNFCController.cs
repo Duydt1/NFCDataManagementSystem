@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NFC.Common;
 using NFC.Data;
+using NFC.Data.Common;
 using NFC.Data.Entities;
 using NFC.Models;
 using NFC.Services;
-using NuGet.Protocol;
-using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Net.WebSockets;
 using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

@@ -33,4 +33,10 @@
     <PackageReference Include="Quartz.AspNetCore" Version="3.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Data">
+      <HintPath>..\Data\bin\Release\net8.0\Data.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

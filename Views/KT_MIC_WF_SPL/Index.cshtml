@@ -1,4 +1,4 @@
-﻿@using static NFC.Common.NFCUtil
+﻿@using static NFC.Data.Common.NFCUtil
 @model PaginatedList<NFC.Data.Entities.KT_MIC_WF_SPL>
 
 @{
@@ -87,7 +87,7 @@
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>
@@ -174,5 +174,34 @@
 				}
 			</tbody>
 		</table>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+		</div>
+		<div class="col-md-6">
+			<nav>
+				<ul class="pagination justify-content-end">
+					<li class="page-item @(!Model.HasPreviousPage ? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)">
+							<span>Previous</span>
+						</a>
+					</li>
+					@for (int i = startPage; i <= endPage; i++)
+					{
+						<li class="page-item @(Model.PageIndex == i ? " active" : "")">
+							<a class="page-link" asp-route-pageNumber="@i">
+								<span>@i</span>
+							</a>
+						</li>
+					}
+					<li class="page-item @(!Model.HasNextPage ? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)">
+							<span>Next</span>
+						</a>
+					</li>
+				</ul>
+
+			</nav>
+		</div>
 	</div>
 </div>

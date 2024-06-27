@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Data.Repositories;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NFC.Data;
@@ -52,9 +53,17 @@ builder.Services.AddQuartz(q =>
 // Thêm Quartz vào pipeline middleware
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
+//Add Repositories
+builder.Services.AddTransient<ISensorRepository, SensorRepository>();
+builder.Services.AddTransient<IHearingRepository, HearingRepository>();
+builder.Services.AddTransient<IKT_MIC_WF_SPLRepository, KT_MIC_WF_SPLRepository>();
+builder.Services.AddTransient<IKT_TW_SPLRepository, KT_TW_SPLRepository>();
+builder.Services.AddTransient<IProductionLineRepository, ProductionLineRepository>();
+
 //Add Services
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<INFCService, NFCService>();
+
 
 
 var app = builder.Build();

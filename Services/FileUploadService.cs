@@ -1,16 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using NFC.Common;
 using NFC.Data;
+using NFC.Data.Common;
 using NFC.Data.Entities;
 using NFC.Models;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Principal;
 
 namespace NFC.Services
 {

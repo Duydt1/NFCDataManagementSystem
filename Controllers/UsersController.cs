@@ -3,16 +3,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using NFC.Common;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Models;
-using System.Net.WebSockets;
 using System.Security.Claims;
 
 namespace NFC.Controllers
 {
-    [Authorize]
+	[Authorize]
     public class UsersController(UserManager<NFCUser> userManager,
         RoleManager<IdentityRole> roleManager,
         SignInManager<NFCUser> signInManager,

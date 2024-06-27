@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using NFC.Common;
 using NFC.Data;
-using NFC.Data.Entities;
+using NFC.Data.Common;
 using Quartz;
 using System.Buffers.Text;
-using System.Transactions;
 
 namespace NFC.Services
 {
