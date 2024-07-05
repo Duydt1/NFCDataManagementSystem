@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NFC", "NFC.csproj", "{9387FE34-2A6F-4378-AC5B-64197950211D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "..\Data\Data.csproj", "{C80A952F-0CB0-493A-A5B2-EF6235369A14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "..\Data\Data.csproj", "{C80A952F-0CB0-493A-A5B2-EF6235369A14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFCDataService", "..\NFCDataService\NFCDataService.csproj", "{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,13 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9387FE34-2A6F-4378-AC5B-64197950211D}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{9387FE34-2A6F-4378-AC5B-64197950211D}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{9387FE34-2A6F-4378-AC5B-64197950211D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9387FE34-2A6F-4378-AC5B-64197950211D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9387FE34-2A6F-4378-AC5B-64197950211D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C80A952F-0CB0-493A-A5B2-EF6235369A14}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{C80A952F-0CB0-493A-A5B2-EF6235369A14}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{9387FE34-2A6F-4378-AC5B-64197950211D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C80A952F-0CB0-493A-A5B2-EF6235369A14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C80A952F-0CB0-493A-A5B2-EF6235369A14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C80A952F-0CB0-493A-A5B2-EF6235369A14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C80A952F-0CB0-493A-A5B2-EF6235369A14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

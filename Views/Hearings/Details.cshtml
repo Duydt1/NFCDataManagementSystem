@@ -85,7 +85,15 @@
 																					<td><b>@Html.DisplayNameFor(model => model.DateTime)</b></td>
 																					<td>@Html.DisplayFor(model => model.DateTime)</td>
 																					<td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
-																					<td>@Html.DisplayFor(model => model.ProductionLine!.Name)</td>
+																					<td>
+																						@{
+																							var productionLineId = item.ProductionLineId;
+																							var productionLines = (SelectList)ViewData["ProductionLines"];
+																							var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
+																							var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
+																						}
+																						@productionLineName
+																					</td>
 																				</tr>
 																			</tbody>
 																		</table>

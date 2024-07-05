@@ -1,4 +1,4 @@
-﻿@model NFC.Models.UserViewModel
+﻿@model NFC.Data.Models.UserViewModel
 
 @{
 	ViewData["Title"] = "History Upload";
@@ -78,9 +78,6 @@
 	</dl>
 </div>
 <div class="row">
-	<div class="col-sm-1">
-		<a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.Id">Edit</a>
-	</div>
 	<div class="col-sm-1">
 		<a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
 	</div>

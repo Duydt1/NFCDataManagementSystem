@@ -18,10 +18,10 @@
 		<h3 class="card-title">DataTable with default features</h3>
 	</div>
 	@* <select id="NFCTypeSelect">
-		<option value="1">KT TW &Aacute; SPL</option>
-		<option value="2">KT MIC &Aacute; WF SPL</option>
-		<option value="3">Sensor</option>
-		<option value="4">Hearing</option>
+	<option value="1">KT TW &Aacute; SPL</option>
+	<option value="2">KT MIC &Aacute; WF SPL</option>
+	<option value="3">Sensor</option>
+	<option value="4">Hearing</option>
 	</select> *@
 	<!-- /.card-header -->
 	<div class="card-body">
@@ -58,7 +58,7 @@
 						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.TypeStr)
-                        </td>
+						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.CreatedOn)
 						</td>
@@ -66,7 +66,10 @@
 							@Html.DisplayFor(modelItem => item.Message)
 						</td>
 						<td>
-							@Html.DisplayFor(modelItem => item.CreatedBy!.FullName)
+							@if (item.CreatedBy != null)
+							{
+								Html.DisplayFor(modelItem => item.CreatedBy!.FullName);
+							}
 						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.StatusStr)

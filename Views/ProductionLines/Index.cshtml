@@ -52,13 +52,19 @@
 							@Html.DisplayFor(modelItem => item.Description)
 						</td>
 						<td>
-							@Html.DisplayFor(modelItem => item.CreatedBy.UserName)
+							@if (item.CreatedBy != null)
+							{
+								Html.DisplayFor(modelItem => item.CreatedBy!.UserName);
+							}
 						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.CreatedOn)
 						</td>
 						<td>
-							@Html.DisplayFor(modelItem => item.ModifiedBy.Id)
+							@if (item.ModifiedBy != null)
+							{
+								Html.DisplayFor(modelItem => item.ModifiedBy!.UserName);
+							}
 						</td>
 						<td>
 							@Html.DisplayFor(modelItem => item.ModifiedOn)

@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NFC.Data;
 using NFC.Data.Entities;
+using NFC.Data.Models;
 using NFC.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NFC.Services
 {
-	public interface INFCService
+    public interface INFCService
 	{
 		Task<List<NFCModel>> GetNFCDashboard(FilterModel filterModel);
 	}

@@ -1,67 +1,78 @@
 ﻿using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NFC.Data.Entities;
+using NFC.Data.Models;
 using NFC.Extensions;
 using NFC.Models;
+using static NFC.Data.Common.NFCUtil;
 
 namespace NFC.Controllers
 {
 	[Authorize]
-	public class KT_TW_SPLController(IKT_TW_SPLRepository repository) : Controller
+	public class KT_TW_SPLController(IServiceProvider serviceProvider) : Controller
 	{
-		private readonly IKT_TW_SPLRepository _repository = repository;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-
-		// GET: KT_TW_SPL
-		public async Task<IActionResult> Index(FilterModel filterModel)
+        // GET: KT_TW_SPL
+        public async Task<IActionResult> Index(FilterModel filterModel)
 		{
 			if (!string.IsNullOrEmpty(filterModel.SearchString))
 				ViewData["Searching"] = filterModel.SearchString;
 
-			if (!filterModel.FromDate.HasValue)
-				filterModel.FromDate = DateTime.Now.AddMonths(-2);
-			if (!filterModel.ToDate.HasValue)
-				filterModel.ToDate = DateTime.Now;
-			ViewData["CurrentFromDate"] = filterModel.FromDate;
+            if (filterModel.FromDate == null)
+                filterModel.FromDate = DateTime.Now.Date;
+
+            if (filterModel.ToDate == null)
+                filterModel.ToDate = DateTime.Now.Date.AddDays(1);
+
+            ViewData["CurrentFromDate"] = filterModel.FromDate;
 			ViewData["CurrentToDate"] = filterModel.ToDate;
 
-			//Sorting
-			ViewData["CurrentSort"] = filterModel.SortOrder;
-			ViewData["NameSortParm"] = string.IsNullOrEmpty(filterModel.SortOrder) ? "name_desc" : "";
-			ViewData["DateSortParm"] = filterModel.SortOrder == "Date" ? "date_desc" : "Date";
-
-			int pageSize = 50;
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
-
-			var results = await _repository.GetAllAsync(filterModel);
-			var newDataUploads = results.Where(x => x.CreatedOn.Value >= DateTime.Now.StartOfMonth()).Count();
-			var totalCount = results.Count;
-			var countPass = results.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
-			var countFail = results.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
-			ViewData["NewDataUpload"] = newDataUploads;
-			ViewData["ToTalPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
-			ViewData["ToTalFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
+            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLines = await repoProductionLine.GetAllAsync();
+            ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name");
+            var repository = _serviceProvider.GetService<IKT_TW_SPLRepository>();
+            var results = await repository.GetAllAsync(filterModel);
+			GetDayShiftCount(results);
+			GetNightShiftCount(results);
 			return View(results);
+		}
+		private void GetDayShiftCount(PaginatedList<KT_TW_SPL> results)
+		{
+			var dayShift = results.Where(x => x.DateTime.TimeOfDay >= new TimeSpan(8, 0, 0) && x.DateTime.TimeOfDay < new TimeSpan(20, 0, 0));
+			var countPass = dayShift.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countFail = dayShift.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var totalCount = dayShift.Count();
+			ViewData["ToTalDayPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
+			ViewData["ToTalDayFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
+		}
+
+		private void GetNightShiftCount(PaginatedList<KT_TW_SPL> results)
+		{
+			var nightShift = results.Where(x => x.DateTime.TimeOfDay >= new TimeSpan(20, 0, 0) || x.DateTime.TimeOfDay < new TimeSpan(8, 0, 0));
+			var countPass = nightShift.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countFail = nightShift.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var totalCount = nightShift.Count();
+			ViewData["ToTalNightPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
+			ViewData["ToTalNightFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
 		}
 
 		// GET: KT_TW_SPL/Details/5
-		public async Task<IActionResult> Details(long? id)
+		public async Task<IActionResult> Details(long id)
 		{
-			if (id == null)
-			{
-				return NotFound();
-			}
-
-			var entity = await _repository.GetByIdAsync((int)id); 
+            var repository = _serviceProvider.GetService<IKT_TW_SPLRepository>();
+            var entity = await repository.GetByIdAsync(id); 
 
             if (entity == null)
 			{
 				return NotFound();
 			}
-
-            var lstUpdateData = !string.IsNullOrEmpty(entity.HistoryUpdate) ? JsonConvert.DeserializeObject<List<KT_TW_SPL>>(entity.HistoryUpdate) : new List<KT_TW_SPL>();
+			var lstUpdateData = !string.IsNullOrEmpty(entity.HistoryUpdate) ? JsonConvert.DeserializeObject<List<KT_TW_SPL>>(entity.HistoryUpdate) : new List<KT_TW_SPL>();
             ViewData["HistoryUpdateData"] = lstUpdateData;
 
             return View(entity);

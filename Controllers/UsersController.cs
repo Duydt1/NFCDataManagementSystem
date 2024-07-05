@@ -1,29 +1,21 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using NFC.Data;
 using NFC.Data.Entities;
-using NFC.Models;
-using System.Security.Claims;
+using NFC.Data.Models;
 
 namespace NFC.Controllers
 {
-	[Authorize]
-    public class UsersController(UserManager<NFCUser> userManager,
-        RoleManager<IdentityRole> roleManager,
-        SignInManager<NFCUser> signInManager,
-        NFCDbContext context) : Controller
+    [Authorize]
+    public class UsersController(IServiceProvider serviceProvider) : Controller
     {
-        private readonly UserManager<NFCUser> _userManager = userManager;
-        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-        private readonly SignInManager<NFCUser> _signInManager = signInManager;
-        private readonly NFCDbContext _context = context;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public async Task<IActionResult> Index()
         {
-            var users = await _context.Users.Include(x => x.Role).ToListAsync();
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var users = await repo.GetAllUserAsync();
             return View(users);
         }
 
@@ -33,9 +25,8 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-
-            var nfcUser = await _context.Users.Include(x => x.Role)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var nfcUser = await repo.GetUserAsync(id);
             if (nfcUser == null)
             {
                 return NotFound();
@@ -59,10 +50,14 @@ namespace NFC.Controllers
             });
         }
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
-            ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Name");
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
+            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLines = await repoProductionLine.GetAllAsync();
+            var repoRole= _serviceProvider.GetService<IIdentityRepository>();
+            var roles = await repoRole.GetAllRolesAsync();
+            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View();
         }
 
@@ -72,6 +67,7 @@ namespace NFC.Controllers
         {
             if (ModelState.IsValid)
             {
+                var repo = _serviceProvider.GetService<IIdentityRepository>();
                 var user = new NFCUser
                 {
                     UserName = model.UserName,
@@ -87,20 +83,19 @@ namespace NFC.Controllers
                     Address = model.Address,
                     EmailConfirmed = true
                 };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    var role = await _context.Roles.FirstOrDefaultAsync(x => x.Id == model.RoleId);
-                    await _userManager.AddToRoleAsync(user, role.Name);
+                var result = await repo.CreateUserAsync(user, model.Password);
+                if (result.Id != null)
                     return RedirectToAction(nameof(Index));
-
-                }
                 else return View(model);
 
 
             }
-            ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Name", model.ProductionLineId);
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", model.RoleId);
+            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLines = await repoProductionLine.GetAllAsync();
+            var repoRole = _serviceProvider.GetService<IIdentityRepository>();
+            var roles = await repoRole.GetAllRolesAsync();
+            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View(model);
         }
 
@@ -110,9 +105,14 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-            ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Name");
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
-            var nfcUser = await _context.Users.FindAsync(id);
+            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLines = await repoProductionLine.GetAllAsync();
+            var repoRole = _serviceProvider.GetService<IIdentityRepository>();
+            var roles = await repoRole.GetAllRolesAsync();
+            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var nfcUser = await repo.GetUserAsync(id);
             if (nfcUser == null)
             {
                 return NotFound();
@@ -148,7 +148,8 @@ namespace NFC.Controllers
             {
                 try
                 {
-                    var user = await _context.Users.FindAsync(id);
+                    var repo = _serviceProvider.GetService<IIdentityRepository>();
+                    var user = await repo.GetUserAsync(id);
                     if (user == null)
                     {
                         return NotFound();
@@ -165,39 +166,21 @@ namespace NFC.Controllers
                     user.DateOfBirth = model.DateOfBirth;
                     user.ProductionLineId = model.ProductionLineId;
                     user.PhoneNumber = model.PhoneNumber;
-                    _context.Update(user);
-                    if (!string.IsNullOrEmpty(model.NewPassword) && !string.IsNullOrEmpty(model.CurrentPassword))
-                    {
-
-                        var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-                        if (result.Succeeded)
-                        {
-                            await _signInManager.SignInAsync(user, isPersistent: false);
-                            return RedirectToAction(nameof(Index));
-                        }
-                    }
-                    var role = await _context.Roles.FirstOrDefaultAsync(x => x.Id == model.RoleId);
-                    await _userManager.AddToRoleAsync(user, role.Name);
-                    // Add the role claim to the user's identity
-                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role.Name));
-
-                    await _context.SaveChangesAsync();
+                    var repoUser = _serviceProvider.GetService<IIdentityRepository>();
+                    await repoUser.UpdateUserAsync(user, model.NewPassword, model.CurrentPassword);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!NFCUserExists(model.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw ex;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Name", model.ProductionLineId);
-            ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", model.RoleId);
+            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLines = await repoProductionLine.GetAllAsync();
+            var repoRole = _serviceProvider.GetService<IIdentityRepository>();
+            var roles = await repoRole.GetAllRolesAsync();
+            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+            ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View(model);
         }
 
@@ -207,9 +190,8 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-
-            var nfcUser = await _context.Users.Include(x => x.Role)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var nfcUser = await repo.GetUserAsync(id);
             if (nfcUser == null)
             {
                 return NotFound();
@@ -237,19 +219,13 @@ namespace NFC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var nfcUser = await _context.Users.FindAsync(id);
+            var repoUser = _serviceProvider.GetService<IIdentityRepository>();
+            var nfcUser = await repoUser.GetUserAsync(id);
             if (nfcUser != null)
             {
-                _context.Users.Remove(nfcUser);
+                await repoUser.DeleteUserAsync(nfcUser);
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool NFCUserExists(string id)
-        {
-            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

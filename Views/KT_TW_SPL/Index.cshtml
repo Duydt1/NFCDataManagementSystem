@@ -9,44 +9,62 @@
 	int endPage = Math.Min(totalPages, currentPage + 2);
 }
 <div class="row">
-	<div class="col-lg-4 col-6">
+	<!-- ./col -->
+	<div class="col-lg-6 col-12">
+		<h3>Day Shift (8:00 AM - 8:00 PM)</h3>
 		<!-- small box -->
-		<div class="small-box bg-info">
-			<div class="inner">
-				<h3>@ViewData["NewDataUpload"]</h3>
-
-				<p>New Datas Upload</p>
+		<div class="row">
+			<div class="col-6">
+				<div class="small-box bg-success">
+					<div class="inner">
+						<h3>@ViewData["ToTalDayPass"]<sup style="font-size: 20px">%</sup></h3>
+						<p>Passed</p>
+					</div>
+					<div class="icon">
+						<i class="ion ion-checkmark-round"></i>
+					</div>
+				</div>
 			</div>
-			<div class="icon">
-				<i class="ion ion-ios-list"></i>
+			<div class="col-6">
+				<div class="small-box bg-danger">
+					<div class="inner">
+						<h3>@ViewData["ToTalDayFail"]<sup style="font-size: 20px">%</sup></h3>
+						<p>Failed</p>
+					</div>
+					<div class="icon">
+						<i class="ion ion-close-round"></i>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 	<!-- ./col -->
-	<div class="col-lg-4 col-6">
-		<!-- small box -->
-		<div class="small-box bg-success">
-			<div class="inner">
-				<h3>@ViewData["ToTalPass"]<sup style="font-size: 20px">%</sup></h3>
+	<div class="col-lg-6 col-12">
+		<h3>Night Shift (8:00 PM - 8:00 AM)</h3>
 
-				<p>Passed</p>
-			</div>
-			<div class="icon">
-				<i class="ion ion-checkmark-round"></i>
-			</div>
-		</div>
-	</div>
-	<!-- ./col -->
-	<div class="col-lg-4 col-6">
 		<!-- small box -->
-		<div class="small-box bg-danger">
-			<div class="inner">
-				<h3>@ViewData["ToTalFail"]<sup style="font-size: 20px">%</sup></h3>
-
-				<p>Failed</p>
+		<div class="row">
+			<div class="col-6">
+				<div class="small-box bg-success">
+					<div class="inner">
+						<h3>@ViewData["ToTalNightPass"]<sup style="font-size: 20px">%</sup></h3>
+						<p>Passed</p>
+					</div>
+					<div class="icon">
+						<i class="ion ion-checkmark-round"></i>
+					</div>
+				</div>
 			</div>
-			<div class="icon">
-				<i class="ion ion-close-round"></i>
+			<div class="col-6">
+				<div class="small-box bg-danger">
+					<div class="inner">
+						<h3>@ViewData["ToTalNightFail"]<sup style="font-size: 20px">%</sup></h3>
+						<p>Failed</p>
+					</div>
+					<div class="icon">
+						<i class="ion ion-close-round"></i>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -86,7 +104,7 @@
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table class="table table-bordered table-striped">
 			<thead>
 				<tr>
 
@@ -127,43 +145,58 @@
 				</tr>
 			</thead>
 			<tbody>
-				@foreach (var item in Model)
+				@if (Model.Any())
+				{
+					foreach (var item in Model)
+					{
+						<tr>
+							<td>
+								<a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.NUM)</a>
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Model)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.CH)
+							</td>
+
+							<td>
+								@Html.DisplayFor(modelItem => item.DateTime)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Grade)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.SPL_1kHz)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Polarity)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.THD_1kHz)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Impedance_1kHz)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Result)
+							</td>
+							<td>
+								@{
+									var productionLineId = item.ProductionLineId;
+									var productionLines = (SelectList)ViewData["ProductionLines"];
+									var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
+									var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
+								}
+								@productionLineName
+							</td>
+						</tr>
+					}
+				}
+				else
 				{
 					<tr>
-						<td>
-							<a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.NUM)</a>
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Model)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.CH)
-						</td>
-
-						<td>
-							@Html.DisplayFor(modelItem => item.DateTime)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Grade)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.SPL_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Polarity)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.THD_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Impedance_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Result)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.ProductionLine.Name)
-						</td>
+						<td colspan="11">No data available</td>
 					</tr>
 				}
 			</tbody>
@@ -175,22 +208,47 @@
 		<div class="col-md-6">
 			<nav>
 				<ul class="pagination justify-content-end">
-					<li class="page-item @(!Model.HasPreviousPage ? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)">
+					<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="1"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>First</span>
+						</a>
+					</li>
+					<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Previous</span>
 						</a>
 					</li>
 					@for (int i = startPage; i <= endPage; i++)
 					{
-						<li class="page-item @(Model.PageIndex == i ? " active" : "")">
-							<a class="page-link" asp-route-pageNumber="@i">
+						<li class="page-item @(Model.PageIndex == i? " active" : "")">
+							<a class="page-link" asp-route-pageNumber="@i"
+							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-SearchString="@ViewData["Searching"]">
 								<span>@i</span>
 							</a>
 						</li>
 					}
-					<li class="page-item @(!Model.HasNextPage ? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)">
+					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Next</span>
+						</a>
+					</li>
+					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@endPage"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>Last</span>
 						</a>
 					</li>
 				</ul>

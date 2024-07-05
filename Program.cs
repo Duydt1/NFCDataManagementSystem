@@ -1,11 +1,13 @@
 ﻿using Data.Repositories;
-using Microsoft.AspNetCore.Hosting;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NFC.Data;
 using NFC.Data.Entities;
+using NFC.RabbitMQ;
 using NFC.Services;
-using Quartz;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,17 +43,6 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
-builder.Services.AddQuartz(q =>
-{
-	q.UseMicrosoftDependencyInjectionJobFactory(); // Sử dụng dependency injection cho Job
-	q.ScheduleJob<UploadNFCDataJob>(trigger => trigger
-		.WithIdentity("UploadNFCDataJob", "default") // Identity cho Job
-		.WithCronSchedule("0 0/1 * * * ?") // Chạy mỗi 5 phút
-	);
-});
-
-// Thêm Quartz vào pipeline middleware
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 //Add Repositories
 builder.Services.AddTransient<ISensorRepository, SensorRepository>();
@@ -59,12 +50,42 @@ builder.Services.AddTransient<IHearingRepository, HearingRepository>();
 builder.Services.AddTransient<IKT_MIC_WF_SPLRepository, KT_MIC_WF_SPLRepository>();
 builder.Services.AddTransient<IKT_TW_SPLRepository, KT_TW_SPLRepository>();
 builder.Services.AddTransient<IProductionLineRepository, ProductionLineRepository>();
+builder.Services.AddTransient<IHistoryUploadRepository, HistoryUploadRepository>();
+builder.Services.AddTransient<IIdentityRepository, IdentityRepository>();
 
 //Add Services
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<INFCService, NFCService>();
 
+//RabbitMQ
+builder.Services.Configure<RabbitMQSetting>(builder.Configuration.GetSection("RabbitMq"));
+var serviceProvider = builder.Services.BuildServiceProvider();
+var settingRabbit = serviceProvider.GetService<IOptions<RabbitMQSetting>>();
+var rabbitMqSetting = settingRabbit != null ? settingRabbit.Value : new RabbitMQSetting
+{
+	ConnectionString = "amqp://guest:guest@localhost:5672",
+};
+builder.Services.AddSingleton<IConnectionFactory>(x =>
+{
+    return new ConnectionFactory
+    {
+        Uri = new Uri(rabbitMqSetting.ConnectionString),
+    };
+});
 
+builder.Services.AddMassTransit(x =>
+{
+	x.UsingRabbitMq((context, cfg) =>
+	{
+		var uri = rabbitMqSetting.ConnectionString;
+		cfg.Host(uri, host => {
+			host.Username(rabbitMqSetting.UserName);
+			host.Password(rabbitMqSetting.Password);
+		});
+
+		cfg.ConfigureEndpoints(context);
+	});
+});
 
 var app = builder.Build();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,33 +14,23 @@ using NFC.Data.Entities;
 namespace NFC.Controllers
 {
     [Authorize]
-    public class ProductionLinesController : Controller
+    public class ProductionLinesController(IServiceProvider serviceProvider) : Controller
     {
-        private readonly NFCDbContext _context;
-
-        public ProductionLinesController(NFCDbContext context)
-        {
-            _context = context;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         // GET: ProductionLines
         public async Task<IActionResult> Index()
         {
-            var nFCDbContext = _context.ProductionLines.Include(p => p.CreatedBy).Include(x => x.ModifiedBy).OrderByDescending(s => s.CreatedOn);
-            return View(await nFCDbContext.ToListAsync());
+            var repo = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLines = await repo.GetAllAsync();
+            return View(productionLines);
         }
 
         // GET: ProductionLines/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(long id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productionLine = await _context.ProductionLines
-                .Include(p => p.CreatedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var repo = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLine = await repo.GetByIdAsync(id);
             if (productionLine == null)
             {
                 return NotFound();
@@ -63,25 +54,21 @@ namespace NFC.Controllers
         {
             if (ModelState.IsValid)
             {
+                var repo = _serviceProvider.GetService<IProductionLineRepository>();
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 productionLine.CreatedById = userId;
                 productionLine.CreatedOn = DateTime.Now;
-                _context.Add(productionLine);
-                await _context.SaveChangesAsync();
+                await repo.CreateAsync(productionLine);
                 return RedirectToAction(nameof(Index));
             }
             return View(productionLine);
         }
 
         // GET: ProductionLines/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(long id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productionLine = await _context.ProductionLines.FindAsync(id);
+            var repo = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLine = await repo.GetByIdAsync(id);
             if (productionLine == null)
             {
                 return NotFound();
@@ -103,44 +90,24 @@ namespace NFC.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    var result = await _context.ProductionLines.FindAsync(id);
-					result.ModifiedById = userId;
-					result.ModifiedOn = DateTime.Now;
-                    result.Name = productionLine.Name;
-                    result.Description = productionLine.Description;
-                    _context.Update(result);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductionLineExists(productionLine.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                var repo = _serviceProvider.GetService<IProductionLineRepository>();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await repo.GetByIdAsync(id);
+                result.ModifiedById = userId;
+                result.ModifiedOn = DateTime.Now;
+                result.Name = productionLine.Name;
+                result.Description = productionLine.Description;
+                await repo.UpdateAsync(result);
                 return RedirectToAction(nameof(Index));
             }
             return View(productionLine);
         }
 
         // GET: ProductionLines/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(long id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productionLine = await _context.ProductionLines
-                .Include(p => p.CreatedBy)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var repo = _serviceProvider.GetService<IProductionLineRepository>();
+            var productionLine = await repo.GetByIdAsync(id);
             if (productionLine == null)
             {
                 return NotFound();
@@ -152,21 +119,11 @@ namespace NFC.Controllers
         // POST: ProductionLines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var productionLine = await _context.ProductionLines.FindAsync(id);
-            if (productionLine != null)
-            {
-                _context.ProductionLines.Remove(productionLine);
-            }
-
-            await _context.SaveChangesAsync();
+            var repo = _serviceProvider.GetService<IProductionLineRepository>();
+            await repo.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductionLineExists(int id)
-        {
-            return _context.ProductionLines.Any(e => e.Id == id);
         }
     }
 }

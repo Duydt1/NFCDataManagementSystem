@@ -1,32 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NFC.Data.Entities;
-using NFC.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.VisualBasic;
+using NFC.Data.Entities;
 using NFC.Models;
 using System.Net.WebSockets;
-using System.Data;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using System.Runtime.InteropServices;
 
 namespace NFC.Controllers
 {
-	[Authorize]
-	public class RolesController(
-		RoleManager<IdentityRole> roleManager,
-		SignInManager<NFCUser> signInManager,
-		UserManager<NFCUser> userManager,
-		NFCDbContext context) : Controller
+    [Authorize]
+	public class RolesController(IServiceProvider serviceProvider) : Controller
 	{
-		private readonly RoleManager<IdentityRole> _roleManager = roleManager;
-		private readonly SignInManager<NFCUser> _signInManager = signInManager;
-		private readonly NFCDbContext _context = context;
-		private readonly UserManager<NFCUser> _userManager = userManager;
-
-		public async Task<IActionResult> Index()
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        public async Task<IActionResult> Index()
 		{
-			var roles = await _context.Roles.ToListAsync();
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var roles = await repo.GetAllRolesAsync();
 			return View(roles);
 		}
 
@@ -36,9 +28,8 @@ namespace NFC.Controllers
 			{
 				return NotFound();
 			}
-
-			var role = await _context.Roles
-				.FirstOrDefaultAsync(m => m.Id == id);
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var role = await repo.GetRoleAsync(id);
 			if (role == null)
 			{
 				return NotFound();
@@ -48,9 +39,11 @@ namespace NFC.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult Create()
+		public async Task<IActionResult> Create()
 		{
-			ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Name");
+			var repo = _serviceProvider.GetService<IProductionLineRepository>();
+			var productionLines = await repo.GetAllAsync();
+			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
 			return View();
 		}
 
@@ -62,7 +55,9 @@ namespace NFC.Controllers
 			{
 				if (!await RoleExists(model.RoleName))
 				{
-					var result = await _roleManager.CreateAsync(new IdentityRole
+					var roleManager = _serviceProvider.GetService<RoleManager<IdentityRole>>();
+
+                    var result = await roleManager.CreateAsync(new IdentityRole
 					{
 						Name = model.RoleName
 					});
@@ -81,7 +76,8 @@ namespace NFC.Controllers
 				return NotFound();
 			}
 			var role = new RoleViewModel();
-			var result = await _context.Roles.FindAsync(id);
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var result = await repo.GetRoleAsync(id);
 			if (result == null)
 			{
 				return NotFound();
@@ -104,10 +100,10 @@ namespace NFC.Controllers
 			{
 				if (!await RoleExists(model.RoleName))
 				{
-					var result = await _context.Roles.FindAsync(id);
+                    var repo = _serviceProvider.GetService<IIdentityRepository>();
+                    var result = await repo.GetRoleAsync(id);
 					result.Name = model.RoleName;
-					_context.Update(result);
-					await _context.SaveChangesAsync();
+					await repo.UpdateRoleAsync(result);
 				}
 				return RedirectToAction(nameof(Index));
 			}
@@ -120,9 +116,8 @@ namespace NFC.Controllers
 			{
 				return NotFound();
 			}
-
-			var role = await _context.Roles
-				.FirstOrDefaultAsync(m => m.Id == id);
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var role = await repo.GetRoleAsync(id);
 			if (role == null)
 			{
 				return NotFound();
@@ -135,19 +130,19 @@ namespace NFC.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(string id)
 		{
-			var role = await _context.Roles.FindAsync(id);
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            var role = await repo.GetRoleAsync(id);
 			if (role != null)
 			{
-				_context.Roles.Remove(role);
+				await repo.DeleteRoleAsync(role);
 			}
-
-			await _context.SaveChangesAsync();
 			return RedirectToAction(nameof(Index));
 		}
 
 		private async Task<bool> RoleExists(string roleName)
 		{
-			return await _roleManager.RoleExistsAsync(roleName);
-		}
+            var repo = _serviceProvider.GetService<IIdentityRepository>();
+            return await repo.GetRoleExistsAsync(roleName);
+        }
 	}
 }

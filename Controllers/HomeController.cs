@@ -1,28 +1,27 @@
+using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NFC.Data;
+using NFC.Data.Models;
 using NFC.Models;
 using NFC.Services;
 using System.Diagnostics;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace NFC.Controllers
 {
-	[Authorize]
-	public class HomeController(ILogger<HomeController> logger, NFCDbContext context, INFCService nfcService) : Controller
+    [Authorize]
+	public class HomeController(ILogger<HomeController> logger, IServiceProvider serviceProvider) : Controller
 	{
 		private readonly ILogger<HomeController> _logger = logger;
-		private readonly NFCDbContext _context = context;
-		private readonly INFCService _nfcService = nfcService;
-
-		public async Task<IActionResult> IndexAsync(FilterModel filterModel)
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        public async Task<IActionResult> IndexAsync(FilterModel filterModel)
 		{
-			var users = await _context.Users.ToListAsync();
-			var historyUploads = await _context.HistoryUploads.ToListAsync();
-			ViewData["UserCount"] = users.Count;
-			ViewData["HistoryUploadCount"] = historyUploads.Count;
+			var repoIdentity = _serviceProvider.GetService<IIdentityRepository>();
+			var repoHistoryUpload = _serviceProvider.GetService<IHistoryUploadRepository>();
+			var historyUploads = await repoHistoryUpload.GetAllAsync();
+			var users = await repoIdentity.GetAllUserAsync();
+            ViewData["UserCount"] = users.Count();
+			ViewData["HistoryUploadCount"] = historyUploads.Count();
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var user = users.FirstOrDefault(x => x.Id == userId);
 			var result = new List<NFCModel>();
@@ -33,16 +32,17 @@ namespace NFC.Controllers
 			if (!string.IsNullOrEmpty(filterModel.SearchString))
 				ViewData["Searching"] = filterModel.SearchString;
 
-			if (!filterModel.FromDate.HasValue)
-				filterModel.FromDate = DateTime.Now.AddMonths(-2);
+            if (filterModel.FromDate == null)
+                filterModel.FromDate = DateTime.Now.Date;
 
-			ViewData["CurrentFromDate"] = filterModel.FromDate;
+            if (filterModel.ToDate == null)
+                filterModel.ToDate = DateTime.Now.Date.AddDays(1);
 
-			if (!filterModel.ToDate.HasValue)
-				filterModel.ToDate = DateTime.Now;
-			ViewData["CurrentToDate"] = filterModel.ToDate;
+            ViewData["CurrentFromDate"] = filterModel.FromDate;
+            ViewData["CurrentToDate"] = filterModel.ToDate;
 
-			result = await _nfcService.GetNFCDashboard(filterModel);
+			var nfcService = _serviceProvider.GetService<INFCService>();
+			result = await nfcService.GetNFCDashboard(filterModel);
 			return View(result);
 		}
 		public async Task<IActionResult> PrivacyAsync()
