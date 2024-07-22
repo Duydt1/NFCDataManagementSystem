@@ -2,6 +2,7 @@
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NFC.Data.Common;
 using NFC.Data.Entities;
 using NFC.Models;
@@ -115,7 +116,7 @@ namespace NFC.Controllers
 
                 var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
                 await publishEndpoint.Publish(historyUpload);
-            }
+			}
             catch (Exception ex)
             {
                 response.Code = HttpStatusCode.Conflict;

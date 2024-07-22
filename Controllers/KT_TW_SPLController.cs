@@ -33,10 +33,18 @@ namespace NFC.Controllers
 			ViewData["CurrentToDate"] = filterModel.ToDate;
 
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-            ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name");
-            var repository = _serviceProvider.GetService<IKT_TW_SPLRepository>();
+
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+			var productionLines = await repoProductionLine.GetListNameAsync(userId);
+            ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			ViewBag.PageSize = filterModel.PageSize;
+			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
+				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
+
+			var repository = _serviceProvider.GetService<IKT_TW_SPLRepository>();
             var results = await repository.GetAllAsync(filterModel);
 			GetDayShiftCount(results);
 			GetNightShiftCount(results);

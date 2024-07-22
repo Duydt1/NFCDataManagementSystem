@@ -1,6 +1,13 @@
-﻿@model IEnumerable<NFC.Models.NFCModel>
+﻿@using static NFC.Data.Common.NFCUtil
+@model PaginatedList<NFC.Models.NFCModel>
 @{
 	ViewData["Title"] = "Home Page";
+	int currentPage = Model.PageIndex;
+	int pageSize = Model.PageSize;
+	int totalPages = Model.TotalPages;
+	int startPage = Math.Max(1, currentPage - 2);
+	int endPage = Math.Min(totalPages, currentPage + 2);
+	var pageSizeOptions = new SelectList(new[] { 5, 10, 50, 100 }, ViewBag.PageSize);
 }
 
 <!-- Small boxes (Stat box) -->
@@ -85,7 +92,17 @@
 						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
 					</div>
 				</div>
-				<div class="col-md-4">
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="productionLineId">Production Line:</label>
+						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control" })
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="pageSize">Page Size:</label>
+						<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
+					</div>
 				</div>
 				<div class="col-md-4">
 					<div class="form-actions no-color" style="text-align:end">
@@ -103,17 +120,17 @@
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">
-		<table id="example" class="table table-bordered table-striped" style="overflow:auto">
+		<table class="table table-bordered table-striped" style="overflow:auto">
 			<thead>
 				<tr style="text-align:center">
 					<th>
-						@Html.DisplayNameFor(model => model.NUM)
+						NUM
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Model)
+						Model
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.DateTime)
+						Date Time
 					</th>
 					<th colspan="7">
 						KT TW SPL
@@ -138,78 +155,78 @@
 					<th>
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Grade)
+						Speaker GRADE
 					</th>
 
 					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.SPL_1kHz)
+						Speaker1 SPL[10kHz]
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Polarity)
-					</th>
-
-					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.THD_1kHz)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Impedance_1kHz)
+						Speaker1 Polarity
 					</th>
 
 					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.Result)
+						Speaker1 THD[1KHz]
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.KT_TW_SPL!.CH)
-					</th>
-
-					<th>
-						@Html.DisplayNameFor(model => model.Sensor!.Result)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.Sensor!.DeviceNo)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.Sensor!.BattVolt)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.SPL_100Hz)
+						Speaker1 Impedance[10kHz]
 					</th>
 
 					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.SPL_1kHz)
+						Result
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.Polarity)
-					</th>
-
-					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.Impedance_1kHz)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.MIC1SENS_1kHz)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.MIC1Current)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.Result)
+						CH
 					</th>
 
 					<th>
-						@Html.DisplayNameFor(model => model.KT_MIC_WF_SPL!.CH)
+						Result
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Hearing!.Speaker1SPL_1kHz)
+						DEVICE NO
+					</th>
+					<th>
+						BATT. VOLT.
+					</th>
+					<th>
+						"Speaker1 SPL[100Hz]
 					</th>
 
 					<th>
-						@Html.DisplayNameFor(model => model.Hearing!.Result)
+						Speaker1 SPL[1kHz]
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Hearing!.CH)
+						Speaker1 Polarity
+					</th>
+
+					<th>
+						Speaker1 Impedance[1kHz]
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Hearing!.NUM)
+						MIC1 SENS at 1kHz
+					</th>
+					<th>
+						MIC1 Current
+					</th>
+					<th>
+						Result
+					</th>
+
+					<th>
+						CH
+					</th>
+					<th>
+						Speaker1 SPL[1kHz]
+					</th>
+
+					<th>
+						Result
+					</th>
+					<th>
+						CH
+					</th>
+					<th>
+						NUM
 					</th>
 				</tr>
 				<tr>
@@ -338,90 +355,219 @@
 				</tr>
 			</thead>
 			<tbody>
-				@foreach (var item in Model)
+				@if (Model.Any())
 				{
-					<tr>
+					@foreach (var item in Model)
+					{
+						<tr>
 
-						<td>
-							@Html.DisplayFor(modelItem => item.NUM)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Model)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.DateTime)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Grade)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.SPL_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Polarity)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.THD_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Impedance_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Result)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_TW_SPL!.CH)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Sensor!.Result)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Sensor!.DeviceNo)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Sensor!.BattVolt)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_100Hz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Polarity)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Impedance_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1SENS_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1Current)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Result)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.CH)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Hearing!.Speaker1SPL_1kHz)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Hearing!.Result)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Hearing!.NUM)
-						</td>
-						<td>
-							@Html.DisplayFor(modelItem => item.Hearing!.CH)
-						</td>
-
-					</tr>
+							<td>
+								@Html.DisplayFor(modelItem => item.NUM)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Model)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.DateTime)
+							</td>
+							@if (item.KT_TW_SPL != null)
+							{
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Grade)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.SPL_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Polarity)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.THD_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Impedance_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Result)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.CH)
+								</td>
+							}
+							else
+							{
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+							}
+							@if (item.Sensor != null)
+							{
+								<td>
+									@Html.DisplayFor(modelItem => item.Sensor!.Result)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Sensor!.DeviceNo)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Sensor!.BattVolt)
+								</td>
+							}
+							else
+							{
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+							}
+							@if (item.KT_MIC_WF_SPL != null)
+							{
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_100Hz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Polarity)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Impedance_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1SENS_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1Current)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Result)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.CH)
+								</td>
+							}
+							else
+							{
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+							}
+							@if (item.Hearing != null)
+							{
+								<td>
+									@Html.DisplayFor(modelItem => item.Hearing!.Speaker1SPL_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Hearing!.Result)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Hearing!.NUM)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Hearing!.CH)
+								</td>
+							}
+							else
+							{
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+								<td>
+								</td>
+							}
+						</tr>
+					}
 				}
 			</tbody>
 		</table>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-6">
+	</div>
+	<div class="col-md-6">
+		<nav>
+			<ul class="pagination justify-content-end">
+				<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+					<a class="page-link" asp-route-pageNumber="1"
+					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-pageSize="@ViewBag.PageSize"
+					   asp-route-SearchString="@ViewData["Searching"]">
+						<span>First</span>
+					</a>
+				</li>
+				<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+					<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
+					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-pageSize="@ViewBag.PageSize"
+					   asp-route-SearchString="@ViewData["Searching"]">
+						<span>Previous</span>
+					</a>
+				</li>
+				@for (int i = startPage; i <= endPage; i++)
+				{
+					<li class="page-item @(Model.PageIndex == i? " active" : "")">
+						<a class="page-link" asp-route-pageNumber="@i"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>@i</span>
+						</a>
+					</li>
+				}
+				<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+					<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
+					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-pageSize="@ViewBag.PageSize"
+					   asp-route-SearchString="@ViewData["Searching"]">
+						<span>Next</span>
+					</a>
+				</li>
+				<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+					<a class="page-link" asp-route-pageNumber="@endPage"
+					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+					   asp-route-pageSize="@ViewBag.PageSize"
+					   asp-route-SearchString="@ViewData["Searching"]">
+						<span>Last</span>
+					</a>
+				</li>
+			</ul>
+
+		</nav>
 	</div>
 </div>
 <!-- /.row (main row) -->

@@ -27,9 +27,17 @@ namespace NFC.Controllers
 
             ViewData["CurrentFromDate"] = filterModel.FromDate;
 			ViewData["CurrentToDate"] = filterModel.ToDate;
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name");
+
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+			var productionLines = await repoProductionLine.GetListNameAsync(userId);
+			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			ViewBag.PageSize = filterModel.PageSize;
+			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
+				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
+
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
 
             var repository = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
@@ -41,8 +49,8 @@ namespace NFC.Controllers
 		private void GetDayShiftCount(PaginatedList<KT_MIC_WF_SPL> results)
 		{
 			var dayShift = results.Where(x => x.DateTime.TimeOfDay >= new TimeSpan(8, 0, 0) && x.DateTime.TimeOfDay < new TimeSpan(20, 0, 0));
-			var countPass = dayShift.Where(x => x.Result!.Equals("OK", StringComparison.CurrentCultureIgnoreCase)).Count();
-			var countFail = dayShift.Where(x => x.Result!.Equals("NG", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countPass = dayShift.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countFail = dayShift.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
 			var totalCount = dayShift.Count();
 			ViewData["ToTalDayPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
 			ViewData["ToTalDayFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
@@ -51,8 +59,8 @@ namespace NFC.Controllers
 		private void GetNightShiftCount(PaginatedList<KT_MIC_WF_SPL> results)
 		{
 			var nightShift = results.Where(x => x.DateTime.TimeOfDay >= new TimeSpan(20, 0, 0) || x.DateTime.TimeOfDay < new TimeSpan(8, 0, 0));
-			var countPass = nightShift.Where(x => x.Result!.Equals("OK", StringComparison.CurrentCultureIgnoreCase)).Count();
-			var countFail = nightShift.Where(x => x.Result!.Equals("NG", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countPass = nightShift.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
+			var countFail = nightShift.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
 			var totalCount = nightShift.Count();
 			ViewData["ToTalNightPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
 			ViewData["ToTalNightFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;

@@ -43,6 +43,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 builder.Services.AddRazorPages();
+builder.Services.AddHttpClient();
 
 //Add Repositories
 builder.Services.AddTransient<ISensorRepository, SensorRepository>();
@@ -67,10 +68,10 @@ var rabbitMqSetting = settingRabbit != null ? settingRabbit.Value : new RabbitMQ
 };
 builder.Services.AddSingleton<IConnectionFactory>(x =>
 {
-    return new ConnectionFactory
-    {
-        Uri = new Uri(rabbitMqSetting.ConnectionString),
-    };
+	return new ConnectionFactory
+	{
+		Uri = new Uri(rabbitMqSetting.ConnectionString),
+	};
 });
 
 builder.Services.AddMassTransit(x =>
@@ -78,7 +79,8 @@ builder.Services.AddMassTransit(x =>
 	x.UsingRabbitMq((context, cfg) =>
 	{
 		var uri = rabbitMqSetting.ConnectionString;
-		cfg.Host(uri, host => {
+		cfg.Host(uri, host =>
+		{
 			host.Username(rabbitMqSetting.UserName);
 			host.Password(rabbitMqSetting.Password);
 		});

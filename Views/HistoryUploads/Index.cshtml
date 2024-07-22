@@ -66,11 +66,19 @@
 							@Html.DisplayFor(modelItem => item.Message)
 						</td>
 						<td>
-							@if (item.CreatedBy != null)
-							{
-								Html.DisplayFor(modelItem => item.CreatedBy!.FullName);
+							@{
+								var userName = "";
+								if (item.CreatedById != null)
+								{
+									var userId = item.CreatedById;
+									var users = (SelectList)ViewData["Users"];
+									var user = users.FirstOrDefault(sl => sl.Value == userId.ToString());
+									userName = user.Text;
+								}
 							}
+							@userName
 						</td>
+
 						<td>
 							@Html.DisplayFor(modelItem => item.StatusStr)
 						</td>

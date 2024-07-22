@@ -8,6 +8,7 @@
 	int totalPages = Model.TotalPages;
 	int startPage = Math.Max(1, currentPage - 2);
 	int endPage = Math.Min(totalPages, currentPage + 2);
+	var pageSizeOptions = new SelectList(new[] { 5, 10, 50, 100 }, ViewBag.PageSize);
 }
 <div class="row">
 	<!-- ./col -->
@@ -87,7 +88,17 @@
 						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
 					</div>
 				</div>
-				<div class="col-md-4">
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="productionLineId">Production Line:</label>
+						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control" })
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="pageSize">Page Size:</label>
+						<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
+					</div>
 				</div>
 				<div class="col-md-4">
 					<div class="form-actions no-color" style="text-align:end">
@@ -217,6 +228,7 @@
 						<a class="page-link" asp-route-pageNumber="1"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>First</span>
 						</a>
@@ -225,25 +237,28 @@
 						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Previous</span>
 						</a>
 					</li>
 					@for (int i = startPage; i <= endPage; i++)
 					{
-						<li class="page-item @(Model.PageIndex == i? " active" : "")">
-							<a class="page-link" asp-route-pageNumber="@i"
-							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-							   asp-route-SearchString="@ViewData["Searching"]">
-								<span>@i</span>
-							</a>
-						</li>
+							<li class="page-item @(Model.PageIndex == i? " active" : "")">
+								<a class="page-link" asp-route-pageNumber="@i"
+								   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+								   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+									   asp-route-pageSize="@ViewBag.PageSize"
+								   asp-route-SearchString="@ViewData["Searching"]">
+									<span>@i</span>
+								</a>
+							</li>
 					}
 					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
 						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Next</span>
 						</a>
@@ -252,6 +267,7 @@
 						<a class="page-link" asp-route-pageNumber="@endPage"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Last</span>
 						</a>

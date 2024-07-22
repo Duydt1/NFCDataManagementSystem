@@ -25,7 +25,10 @@ namespace NFC.Controllers
         {
             var repo = _serviceProvider.GetService<IHistoryUploadRepository>();
             var historyUploads = await repo.GetAllAsync();
-            return View(historyUploads);
+			var repoUser = _serviceProvider.GetService<IIdentityRepository>();
+			var users = await repoUser.GetAllUserAsync();
+			ViewData["Users"] = new SelectList(users, "Id", "FullName");
+			return View(historyUploads);
         }
 
         // GET: HistoryUploads/Details/5

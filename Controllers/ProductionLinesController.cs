@@ -27,7 +27,7 @@ namespace NFC.Controllers
         }
 
         // GET: ProductionLines/Details/5
-        public async Task<IActionResult> Details(long id)
+        public async Task<IActionResult> Details(int id)
         {
             var repo = _serviceProvider.GetService<IProductionLineRepository>();
             var productionLine = await repo.GetByIdAsync(id);
@@ -65,7 +65,7 @@ namespace NFC.Controllers
         }
 
         // GET: ProductionLines/Edit/5
-        public async Task<IActionResult> Edit(long id)
+        public async Task<IActionResult> Edit(int id)
         {
             var repo = _serviceProvider.GetService<IProductionLineRepository>();
             var productionLine = await repo.GetByIdAsync(id);
@@ -104,7 +104,7 @@ namespace NFC.Controllers
         }
 
         // GET: ProductionLines/Delete/5
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> Delete(int id)
         {
             var repo = _serviceProvider.GetService<IProductionLineRepository>();
             var productionLine = await repo.GetByIdAsync(id);
@@ -119,7 +119,7 @@ namespace NFC.Controllers
         // POST: ProductionLines/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var repo = _serviceProvider.GetService<IProductionLineRepository>();
             await repo.DeleteAsync(id);

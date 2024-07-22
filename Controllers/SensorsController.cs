@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using NFC.Data.Entities;
 using NFC.Data.Models;
+using System.Drawing.Printing;
 using static NFC.Data.Common.NFCUtil;
 
 namespace NFC.Controllers
@@ -27,9 +28,16 @@ namespace NFC.Controllers
 
 			ViewData["CurrentFromDate"] = filterModel.FromDate;
 			ViewData["CurrentToDate"] = filterModel.ToDate;
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-            ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name");
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+			var productionLines = await repoProductionLine.GetListNameAsync(userId);
+			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			ViewBag.PageSize = filterModel.PageSize;
+			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
+				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
+
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
 
             var repository = _serviceProvider.GetService<ISensorRepository>();

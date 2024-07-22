@@ -1,6 +1,7 @@
 using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using NFC.Data.Models;
 using NFC.Models;
 using NFC.Services;
@@ -22,13 +23,15 @@ namespace NFC.Controllers
 			var users = await repoIdentity.GetAllUserAsync();
             ViewData["UserCount"] = users.Count();
 			ViewData["HistoryUploadCount"] = historyUploads.Count();
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var user = users.FirstOrDefault(x => x.Id == userId);
-			var result = new List<NFCModel>();
-			if (User.IsInRole("Admin"))
-				filterModel.ProductionLineId = 0;
-			else
-				filterModel.ProductionLineId =  user!.ProductionLineId;
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
+			var productionLines = await repoProductionLine.GetListNameAsync(userId);
+			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
+				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
+
 			if (!string.IsNullOrEmpty(filterModel.SearchString))
 				ViewData["Searching"] = filterModel.SearchString;
 
@@ -41,8 +44,10 @@ namespace NFC.Controllers
             ViewData["CurrentFromDate"] = filterModel.FromDate;
             ViewData["CurrentToDate"] = filterModel.ToDate;
 
+			ViewBag.PageSize = filterModel.PageSize;
+
 			var nfcService = _serviceProvider.GetService<INFCService>();
-			result = await nfcService.GetNFCDashboard(filterModel);
+			var result = await nfcService.GetNFCDashboard(filterModel);
 			return View(result);
 		}
 		public async Task<IActionResult> PrivacyAsync()

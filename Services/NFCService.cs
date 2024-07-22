@@ -1,26 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 using NFC.Data;
 using NFC.Data.Entities;
 using NFC.Data.Models;
 using NFC.Models;
+using System.Drawing.Printing;
+using System.Net.WebSockets;
+using static NFC.Data.Common.NFCUtil;
 
 namespace NFC.Services
 {
     public interface INFCService
 	{
-		Task<List<NFCModel>> GetNFCDashboard(FilterModel filterModel);
+		Task<PaginatedList<NFCModel>> GetNFCDashboard(FilterModel filterModel);
 	}
-	public class NFCService(NFCDbContext context) : INFCService
+	public class NFCService(IServiceProvider serviceProvider) : INFCService
 	{
-		private readonly NFCDbContext _context = context;
+		private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-		public async Task<List<NFCModel>> GetNFCDashboard(FilterModel filterModel)
+		public async Task<PaginatedList<NFCModel>> GetNFCDashboard(FilterModel filterModel)
 		{
 			var nfcModels = new List<NFCModel>();
-			var lstTW = await GetListKTTW(filterModel);
-			var lstMIC = await GetListKTMIC(filterModel);
-			var lstSensor = await GetListSensor(filterModel);
-			var lstHearing = await GetListHearing(filterModel);
+			var repoTW = _serviceProvider.GetService<IKT_TW_SPLRepository>();
+			var repoMIC = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
+			var repoHearing = _serviceProvider.GetService<IHearingRepository>();
+			var repoSensor = _serviceProvider.GetService<ISensorRepository>();
+			var lstTW = await repoTW.GetAllAsync(filterModel);
+			var lstMIC = await repoMIC.GetAllAsync(filterModel);
+			var lstSensor = await repoSensor.GetAllAsync(filterModel);
+			var lstHearing = await repoHearing.GetAllAsync(filterModel);
 			foreach(var item in lstTW)
 			{
 				nfcModels.Add(new NFCModel
@@ -35,150 +43,8 @@ namespace NFC.Services
 					Sensor = lstSensor.FirstOrDefault(x => x.NUM == item.NUM),
 				});
 			}
-			return [.. nfcModels.OrderByDescending(x => x.DateTime)];
+			return new PaginatedList<NFCModel>(nfcModels, nfcModels.Count, filterModel.PageNumber, filterModel.PageSize);
 		}
-
-		private async Task<List<KT_TW_SPL>> GetListKTTW(FilterModel filterModel)
-		{
-			var query = _context.KT_TW_SPLs.Select(x => new KT_TW_SPL
-			{
-				CH = x.CH,
-				NUM = x.NUM,
-				Model = x.Model,
-				Polarity = x.Polarity,
-				Grade = x.Grade,
-				THD_1kHz = x.THD_1kHz,
-				SPL_1kHz = x.SPL_1kHz,
-				Impedance_1kHz = x.Impedance_1kHz,
-				Result = x.Result,
-				DateTime = x.DateTime,
-				CreatedById = x.CreatedById,
-				ProductionLineId = x.ProductionLineId
-			})
-			.AsQueryable();
-			if (!string.IsNullOrEmpty(filterModel.SearchString))
-			{
-				query.Where(x => x.NUM.Contains(filterModel.SearchString) || x.Model.Contains(filterModel.SearchString));
-			}
-
-			if (!filterModel.FromDate.HasValue)
-				filterModel.FromDate = DateTime.Now.AddMonths(-2);
-
-			query = query.Where(h => h.DateTime >= filterModel.FromDate);
-
-			if (!filterModel.ToDate.HasValue)
-				filterModel.ToDate = DateTime.Now;
-			query = query.Where(h => h.DateTime <= filterModel.ToDate);
-
-			if (filterModel.ProductionLineId > 0)
-				query.Where(x => x.ProductionLineId == filterModel.ProductionLineId);
-
-			return await query.ToListAsync();
-		}
-		private async Task<List<KT_MIC_WF_SPL>> GetListKTMIC(FilterModel filterModel)
-		{
-			var query = _context.KT_MIC_WF_SPLs.Select(x => new KT_MIC_WF_SPL
-			{
-				CH = x.CH,
-				NUM = x.NUM,
-				Model = x.Model,
-				Polarity = x.Polarity,
-				SPL_1kHz = x.SPL_1kHz,
-				SPL_100Hz = x.SPL_100Hz,
-				Impedance_1kHz = x.Impedance_1kHz,
-				MIC1SENS_1kHz = x.MIC1SENS_1kHz,
-				MIC1Current = x.MIC1Current,
-				Result = x.Result,
-				DateTime = x.DateTime,
-				CreatedById = x.CreatedById,
-				ProductionLineId = x.ProductionLineId
-			}).AsQueryable();
-
-			if (!string.IsNullOrEmpty(filterModel.SearchString))
-			{
-				query.Where(x => x.NUM.Contains(filterModel.SearchString) || x.Model.Contains(filterModel.SearchString));
-			}
-
-			if (!filterModel.FromDate.HasValue)
-				filterModel.FromDate = DateTime.Now.AddMonths(-2);
-
-			query = query.Where(h => h.DateTime >= filterModel.FromDate);
-
-			if (!filterModel.ToDate.HasValue)
-				filterModel.ToDate = DateTime.Now;
-			query = query.Where(h => h.DateTime <= filterModel.ToDate);
-
-			if (filterModel.ProductionLineId > 0)
-				query.Where(x => x.ProductionLineId == filterModel.ProductionLineId);
-
-			return await query.ToListAsync();
-		}
-		private async Task<List<Sensor>> GetListSensor(FilterModel filterModel)
-		{
-			var query = _context.Sensors.Select(x => new Sensor
-			{
-				CH = x.CH,
-				NUM = x.NUM,
-				Model = x.Model,
-				BattVolt = x.BattVolt,
-				DeviceNo = x.DeviceNo,
-				Result = x.Result,
-				DateTime = x.DateTime,
-				CreatedById = x.CreatedById,
-				ProductionLineId = x.ProductionLineId
-			}).AsQueryable();
-
-			if (!string.IsNullOrEmpty(filterModel.SearchString))
-			{
-				query.Where(x => x.NUM.Contains(filterModel.SearchString) || x.Model.Contains(filterModel.SearchString));
-			}
-
-			if (!filterModel.FromDate.HasValue)
-				filterModel.FromDate = DateTime.Now.AddMonths(-2);
-
-			query = query.Where(h => h.DateTime >= filterModel.FromDate);
-
-			if (!filterModel.ToDate.HasValue)
-				filterModel.ToDate = DateTime.Now;
-			query = query.Where(h => h.DateTime <= filterModel.ToDate);
-
-			if (filterModel.ProductionLineId > 0)
-				query.Where(x => x.ProductionLineId == filterModel.ProductionLineId);
-
-			return await query.ToListAsync();
-		}
-		private async Task<List<Hearing>> GetListHearing(FilterModel filterModel)
-		{
-			var query = _context.Hearings.Select(x => new Hearing
-			{
-				CH = x.CH,
-				NUM = x.NUM,
-				Model = x.Model,
-				Speaker1SPL_1kHz = x.Speaker1SPL_1kHz,
-				Result = x.Result,
-				DateTime = x.DateTime,
-				CreatedById = x.CreatedById,
-				ProductionLineId = x.ProductionLineId
-			}).AsQueryable();
-
-			if (!string.IsNullOrEmpty(filterModel.SearchString))
-			{
-				query.Where(x => x.NUM.Contains(filterModel.SearchString) || x.Model.Contains(filterModel.SearchString));
-			}
-
-			if (!filterModel.FromDate.HasValue)
-				filterModel.FromDate = DateTime.Now.AddMonths(-2);
-
-			query = query.Where(h => h.DateTime >= filterModel.FromDate);
-
-			if (!filterModel.ToDate.HasValue)
-				filterModel.ToDate = DateTime.Now;
-			query = query.Where(h => h.DateTime <= filterModel.ToDate);
-
-			if (filterModel.ProductionLineId > 0)
-				query.Where(x => x.ProductionLineId == filterModel.ProductionLineId);
-
-			return await query.ToListAsync();
-		}
+		
 	}
 }
