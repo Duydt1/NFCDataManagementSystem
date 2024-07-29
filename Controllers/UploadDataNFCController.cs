@@ -2,9 +2,9 @@
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using NFC.Data.Common;
 using NFC.Data.Entities;
+using NFC.Data.Models;
 using NFC.Models;
 using NFC.Services;
 using System.Net;
@@ -115,7 +115,14 @@ namespace NFC.Controllers
                 await repoHistoryUpload.CreateAsync(historyUpload);
 
                 var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
-                await publishEndpoint.Publish(historyUpload);
+                await publishEndpoint.Publish(new MessageUpload
+                {
+                    Id = historyUpload.Id,
+                    Type = request.NFCType,
+                    ProductionLineId = productionLineId,
+                    Datas = response.NFCDatas,
+                    UserId = historyUpload.CreatedById
+                });
 			}
             catch (Exception ex)
             {

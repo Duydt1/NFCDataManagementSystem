@@ -1,8 +1,15 @@
 ﻿@using NFC.Data.Common
-@model IEnumerable<NFC.Data.Entities.HistoryUpload>
+@using static NFC.Data.Common.NFCUtil
+@model PaginatedList<NFC.Data.Entities.HistoryUpload>
 
 @{
 	ViewData["Title"] = "History Upload";
+	int currentPage = Model.PageIndex;
+	int pageSize = Model.PageSize;
+	int totalPages = Model.TotalPages;
+	int startPage = Math.Max(1, currentPage - 2);
+	int endPage = Math.Min(totalPages, currentPage + 2);
+	var pageSizeOptions = new SelectList(new[] { 10, 25, 50, 100 }, ViewBag.PageSize);
 }
 @if (User.IsInRole("Admin") || User.IsInRole("Create Data"))
 {
@@ -15,36 +22,69 @@
 
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">DataTable with default features</h3>
+		<form asp-action="Index" method="get">
+
+			<div class="row">
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="fromDate">From Date:</label>
+						<input type="date" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="toDate">To Date:</label>
+						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="productionLineId">Production Line:</label>
+						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control" })
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label for="pageSize">Page Size:</label>
+						<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
+					</div>
+				</div>
+				<div class="col-md-4">
+					<div class="form-actions no-color" style="text-align:end">
+						<label></label>
+						<p>
+							<input type="text" name="SearchString" value="@ViewData["Searching"]" />
+							<input type="submit" value="Search" class="btn btn-default" />
+						</p>
+					</div>
+				</div>
+
+			</div>
+
+		</form>
 	</div>
-	@* <select id="NFCTypeSelect">
-	<option value="1">KT TW &Aacute; SPL</option>
-	<option value="2">KT MIC &Aacute; WF SPL</option>
-	<option value="3">Sensor</option>
-	<option value="4">Hearing</option>
-	</select> *@
 	<!-- /.card-header -->
 	<div class="card-body">
-		<table id="example1" class="table table-bordered table-striped" style="width:100%; table-layout:fixed">
+		<table class="table table-bordered table-striped" style="width:100%; table-layout:fixed">
 			<thead>
 				<tr>
 					<th>
-						@Html.DisplayNameFor(model => model.Title)
+						Title
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Type)
+						Type
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.CreatedOn)
+						CreatedOn
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Message)
+						Message
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.CreatedBy)
+						CreatedBy
 					</th>
 					<th>
-						@Html.DisplayNameFor(model => model.Status)
+						Status
 					</th>
 					<th></th>
 				</tr>
@@ -116,5 +156,63 @@
 				}
 			</tbody>
 		</table>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+		</div>
+		<div class="col-md-6">
+			<nav>
+				<ul class="pagination justify-content-end">
+					<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="1"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>First</span>
+						</a>
+					</li>
+					<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>Previous</span>
+						</a>
+					</li>
+					@for (int i = startPage; i <= endPage; i++)
+					{
+						<li class="page-item @(Model.PageIndex == i? " active" : "")">
+							<a class="page-link" asp-route-pageNumber="@i"
+							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-pageSize="@ViewBag.PageSize"
+							   asp-route-SearchString="@ViewData["Searching"]">
+								<span>@i</span>
+							</a>
+						</li>
+					}
+					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>Next</span>
+						</a>
+					</li>
+					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+						<a class="page-link" asp-route-pageNumber="@endPage"
+						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+						   asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-SearchString="@ViewData["Searching"]">
+							<span>Last</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
 	</div>
 </div>

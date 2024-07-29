@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using NFC.Data.Entities;
+using NuGet.Protocol.Plugins;
+using System.Net;
 
 namespace NFC.Models
 {
@@ -6,5 +8,6 @@ namespace NFC.Models
 	{
 		public HttpStatusCode Code { get; set; }
 		public string Message { get; set; }
+		public string NFCDatas { get; set; }
 	}
 }

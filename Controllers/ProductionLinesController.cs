@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using Data.Common;
 using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using NFC.Data;
+using Microsoft.Extensions.Caching.Distributed;
 using NFC.Data.Entities;
+using System.Security.Claims;
 
 namespace NFC.Controllers
 {
-    [Authorize]
+	[Authorize]
     public class ProductionLinesController(IServiceProvider serviceProvider) : Controller
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
@@ -21,9 +16,18 @@ namespace NFC.Controllers
         // GET: ProductionLines
         public async Task<IActionResult> Index()
         {
-            var repo = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repo.GetAllAsync();
-            return View(productionLines);
+			var repo = _serviceProvider.GetService<IProductionLineRepository>();
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
+			return View(productionLines);
         }
 
         // GET: ProductionLines/Details/5
@@ -59,8 +63,10 @@ namespace NFC.Controllers
                 productionLine.CreatedById = userId;
                 productionLine.CreatedOn = DateTime.Now;
                 await repo.CreateAsync(productionLine);
-                return RedirectToAction(nameof(Index));
+				await RefreshCache(userId);
+				return RedirectToAction(nameof(Index));
             }
+
             return View(productionLine);
         }
 
@@ -98,7 +104,8 @@ namespace NFC.Controllers
                 result.Name = productionLine.Name;
                 result.Description = productionLine.Description;
                 await repo.UpdateAsync(result);
-                return RedirectToAction(nameof(Index));
+				await RefreshCache(userId);
+				return RedirectToAction(nameof(Index));
             }
             return View(productionLine);
         }
@@ -123,7 +130,18 @@ namespace NFC.Controllers
         {
             var repo = _serviceProvider.GetService<IProductionLineRepository>();
             await repo.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			await RefreshCache(userId);
+			return RedirectToAction(nameof(Index));
         }
-    }
+		private async Task RefreshCache(string userId)
+		{
+			var repo = _serviceProvider.GetService<IProductionLineRepository>();
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_{userId}";
+
+			var productionLines = await repo.GetAllAsync(userId);
+			await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+		}
+	}
 }

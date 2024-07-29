@@ -8,15 +8,16 @@ using NFC.Data.Entities;
 using NFC.RabbitMQ;
 using NFC.Services;
 using RabbitMQ.Client;
+using StackExchange.Redis;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<NFCDbContext>(options =>
-{
-	options.UseSqlServer(connectionString);
-});
+	options.UseSqlServer(connectionString,
+		b => b.MigrationsAssembly("Data")));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
@@ -57,6 +58,12 @@ builder.Services.AddTransient<IIdentityRepository, IdentityRepository>();
 //Add Services
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<INFCService, NFCService>();
+
+//Redis
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+	options.Configuration = builder.Configuration.GetSection("Redis")["ConnectionString"].ToString();
+});
 
 //RabbitMQ
 builder.Services.Configure<RabbitMQSetting>(builder.Configuration.GetSection("RabbitMq"));

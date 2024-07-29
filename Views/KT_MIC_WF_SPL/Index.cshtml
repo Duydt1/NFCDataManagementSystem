@@ -8,7 +8,7 @@
 	int totalPages = Model.TotalPages;
 	int startPage = Math.Max(1, currentPage - 2);
 	int endPage = Math.Min(totalPages, currentPage + 2);
-	var pageSizeOptions = new SelectList(new[] { 5, 10, 50, 100 }, ViewBag.PageSize);
+	var pageSizeOptions = new SelectList(new[] { 10, 25, 50, 100 }, ViewBag.PageSize);
 }
 <div class="row">
 	<!-- ./col -->

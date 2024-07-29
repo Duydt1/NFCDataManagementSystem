@@ -1,23 +1,36 @@
-﻿using Data.Repositories;
+﻿using Data.Common;
+using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Caching.Distributed;
 using NFC.Data.Entities;
 using NFC.Data.Models;
 
 namespace NFC.Controllers
 {
-    [Authorize]
+	[Authorize]
     public class UsersController(IServiceProvider serviceProvider) : Controller
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public async Task<IActionResult> Index()
         {
-            var repo = _serviceProvider.GetService<IIdentityRepository>();
-            var users = await repo.GetAllUserAsync();
-            return View(users);
-        }
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+
+			var cacheKey = $"users";
+			var users = await cache.GetRecordAsync<List<NFCUser>>(cacheKey);
+			if (users == null)
+			{
+				users = await repo.GetAllUserAsync();
+
+				await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromHours(24));
+			}
+
+			return View(users);
+		}
 
         public async Task<IActionResult> Details(string? id)
         {
@@ -52,11 +65,18 @@ namespace NFC.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateAsync()
         {
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-            var repoRole= _serviceProvider.GetService<IIdentityRepository>();
-            var roles = await repoRole.GetAllRolesAsync();
-            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(null);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1), TimeSpan.FromHours(1));
+			}
+
+			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
+			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
             ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View();
         }
@@ -90,11 +110,11 @@ namespace NFC.Controllers
 
 
             }
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-            var repoRole = _serviceProvider.GetService<IIdentityRepository>();
-            var roles = await repoRole.GetAllRolesAsync();
-            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+			var productionLinesCacheKey = $"productionLines_";
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
+			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
             ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View(model);
         }
@@ -105,11 +125,11 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-            var repoRole = _serviceProvider.GetService<IIdentityRepository>();
-            var roles = await repoRole.GetAllRolesAsync();
-            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+			var productionLinesCacheKey = $"productionLines_";
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
+			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
             ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             var repo = _serviceProvider.GetService<IIdentityRepository>();
             var nfcUser = await repo.GetUserAsync(id);
@@ -175,11 +195,11 @@ namespace NFC.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-            var productionLines = await repoProductionLine.GetAllAsync();
-            var repoRole = _serviceProvider.GetService<IIdentityRepository>();
-            var roles = await repoRole.GetAllRolesAsync();
-            ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
+			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
             ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View(model);
         }

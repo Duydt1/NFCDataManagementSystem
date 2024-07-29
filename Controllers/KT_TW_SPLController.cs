@@ -1,13 +1,12 @@
-﻿using Data.Repositories;
+﻿using Data.Common;
+using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using NFC.Data.Entities;
 using NFC.Data.Models;
-using NFC.Extensions;
-using NFC.Models;
 using static NFC.Data.Common.NFCUtil;
 
 namespace NFC.Controllers
@@ -24,7 +23,7 @@ namespace NFC.Controllers
 				ViewData["Searching"] = filterModel.SearchString;
 
             if (filterModel.FromDate == null)
-                filterModel.FromDate = DateTime.Now.Date;
+                filterModel.FromDate = DateTime.Now.Date.AddDays(-1);
 
             if (filterModel.ToDate == null)
                 filterModel.ToDate = DateTime.Now.Date.AddDays(1);
@@ -34,21 +33,46 @@ namespace NFC.Controllers
 
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
 
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+
 			var userId = "";
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-			var productionLines = await repoProductionLine.GetListNameAsync(userId);
-            ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
-			ViewBag.PageSize = filterModel.PageSize;
+
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
+			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			ViewBag.PageSize = filterModel.PageSize == 0 ? filterModel.PageSize = 10 : filterModel.PageSize;
 			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
 				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
-
+			//var cacheKey = GetCacheKey(filterModel);
+			//var cachedResults = await cache.GetRecordAsync<List<KT_TW_SPL>>(cacheKey);
+			//PaginatedList<KT_TW_SPL> results;
+			//if (cachedResults != null)
+			//{
+			//	results = new PaginatedList<KT_TW_SPL>(cachedResults, cachedResults.Count, filterModel.PageNumber, filterModel.PageSize);
+			//}
+			//else
+			//{
+			//	var repository = _serviceProvider.GetService<IKT_TW_SPLRepository>();
+			//	results = await repository.GetAllAsync(filterModel);
+			//	await cache.SetRecordAsync(cacheKey, results, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(2));
+			//}
 			var repository = _serviceProvider.GetService<IKT_TW_SPLRepository>();
-            var results = await repository.GetAllAsync(filterModel);
+			var results = await repository.GetAllAsync(filterModel);
 			GetDayShiftCount(results);
 			GetNightShiftCount(results);
 			return View(results);
+		}
+		private string GetCacheKey(FilterModel filterModel)
+		{
+			return $"kttws_{filterModel.FromDate?.ToString("yyyy-MM-dd")}_{filterModel.ToDate?.ToString("yyyy-MM-dd")}_{filterModel.ProductionLineId}_{filterModel.PageSize}_{filterModel.PageNumber}";
 		}
 		private void GetDayShiftCount(PaginatedList<KT_TW_SPL> results)
 		{

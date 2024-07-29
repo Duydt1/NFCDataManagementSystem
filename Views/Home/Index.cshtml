@@ -7,7 +7,7 @@
 	int totalPages = Model.TotalPages;
 	int startPage = Math.Max(1, currentPage - 2);
 	int endPage = Math.Min(totalPages, currentPage + 2);
-	var pageSizeOptions = new SelectList(new[] { 5, 10, 50, 100 }, ViewBag.PageSize);
+	var pageSizeOptions = new SelectList(new[] { 10, 25, 50, 100 }, ViewBag.PageSize);
 }
 
 <!-- Small boxes (Stat box) -->
@@ -120,7 +120,7 @@
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body">
-		<table class="table table-bordered table-striped" style="overflow:auto">
+		<table id="example" class="table table-bordered table-striped" style="overflow:auto">
 			<thead>
 				<tr style="text-align:center">
 					<th>
@@ -189,7 +189,7 @@
 						BATT. VOLT.
 					</th>
 					<th>
-						"Speaker1 SPL[100Hz]
+						Speaker1 SPL[100Hz]
 					</th>
 
 					<th>
@@ -487,10 +487,10 @@
 									@Html.DisplayFor(modelItem => item.Hearing!.Result)
 								</td>
 								<td>
-									@Html.DisplayFor(modelItem => item.Hearing!.NUM)
+									@Html.DisplayFor(modelItem => item.Hearing!.CH)
 								</td>
 								<td>
-									@Html.DisplayFor(modelItem => item.Hearing!.CH)
+									@Html.DisplayFor(modelItem => item.Hearing!.NUM)
 								</td>
 							}
 							else

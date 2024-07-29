@@ -1,16 +1,17 @@
-﻿using Data.Repositories;
+﻿using Data.Common;
+using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using NFC.Data.Entities;
 using NFC.Data.Models;
-using System.Drawing.Printing;
 using static NFC.Data.Common.NFCUtil;
 
 namespace NFC.Controllers
 {
-    [Authorize]
+	[Authorize]
     public class SensorsController(IServiceProvider serviceProvider) : Controller
 	{
         private readonly IServiceProvider _serviceProvider = serviceProvider;
@@ -21,30 +22,55 @@ namespace NFC.Controllers
 				ViewData["Searching"] = filterModel.SearchString;
 
 			if (filterModel.FromDate == null)
-				filterModel.FromDate = DateTime.Now.Date;
+				filterModel.FromDate = DateTime.Now.Date.AddDays(-1);
 
 			if (filterModel.ToDate == null)
 				filterModel.ToDate = DateTime.Now.Date.AddDays(1);
 
 			ViewData["CurrentFromDate"] = filterModel.FromDate;
 			ViewData["CurrentToDate"] = filterModel.ToDate;
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+
 			var userId = "";
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
-			var productionLines = await repoProductionLine.GetListNameAsync(userId);
+
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
 			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
-			ViewBag.PageSize = filterModel.PageSize;
+			ViewBag.PageSize = filterModel.PageSize == 0 ? filterModel.PageSize = 10 : filterModel.PageSize;
 			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
 				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
 
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
-
-            var repository = _serviceProvider.GetService<ISensorRepository>();
-            var results = await repository.GetAllAsync(filterModel);
-            GetDayShiftCount(results);
+			//var cacheKey = GetCacheKey(filterModel);
+			//var cachedResults = await cache.GetRecordAsync<List<Sensor>>(cacheKey);
+			//PaginatedList<Sensor> results;
+			//if (cachedResults != null)
+			//{
+			//	results = new PaginatedList<Sensor>(cachedResults, cachedResults.Count, filterModel.PageNumber, filterModel.PageSize);
+			//}
+			//else
+			//{
+			//	var repository = _serviceProvider.GetService<ISensorRepository>();
+			//	results = await repository.GetAllAsync(filterModel);
+			//	await cache.SetRecordAsync(cacheKey, results, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(2));
+			//}
+			var repository = _serviceProvider.GetService<ISensorRepository>();
+			var results = await repository.GetAllAsync(filterModel);
+			GetDayShiftCount(results);
 			GetNightShiftCount(results);
 			return View(results);
+		}
+		private string GetCacheKey(FilterModel filterModel)
+		{
+			return $"sensors_{filterModel.FromDate?.ToString("yyyy-MM-dd")}_{filterModel.ToDate?.ToString("yyyy-MM-dd")}_{filterModel.ProductionLineId}_{filterModel.PageSize}_{filterModel.PageNumber}";
 		}
 		private void GetDayShiftCount(PaginatedList<Sensor> results)
 		{

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NFC", "NFC.csproj", "{9387F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "..\Data\Data.csproj", "{C80A952F-0CB0-493A-A5B2-EF6235369A14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFCDataService", "..\NFCDataService\NFCDataService.csproj", "{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NFCDataService", "..\NFCDataService\NFCDataService.csproj", "{11C98BFA-D545-4372-87A8-ECBB2B80E2C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

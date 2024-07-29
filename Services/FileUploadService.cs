@@ -1,4 +1,5 @@
-﻿using NFC.Data.Common;
+﻿using Newtonsoft.Json;
+using NFC.Data.Common;
 using NFC.Models;
 using System.Buffers.Text;
 
@@ -76,12 +77,13 @@ namespace NFC.Services
                         result.Message = strNum + result.Message;
                     }
                 }
-            }
+				result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+			}
 
-            if (!string.IsNullOrEmpty(result.Message))
+			if (!string.IsNullOrEmpty(result.Message))
                 result.Code = System.Net.HttpStatusCode.BadRequest;
 
-            return result;
+			return result;
         }
         private static async Task<UploadNFCDataResponse> ValidateDataKTMIC(StreamReader reader)
         {
@@ -111,8 +113,8 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
-
-                }
+					result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+				}
             }
 
             if (!string.IsNullOrEmpty(result.Message))
@@ -144,7 +146,8 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
-                }
+					result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+				}
             }
 
             if (!string.IsNullOrEmpty(result.Message))
@@ -175,7 +178,8 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
-                }
+					result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+				}
             }
             if (!string.IsNullOrEmpty(result.Message))
                 result.Code = System.Net.HttpStatusCode.BadRequest;
