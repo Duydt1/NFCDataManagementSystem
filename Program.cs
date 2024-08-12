@@ -38,7 +38,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
 	options.LoginPath = "/Identity/Account/Login";
 });
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 //Authentication/Authorization
 builder.Services.AddAuthentication();
@@ -90,9 +90,12 @@ builder.Services.AddMassTransit(x =>
 		{
 			host.Username(rabbitMqSetting.UserName);
 			host.Password(rabbitMqSetting.Password);
+			host.Heartbeat(60);
 		});
 
 		cfg.ConfigureEndpoints(context);
+		cfg.AutoStart = true;
+		cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
 	});
 });
 

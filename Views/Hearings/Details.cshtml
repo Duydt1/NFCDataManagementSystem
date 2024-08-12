@@ -1,128 +1,362 @@
-﻿@using NFC.Data.Entities
-@model NFC.Data.Entities.Hearing
+﻿@using Data.Models
+@using NFC.Data.Entities
+@model HearingDetailViewModel
 
 @{
-    ViewData["Title"] = "Hearing";
-    ViewData["SubTitle"] = "Details";
-    List<Hearing> historyUpdateDatas = (List<Hearing>)ViewData["HistoryUpdateData"];
+	ViewData["Title"] = $"Hearing - {Model.hearing.NUM}";
+	ViewData["SubTitle"] = "Details";
+	List<Hearing> historyUpdateDatas = (List<Hearing>)ViewData["HistoryUpdateData"];
 }
 
-<div>
-    <h4>@Html.DisplayFor(model => model.NUM) -  @Html.DisplayFor(model => model.Model)</h4>
-    <hr />
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <td><b>@Html.DisplayNameFor(model => model.CH)</b></td>
-                        <td>@Html.DisplayFor(model => model.CH)</td>
-                        <td><b>@Html.DisplayNameFor(model => model.Result)</b></td>
-                        <td>@Html.DisplayFor(model => model.Result)</td>
-                    </tr>
-                    <tr>
-                        <td><b>@Html.DisplayNameFor(model => model.Speaker1SPL_1kHz)</b></td>
-                        <td>@Html.DisplayFor(model => model.Speaker1SPL_1kHz)</td>
-                        <td><b>@Html.DisplayNameFor(model => model.CreatedBy)</b></td>
-                        <td>@Html.DisplayFor(model => model.CreatedBy.FullName)</td>
-                    </tr>
-                    <tr>
-                        <td><b>@Html.DisplayNameFor(model => model.DateTime)</b></td>
-                        <td>@Html.DisplayFor(model => model.DateTime)</td>
-                        <td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
-                        <td>@Html.DisplayFor(model => model.ProductionLine!.Name)</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-	@if (historyUpdateDatas.Count > 0)
-	{
-		<div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header">
-						<h3 class="card-title">History Update Data</h3>
-					</div>
-					<!-- ./card-header -->
-					<div class="card-body p-0">
-						<table class="table table-hover">
-							<tbody>
-								@{
-									var stt = 0;
-									foreach (var item in historyUpdateDatas)
-									{
-										stt += 1;
-										<tr class="expandable-body">
-											<td>
-												<div class="p-0">
-													<table class="table table-hover">
-														<tbody>
-															<tr data-widget="expandable-table" aria-expanded="false">
-																<td>
-																	<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
-																	Update on: @Html.DisplayFor(item => item.ModifiedOn)
-																</td>
-															</tr>
-															<tr class="expandable-body">
-																<td>
-																	<div class="p-0">
-																		<table class="table table-bordered">
-																			<tbody>
-																				<tr>
-																					<td><b>@Html.DisplayNameFor(model => model.CH)</b></td>
-																					<td>@Html.DisplayFor(model => model.CH)</td>
-																					<td><b>@Html.DisplayNameFor(model => model.Result)</b></td>
-																					<td>@Html.DisplayFor(model => model.Result)</td>
-																				</tr>
-																				<tr>
-																					<td><b>@Html.DisplayNameFor(model => model.Speaker1SPL_1kHz)</b></td>
-																					<td>@Html.DisplayFor(model => model.Speaker1SPL_1kHz)</td>
-																					<td><b>@Html.DisplayNameFor(model => model.CreatedBy)</b></td>
-																					<td>@Html.DisplayFor(model => model.CreatedBy.FullName)</td>
-																				</tr>
-																				<tr>
-																					<td><b>@Html.DisplayNameFor(model => model.DateTime)</b></td>
-																					<td>@Html.DisplayFor(model => model.DateTime)</td>
-																					<td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
-																					<td>
-																						@{
-																							var productionLineId = item.ProductionLineId;
-																							var productionLines = (SelectList)ViewData["ProductionLines"];
-																							var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
-																							var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
-																						}
-																						@productionLineName
-																					</td>
-																				</tr>
-																			</tbody>
-																		</table>
-																	</div>
-																</td>
-															</tr>
-														</tbody>
-													</table>
-												</div>
-											</td>
-										</tr>
-									}
-								}
-
-							</tbody>
-						</table>
-					</div>
-					<!-- /.card-body -->
-				</div>
-				<!-- /.card -->
+<div class="row col-md-12">
+	<div class="col-md-3">
+		<div class="card">
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2" style="text-align:center">SENSOR TEST</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Batt. Volt.</td>
+							<td>@Html.DisplayFor(model => model.sensor.BattVolt)</td>
+						</tr>
+						<tr>
+							<td>J1_5</td>
+							<td>@Html.DisplayFor(model => model.sensor.J1_5)</td>
+						</tr>
+						<tr>
+							<td>J1_6</td>
+							<td>@Html.DisplayFor(model => model.sensor.J1_6)</td>
+						</tr>
+						<tr>
+							<td>J1_11</td>
+							<td>@Html.DisplayFor(model => model.sensor.J1_11)</td>
+						</tr>
+						<tr>
+							<td>J1_17</td>
+							<td>@Html.DisplayFor(model => model.sensor.J1_17)</td>
+						</tr>
+						<tr>
+							<td>SHORT</td>
+							<td>@Html.DisplayFor(model => model.sensor.SHORT)</td>
+						</tr>
+						<tr>
+							<td>SPK TW</td>
+							<td>@Html.DisplayFor(model => model.sensor.SPK_TW)</td>
+						</tr>
+						<tr>
+							<td>SPK WF</td>
+							<td>@Html.DisplayFor(model => model.sensor.SPK_WF)</td>
+						</tr>
+						<tr>
+							<td>DEVICE ID1</td>
+							<td>@Html.DisplayFor(model => model.sensor.DEVICE_ID1)</td>
+						</tr>
+						<tr>
+							<td>DEVICE ID2</td>
+							<td>@Html.DisplayFor(model => model.sensor.DEVICE_ID2)</td>
+						</tr>
+						<tr>
+							<td>DEVICE ID3</td>
+							<td>@Html.DisplayFor(model => model.sensor.DEVICE_ID3)</td>
+						</tr>
+						<tr>
+							<td>DEVICE ID4</td>
+							<td>@Html.DisplayFor(model => model.sensor.DEVICE_ID4)</td>
+						</tr>
+						<tr>
+							<td>TYPE ID</td>
+							<td>@Html.DisplayFor(model => model.sensor.TYPE_ID)</td>
+						</tr>
+						<tr>
+							<td>T0 OPEN</td>
+							<td>@Html.DisplayFor(model => model.sensor.T0_OPEN)</td>
+						</tr>
+						<tr>
+							<td>T1 OPEN</td>
+							<td>@Html.DisplayFor(model => model.sensor.T1_OPEN)</td>
+						</tr>
+						<tr>
+							<td>T0 KODAK CLOSE</td>
+							<td>@Html.DisplayFor(model => model.sensor.T0_KODAK_CLOSE)</td>
+						</tr>
+						<tr>
+							<td>T1 KODAK CLOSE</td>
+							<td>@Html.DisplayFor(model => model.sensor.T1_KODAK_CLOSE)</td>
+						</tr>
+						<tr>
+							<td>T0 KODAK DIFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.T0_KODAK_DIFF)</td>
+						</tr>
+						<tr>
+							<td>T1 KODAK DIFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.T1_KODAK_DIFF)</td>
+						</tr>
+						<tr>
+							<td>T0 SKIN CLOSE</td>
+							<td>@Html.DisplayFor(model => model.sensor.T0_SKIN_CLOSE)</td>
+						</tr>
+						<tr>
+							<td>T1 SKIN CLOSE</td>
+							<td>@Html.DisplayFor(model => model.sensor.T1_SKIN_CLOSE)</td>
+						</tr>
+						<tr>
+							<td>SKIN DIFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_DIFF)</td>
+						</tr>
+						<tr>
+							<td>MIC 768KHz Peak</td>
+							<td>@Html.DisplayFor(model => model.sensor.MIC_768KHz_Peak)</td>
+						</tr>
+						<tr>
+							<td>Result</td>
+							<td>@Html.DisplayFor(model => model.sensor.Result)</td>
+						</tr>
+						<tr>
+							<td>Date Time</td>
+							<td>@Html.DisplayFor(model => model.sensor.DateTime)</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
-	}
+	</div>
+	<div class="col-md-3">
+		<div class="card">
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2" style="text-align:center">WF & MIC SPL TEST</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Speaker1 SPL[1kHz]</td>
+							<td>@Html.DisplayFor(model => model.wf.SPL_1kHz)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Polarity</td>
+							<td>@Html.DisplayFor(model => model.wf.Polarity)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 THD Limit</td>
+							<td>@Html.DisplayFor(model => model.wf.THDLimit)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Impedance Limit</td>
+							<td>@Html.DisplayFor(model => model.wf.ImpedanceLimit)</td>
+						</tr>
+						<tr>
+							<td>MIC1 SEQ2 FRF Limit</td>
+							<td>@Html.DisplayFor(model => model.wf.MIC1SEQ2_FRFLimit)</td>
+						</tr>
+						<tr>
+							<td>MIC1 SENS at 1kHz</td>
+							<td>@Html.DisplayFor(model => model.wf.MIC1SENS_1kHz)</td>
+						</tr>
+						<tr>
+							<td>MIC1 Current</td>
+							<td>@Html.DisplayFor(model => model.wf.MIC1Current)</td>
+						</tr>
+						<tr>
+							<td>MIC1 CUR_AVDD</td>
+							<td>@Html.DisplayFor(model => model.wf.MIC1CUR_AVDD)</td>
+						</tr>
+						<tr>
+							<td>MIC1 CUR_DVDD</td>
+							<td>@Html.DisplayFor(model => model.wf.MIC1CUR_DVDD)</td>
+						</tr>
+						<tr>
+							<td>Result</td>
+							<td>@Html.DisplayFor(model => model.wf.Result)</td>
+						</tr>
+						<tr>
+							<td>Date Time</td>
+							<td>@Html.DisplayFor(model => model.wf.DateTime)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="card">
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+						<tr>
+							<th colspan="2" style="text-align:center">TW & MIC SPL TEST </th>
+						</tr>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Speaker1 SPL[10kHz]</td>
+							<td>@Html.DisplayFor(model => model.tw.SPL_10kHz)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Polarity</td>
+							<td>@Html.DisplayFor(model => model.tw.Polarity)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 THD Limit</td>
+							<td>@Html.DisplayFor(model => model.tw.THDLimit)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Impedance Limit</td>
+							<td>@Html.DisplayFor(model => model.tw.ImpedanceLimit)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Impedance[10kHz]</td>
+							<td>@Html.DisplayFor(model => model.tw.Impedance_10kHz)</td>
+						</tr>
+						<tr>
+							<td>MIC1 SEQ2 FRF Limit</td>
+							<td>@Html.DisplayFor(model => model.tw.MIC1SEQ2_FRF_Limit)</td>
+						</tr>
+						<tr>
+							<td>MIC1 SENS at 1.5kHz</td>
+							<td>@Html.DisplayFor(model => model.tw.MIC1SENS_15kHz)</td>
+						</tr>
+						<tr>
+							<td>Result</td>
+							<td>@Html.DisplayFor(model => model.tw.Result)</td>
+						</tr>
+						<tr>
+							<td>Date Time</td>
+							<td>@Html.DisplayFor(model => model.tw.DateTime)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="card">
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="2" style="text-align:center">HEARING TEST</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Model</td>
+							<td>@Html.DisplayFor(model => model.hearing.Model)</td>
+						</tr>
+						<tr>
+							<td>CH</td>
+							<td>@Html.DisplayFor(model => model.hearing.CH)</td>
+						</tr>
+						<tr>
+							<td>Date Time</td>
+							<td>@Html.DisplayFor(model => model.hearing.DateTime)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 SPL [1kHz]</td>
+							<td>@Html.DisplayFor(model => model.hearing.Speaker1SPL_1kHz)</td>
+						</tr>
+						<tr>
+							<td>Result</td>
+							<td>@Html.DisplayFor(model => model.hearing.Result)</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 </div>
+@if (historyUpdateDatas.Count > 0)
+{
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">History Update Data</h3>
+				</div>
+				<!-- ./card-header -->
+				<div class="card-body p-0">
+					<table class="table table-hover">
+						<tbody>
+							@{
+								var stt = 0;
+								foreach (var item in historyUpdateDatas)
+								{
+									stt += 1;
+									<tr class="expandable-body">
+										<td>
+											<div class="p-0">
+												<table class="table table-hover">
+													<tbody>
+														<tr data-widget="expandable-table" aria-expanded="false">
+															<td>
+																<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+																Update on: @item.DateTime
+															</td>
+														</tr>
+														<tr class="expandable-body">
+															<td>
+																<div class="p-0">
+																	<table class="table table-bordered">
+																		<tbody>
+																			<tr>
+																				<td><b>@Html.DisplayNameFor(model => item.CH)</b></td>
+																				<td>@Html.DisplayFor(model => item.CH)</td>
+																				<td><b>@Html.DisplayNameFor(model => item.Result)</b></td>
+																				<td>@Html.DisplayFor(model => item.Result)</td>
+																			</tr>
+																			<tr>
+																				<td><b>@Html.DisplayNameFor(model => item.Speaker1SPL_1kHz)</b></td>
+																				<td>@Html.DisplayFor(model => item.Speaker1SPL_1kHz)</td>
+
+																			</tr>
+																			<tr>
+																				<td><b>@Html.DisplayNameFor(model => item.DateTime)</b></td>
+																				<td>@Html.DisplayFor(model => item.DateTime)</td>
+																				<td><b>Production Line</b></td>
+																				<td>
+																					@{
+																						var productionLineId = item.ProductionLineId;
+																						var productionLines = (SelectList)ViewData["ProductionLines"];
+																						var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
+																						var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
+																					}
+																					@productionLineName
+																				</td>
+																			</tr>
+																		</tbody>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</td>
+									</tr>
+								}
+							}
+
+						</tbody>
+					</table>
+				</div>
+				<!-- /.card-body -->
+			</div>
+			<!-- /.card -->
+		</div>
+	</div>
+}
 <div class="row">
-    <div class="col-sm-1">
-        <a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.Id">Edit</a>
-    </div>
-    <div class="col-sm-1">
-        <a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
-    </div>
+	@*  <div class="col-sm-1">
+	<a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.Id">Edit</a>
+	</div> *@
+	<div class="col-sm-1">
+		<a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
+	</div>
 </div>

@@ -66,11 +66,8 @@ namespace NFC.Services
                     result.Message += string.IsNullOrEmpty(item.CH) ? $"CH is null; " : "";
                     result.Message += string.IsNullOrEmpty(item.Result) ? $"Result is null; " : "";
                     result.Message += item.DateTime != DateTime.MinValue ? "" : $"Date Time is null; ";
-                    //result.Message += string.IsNullOrEmpty(item.Grade) ? $"Speaker GRADE is null; " : "";
-                    result.Message += string.IsNullOrEmpty(item.SPL_1kHz) ? $"Speaker1 SPL[1kHz] is null; " : "";
-                    result.Message += string.IsNullOrEmpty(item.Polarity) ? $"Speaker1 Polarity is null; " : "";
-                    //result.Message += string.IsNullOrEmpty(item.THD_1kHz) ? $"Speaker1 THD[1KHz] is null; " : "";
-                    result.Message += string.IsNullOrEmpty(item.Impedance_1kHz) ? $"Speaker1 Impedance[1KHz] is null; " : "";
+                    //result.Message += string.IsNullOrEmpty(item.Polarity) ? $"Speaker1 Polarity is null; " : "";
+                    //result.Message += string.IsNullOrEmpty(item.Impedance_1kHz) ? $"Speaker1 Impedance[1KHz] is null; " : "";
                     if (!string.IsNullOrEmpty(result.Message))
                     {
                         string strNum = $"Error Data in line {line} : ";
@@ -103,11 +100,11 @@ namespace NFC.Services
                     result.Message += string.IsNullOrEmpty(item.Result) ? $"Result is null; " : "";
                     result.Message += item.DateTime != DateTime.MinValue ? "" : $"Date Time is null; ";
                     //result.Message += string.IsNullOrEmpty(item.SPL_100Hz) ? $"Speaker1 SPL[100Hz] is null;" : "";
-                    result.Message += string.IsNullOrEmpty(item.SPL_1kHz) ? $"Speaker1 SPL[1kHz] is null;" : "";
-                    result.Message += string.IsNullOrEmpty(item.Polarity) ? $"Speaker1 Polarity is null;" : "";
+                    //result.Message += string.IsNullOrEmpty(item.SPL_1kHz) ? $"Speaker1 SPL[1kHz] is null;" : "";
+                    //result.Message += string.IsNullOrEmpty(item.Polarity) ? $"Speaker1 Polarity is null;" : "";
                     //result.Message += string.IsNullOrEmpty(item.Impedance_1kHz) ? $"Speaker1 Impedance[1kHz] is null;" : "";
-                    result.Message += string.IsNullOrEmpty(item.MIC1SENS_1kHz) ? $"MIC1 SENS at 1kHz is null;" : "";
-                    result.Message += string.IsNullOrEmpty(item.MIC1Current) ? $"MIC1 Current is null;" : "";
+                    //result.Message += string.IsNullOrEmpty(item.MIC1SENS_1kHz) ? $"MIC1 SENS at 1kHz is null;" : "";
+                    //result.Message += string.IsNullOrEmpty(item.MIC1Current) ? $"MIC1 Current is null;" : "";
                     if (!string.IsNullOrEmpty(result.Message))
                     {
                         string strNum = $"Error Data in line {line} : ";
@@ -139,8 +136,8 @@ namespace NFC.Services
                     result.Message += string.IsNullOrEmpty(item.CH) ? $"CH is null; " : "";
                     result.Message += string.IsNullOrEmpty(item.Result) ? $"Result is null; " : "";
                     result.Message += item.DateTime != DateTime.MinValue ? "" : $"Date Time is null; ";
-                    result.Message += string.IsNullOrEmpty(item.DeviceNo) ? $"DEVICE NO is null; " : "";
-                    result.Message += string.IsNullOrEmpty(item.BattVolt) ? $"BATT. VOLT. is null; " : "";
+                    //result.Message += string.IsNullOrEmpty(item.DeviceNo) ? $"DEVICE NO is null; " : "";
+                    //result.Message += string.IsNullOrEmpty(item.BattVolt) ? $"BATT. VOLT. is null; " : "";
                     if (!string.IsNullOrEmpty(result.Message))
                     {
                         string strNum = $"Error Data in line {line} : ";
@@ -172,7 +169,7 @@ namespace NFC.Services
                     result.Message += string.IsNullOrEmpty(item.CH) ? $"CH is null; " : "";
                     result.Message += string.IsNullOrEmpty(item.Result) ? $"Result is null; " : "";
                     result.Message += item.DateTime != DateTime.MinValue ? "" : $"Date Time is null; ";
-                    result.Message += string.IsNullOrEmpty(item.Speaker1SPL_1kHz) ? $"Speaker1 SPL[1kHz] is null; " : "";
+                    //result.Message += string.IsNullOrEmpty(item.Speaker1SPL_1kHz) ? $"Speaker1 SPL[1kHz] is null; " : "";
                     if (!string.IsNullOrEmpty(result.Message))
                     {
                         string strNum = $"Error Data in line {line} : ";

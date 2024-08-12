@@ -101,7 +101,20 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-			var lstUpdateData = !string.IsNullOrEmpty(entity.HistoryUpdate) ? JsonConvert.DeserializeObject<List<Sensor>>(entity.HistoryUpdate) : new List<Sensor>();
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
+			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			var lstUpdateData = await repository.GetListByNumAsync(entity.NUM);
 			ViewData["HistoryUpdateData"] = lstUpdateData;
 			return View(entity);
         }

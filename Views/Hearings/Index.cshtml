@@ -1,7 +1,7 @@
 ﻿@using static NFC.Data.Common.NFCUtil
 @model PaginatedList<NFC.Data.Entities.Hearing>
 @{
-	ViewData["Title"] = "Hearing List";
+	ViewData["Title"] = "HEARING TEST";
 	int currentPage = Model.PageIndex;
 	int pageSize = Model.PageSize;
 	int totalPages = Model.TotalPages;
@@ -117,34 +117,16 @@
 	
 	<!-- /.card-header -->
 	<div class="card-body">
-
-		<table class="table table-bordered table-striped">
+		<table id="example" class="table table-bordered table-striped" width="100%">
 			<thead>
 				<tr>
-					
-					<th>
-						NUM
-
-					</th>
-					<th>
-						Model
-					</th>
-					
-					<th>
-						CH
-					</th>
-					<th>
-						Date Time
-					</th>
-					<th>
-						Speaker1 SPL[1kHz]
-					</th>
-					<th>
-						Result
-					</th>
-					<th>
-						Production Line
-					</th>
+					<th>NUM</th>
+					<th>Model</th>
+					<th>CH</th>
+					<th>Date Time</th>
+					<th>Speaker1 SPL[1kHz]</th>
+					<th>Result</th>
+					<th>Production Line</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -154,28 +136,18 @@
 					{
 						<tr>
 							<td>
-								<a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.NUM)</a>
+								<a asp-action="Details" asp-route-num="@item.NUM">@Html.DisplayFor(modelItem => item.NUM)</a>
 							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Model)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.CH)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.DateTime)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Speaker1SPL_1kHz)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Result)
-							</td>
+							<td>@Html.DisplayFor(modelItem => item.Model)</td>
+							<td>@Html.DisplayFor(modelItem => item.CH)</td>
+							<td>@Html.DisplayFor(modelItem => item.DateTime)</td>
+							<td>@Html.DisplayFor(modelItem => item.Speaker1SPL_1kHz)</td>
+							<td>@Html.DisplayFor(modelItem => item.Result)</td>
 							<td>
 								@{
 									var productionLineId = item.ProductionLineId;
 									var productionLines = (SelectList)ViewData["ProductionLines"];
-									var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
+									var productionLine = productionLines?.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
 									var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
 								}
 								@productionLineName

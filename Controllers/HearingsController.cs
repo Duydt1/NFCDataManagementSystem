@@ -80,17 +80,29 @@ namespace NFC.Controllers
 			ViewData["ToTalNightFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
 		}
 
-		// GET: Hearings/Details/5
-		public async Task<IActionResult> Details(long id)
+		public async Task<IActionResult> Details(string num)
 		{
-            var repository = _serviceProvider.GetService<IHearingRepository>();
-            var entity = await repository.GetByIdAsync(id);
+			var repository = _serviceProvider.GetService<IHearingRepository>();
+			var entity = await repository.GetHearingDetailAsync(num);
 
 			if (entity == null)
 			{
 				return NotFound();
 			}
-			var lstUpdateData = !string.IsNullOrEmpty(entity.HistoryUpdate) ? JsonConvert.DeserializeObject<List<Hearing>>(entity.HistoryUpdate) : new List<Hearing>();
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
+			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
+			var lstUpdateData = await repository.GetListByNumAsync(num);
 			ViewData["HistoryUpdateData"] = lstUpdateData;
 			return View(entity);
 		}

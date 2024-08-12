@@ -2,44 +2,61 @@
 @model NFC.Data.Entities.KT_TW_SPL
 
 @{
-	ViewData["Title"] = "KT TW SPL";
+	ViewData["Title"] = $"KT TW SPL - {Model.NUM}";
 	ViewData["SubTitle"] = "Details";
 	List<KT_TW_SPL> historyUpdateDatas = (List<KT_TW_SPL>)ViewData["HistoryUpdateData"];
 }
 <div>
-	<h4>@Html.DisplayFor(model => model.NUM) -  @Html.DisplayFor(model => model.Model)</h4>
-	<hr />
 	<div class="card">
 		<div class="card-body">
 			<table class="table table-bordered">
 				<tbody>
 					<tr>
+						<td><b>NUM</b></td>
+						<td>@Html.DisplayFor(model => model.NUM)</td>
+						<td><b>Model</b></td>
+						<td>@Html.DisplayFor(model => model.Model)</td>
+					</tr>
+					<tr>
 						<td><b>@Html.DisplayNameFor(model => model.CH)</b></td>
 						<td>@Html.DisplayFor(model => model.CH)</td>
-						<td><b>@Html.DisplayNameFor(model => model.Result)</b></td>
-						<td>@Html.DisplayFor(model => model.Result)</td>
-					</tr>
-					<tr>
-						<td><b>@Html.DisplayNameFor(model => model.Grade)</b></td>
-						<td>@Html.DisplayFor(model => model.Grade)</td>
-						<td><b>@Html.DisplayNameFor(model => model.SPL_1kHz)</b></td>
-						<td>@Html.DisplayFor(model => model.SPL_1kHz)</td>
-					</tr>
-					<tr>
-						<td><b>@Html.DisplayNameFor(model => model.Polarity)</b></td>
-						<td>@Html.DisplayFor(model => model.Polarity)</td>
-						<td><b>@Html.DisplayNameFor(model => model.THD_1kHz)</b></td>
-						<td>@Html.DisplayFor(model => model.THD_1kHz)</td>
-					</tr>
-					<tr>
-						<td><b>@Html.DisplayNameFor(model => model.Impedance_1kHz)</b></td>
-						<td>@Html.DisplayFor(model => model.Impedance_1kHz)</td>
-						<td><b>@Html.DisplayNameFor(model => model.CreatedBy)</b></td>
-						<td>@Html.DisplayFor(model => model.CreatedBy.FullName)</td>
-					</tr>
-					<tr>
 						<td><b>@Html.DisplayNameFor(model => model.DateTime)</b></td>
 						<td>@Html.DisplayFor(model => model.DateTime)</td>
+						
+					</tr>
+					<tr>
+						<td><b>FRF Limit</b></td>
+						<td>@Html.DisplayFor(model => model.FRFLimit)</td>
+						<td><b>Speaker1 SPL[10kHz]</b></td>
+						<td>@Html.DisplayFor(model => model.SPL_10kHz)</td>
+					</tr>
+					<tr>
+						<td><b>Speaker1 Polarity</b></td>
+						<td>@Html.DisplayFor(model => model.Polarity)</td>
+						<td><b>Speaker1 THD Limit</b></td>
+						<td>@Html.DisplayFor(model => model.THDLimit)</td>
+					</tr>
+					<tr>
+						<td><b>Speaker1 Impedance Limit</b></td>
+						<td>@Html.DisplayFor(model => model.ImpedanceLimit)</td>
+						<td><b>Speaker1 Impedance[10kHz]</b></td>
+						<td>@Html.DisplayFor(model => model.Impedance_10kHz)</td>
+					</tr>
+					<tr>
+						<td><b>MIC1 SEQ2 FRF Limit</b></td>
+						<td>@Html.DisplayFor(model => model.MIC1SEQ2_FRF_Limit)</td>
+						<td><b>MIC1 SENS at 1.5kHz</b></td>
+						<td>@Html.DisplayFor(model => model.MIC1SENS_15kHz)</td>
+					</tr>
+					<tr>
+						<td><b>Result</b></td>
+						<td>@Html.DisplayFor(model => model.Result)</td>
+						<td><b>Date Time</b></td>
+						<td>@Html.DisplayFor(model => model.DateTime)</td>
+					</tr>
+					<tr>
+						<td><b>@Html.DisplayNameFor(model => model.Result)</b></td>
+						<td>@Html.DisplayFor(model => model.Result)</td>
 						<td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
 						<td>@Html.DisplayFor(model => model.ProductionLine!.Name)</td>
 					</tr>
@@ -72,7 +89,7 @@
 															<tr data-widget="expandable-table" aria-expanded="false">
 																<td>
 																	<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
-																	Update on: @Html.DisplayFor(item => item.ModifiedOn)
+																	Update on: @item.DateTime
 																</td>
 															</tr>
 															<tr class="expandable-body">
@@ -81,34 +98,53 @@
 																		<table class="table table-bordered">
 																			<tbody>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(item => item.CH)</b></td>
-																					<td>@Html.DisplayFor(item => item.CH)</td>
-																					<td><b>@Html.DisplayNameFor(item => item.Result)</b></td>
-																					<td>@Html.DisplayFor(item => item.Result)</td>
+																					<td><b>NUM</b></td>
+																					<td>@Html.DisplayFor(model => item.NUM)</td>
+																					<td><b>Model</b></td>
+																					<td>@Html.DisplayFor(model => item.Model)</td>
 																				</tr>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(item => item.Grade)</b></td>
-																					<td>@Html.DisplayFor(item => item.Grade)</td>
-																					<td><b>@Html.DisplayNameFor(item => item.SPL_1kHz)</b></td>
-																					<td>@Html.DisplayFor(item => item.SPL_1kHz)</td>
+																					<td><b>@Html.DisplayNameFor(model => item.CH)</b></td>
+																					<td>@Html.DisplayFor(model => item.CH)</td>
+																					<td><b>@Html.DisplayNameFor(model => item.DateTime)</b></td>
+																					<td>@Html.DisplayFor(model => item.DateTime)</td>
+
 																				</tr>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(item => item.Polarity)</b></td>
-																					<td>@Html.DisplayFor(item => item.Polarity)</td>
-																					<td><b>@Html.DisplayNameFor(item => item.THD_1kHz)</b></td>
-																					<td>@Html.DisplayFor(item => item.THD_1kHz)</td>
+																					<td><b>FRF Limit</b></td>
+																					<td>@Html.DisplayFor(model => item.FRFLimit)</td>
+																					<td><b>Speaker1 SPL[10kHz]</b></td>
+																					<td>@Html.DisplayFor(model => item.SPL_10kHz)</td>
 																				</tr>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(item => item.Impedance_1kHz)</b></td>
-																					<td>@Html.DisplayFor(item => item.Impedance_1kHz)</td>
-																					<td><b>@Html.DisplayNameFor(item => item.CreatedBy)</b></td>
-																					<td>@Html.DisplayFor(item => item.CreatedBy.FullName)</td>
+																					<td><b>Speaker1 Polarity</b></td>
+																					<td>@Html.DisplayFor(model => item.Polarity)</td>
+																					<td><b>Speaker1 THD Limit</b></td>
+																					<td>@Html.DisplayFor(model => item.THDLimit)</td>
 																				</tr>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(item => item.DateTime)</b></td>
-																					<td>@Html.DisplayFor(item => item.DateTime)</td>
-																					<td><b>@Html.DisplayNameFor(item => item.ProductionLine!.Name)</b></td>
-																					<td>@Html.DisplayFor(item => item.ProductionLine!.Name)</td>
+																					<td><b>Speaker1 Impedance Limit</b></td>
+																					<td>@Html.DisplayFor(model => item.ImpedanceLimit)</td>
+																					<td><b>Speaker1 Impedance[10kHz]</b></td>
+																					<td>@Html.DisplayFor(model => item.Impedance_10kHz)</td>
+																				</tr>
+																				<tr>
+																					<td><b>MIC1 SEQ2 FRF Limit</b></td>
+																					<td>@Html.DisplayFor(model => item.MIC1SEQ2_FRF_Limit)</td>
+																					<td><b>MIC1 SENS at 1.5kHz</b></td>
+																					<td>@Html.DisplayFor(model => item.MIC1SENS_15kHz)</td>
+																				</tr>
+																				<tr>
+																					<td><b>Result</b></td>
+																					<td>@Html.DisplayFor(model => item.Result)</td>
+																					<td><b>Date Time</b></td>
+																					<td>@Html.DisplayFor(model => item.DateTime)</td>
+																				</tr>
+																				<tr>
+																					<td><b>@Html.DisplayNameFor(model => item.Result)</b></td>
+																					<td>@Html.DisplayFor(model => item.Result)</td>
+																					<td><b>@Html.DisplayNameFor(model => item.ProductionLine!.Name)</b></td>
+																					<td>@Html.DisplayFor(model => item.ProductionLine!.Name)</td>
 																				</tr>
 																			</tbody>
 																		</table>
@@ -134,9 +170,9 @@
 	}
 </div>
 <div class="row">
-	<div class="col-sm-1">
+	@* <div class="col-sm-1">
 		<a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.Id">Edit</a>
-	</div>
+	</div> *@
 	<div class="col-sm-1">
 		<a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
 	</div>

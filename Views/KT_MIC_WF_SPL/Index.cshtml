@@ -2,7 +2,7 @@
 @model PaginatedList<NFC.Data.Entities.KT_MIC_WF_SPL>
 
 @{
-	ViewData["Title"] = "KT MIC & WF SPL List";
+	ViewData["Title"] = "WF & MIC SPL TEST ";
 	int currentPage = Model.PageIndex;
 	int pageSize = Model.PageSize;
 	int totalPages = Model.TotalPages;
@@ -115,8 +115,8 @@
 		</form>
 	</div>
 	<!-- /.card-header -->
-	<div class="card-body">
-		<table class="table table-bordered table-striped">
+	<div class="card-body" style="max-width: 100%; overflow-x: auto;">
+		<table id="example" class="table table-bordered table-striped" style="min-width: 1200px">
 			<thead>
 				<tr>
 					<th>
@@ -128,15 +128,18 @@
 					<th>
 						CH
 					</th>
-					
+
 					<th>
 						DateTime
 					</th>
 					<th>
-						Speaker1 SPL[100Hz]
+						FRF Limit
 					</th>
 					<th>
 						Speaker1 SPL[1kHz]
+					</th>
+					<th>
+						THD Limit
 					</th>
 					<th>
 						Speaker1 Polarity
@@ -145,10 +148,22 @@
 						Speaker1 Impedance[1kHz]
 					</th>
 					<th>
+						Speaker1 Impedance Limit
+					</th>
+					<th>
 						MIC1 SENS at 1kHz
 					</th>
 					<th>
 						MIC1 Current
+					</th>
+					<th>
+						MIC1 SEQ2 FRF Limit
+					</th>
+					<th>
+						MIC1 CUR_AVDD
+					</th>
+					<th>
+						MIC1 CUR_DVDD
 					</th>
 					<th>
 						Result
@@ -177,10 +192,13 @@
 								@Html.DisplayFor(modelItem => item.DateTime)
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.SPL_100Hz)
+								@Html.DisplayFor(modelItem => item.FRFLimit)
 							</td>
 							<td>
 								@Html.DisplayFor(modelItem => item.SPL_1kHz)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.THDLimit)
 							</td>
 							<td>
 								@Html.DisplayFor(modelItem => item.Polarity)
@@ -189,10 +207,22 @@
 								@Html.DisplayFor(modelItem => item.Impedance_1kHz)
 							</td>
 							<td>
+								@Html.DisplayFor(modelItem => item.ImpedanceLimit)
+							</td>
+							<td>
 								@Html.DisplayFor(modelItem => item.MIC1SENS_1kHz)
 							</td>
 							<td>
 								@Html.DisplayFor(modelItem => item.MIC1Current)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.MIC1SEQ2_FRFLimit)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.MIC1CUR_AVDD)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.MIC1CUR_DVDD)
 							</td>
 							<td>
 								@Html.DisplayFor(modelItem => item.Result)
@@ -212,7 +242,7 @@
 				else
 				{
 					<tr>
-						<td colspan="12">No data available</td>
+						<td colspan="17">No data available</td>
 					</tr>
 				}
 			</tbody>
@@ -237,28 +267,28 @@
 						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-							asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Previous</span>
 						</a>
 					</li>
 					@for (int i = startPage; i <= endPage; i++)
 					{
-							<li class="page-item @(Model.PageIndex == i? " active" : "")">
-								<a class="page-link" asp-route-pageNumber="@i"
-								   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-								   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-									   asp-route-pageSize="@ViewBag.PageSize"
-								   asp-route-SearchString="@ViewData["Searching"]">
-									<span>@i</span>
-								</a>
-							</li>
+						<li class="page-item @(Model.PageIndex == i? " active" : "")">
+							<a class="page-link" asp-route-pageNumber="@i"
+							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-pageSize="@ViewBag.PageSize"
+							   asp-route-SearchString="@ViewData["Searching"]">
+								<span>@i</span>
+							</a>
+						</li>
 					}
 					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
 						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-							asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Next</span>
 						</a>
@@ -267,7 +297,7 @@
 						<a class="page-link" asp-route-pageNumber="@endPage"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-						asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-pageSize="@ViewBag.PageSize"
 						   asp-route-SearchString="@ViewData["Searching"]">
 							<span>Last</span>
 						</a>

@@ -2,13 +2,16 @@ using Data.Common;
 using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using NFC.Data.Entities;
 using NFC.Data.Models;
 using NFC.Models;
 using NFC.Services;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NFC.Controllers
 {
@@ -19,20 +22,8 @@ namespace NFC.Controllers
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         public async Task<IActionResult> IndexAsync(FilterModel filterModel)
 		{
-			var repoIdentity = _serviceProvider.GetService<IIdentityRepository>();
-			var repoHistoryUpload = _serviceProvider.GetService<IHistoryUploadRepository>();
-			var historyUploads = await repoHistoryUpload.GetAllAsync();
 			var cacheKey = $"users";
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var users = await cache.GetRecordAsync<List<NFCUser>>(cacheKey);
-			if (users == null)
-			{
-				users = await repoIdentity.GetAllUserAsync();
-				await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromDays(1));
-			}
-			ViewData["UserCount"] = users.Count();
-			ViewData["HistoryUploadCount"] = historyUploads.Count();
-
 			var userId = "";
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -49,8 +40,8 @@ namespace NFC.Controllers
 			if (productionLines.Count > 0 && filterModel.ProductionLineId == null)
 				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
 
-			if (!string.IsNullOrEmpty(filterModel.SearchString))
-				ViewData["Searching"] = filterModel.SearchString;
+			//if (!string.IsNullOrEmpty(filterModel.SearchString))
+			//	ViewData["Searching"] = filterModel.SearchString;
 
             if (filterModel.FromDate == null)
                 filterModel.FromDate = DateTime.Now.Date.AddDays(-1);
@@ -60,11 +51,27 @@ namespace NFC.Controllers
 
             ViewData["CurrentFromDate"] = filterModel.FromDate;
             ViewData["CurrentToDate"] = filterModel.ToDate;
-			ViewBag.PageSize = filterModel.PageSize == 0 ? filterModel.PageSize = 10 : filterModel.PageSize;
-			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
+			//ViewBag.PageSize = filterModel.PageSize == 0 ? filterModel.PageSize = 10 : filterModel.PageSize;
+			//if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
 			var nfcService = _serviceProvider.GetService<INFCService>();
 			var result = await nfcService.GetNFCDashboard(filterModel);
 			return View(result);
+		}
+
+		public async Task<IActionResult> GetUpdatedDataAsync(int productionLineId, DateTime fromDate, DateTime toDate, string searching)
+		{
+			var filterModel = new FilterModel
+			{
+				ProductionLineId = productionLineId,
+				FromDate = fromDate,
+				SearchString = searching,
+				ToDate = toDate
+			};
+
+			var nfcService = _serviceProvider.GetService<INFCService>();
+			var result = await nfcService.GetNFCDashboard(filterModel);
+			
+			return Ok(result);
 		}
 
 		public async Task<IActionResult> PrivacyAsync()

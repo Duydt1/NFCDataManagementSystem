@@ -1,7 +1,7 @@
 ﻿@using static NFC.Data.Common.NFCUtil
 @model PaginatedList<NFC.Data.Entities.Sensor>
 @{
-	ViewData["Title"] = "Sensor List";
+	ViewData["Title"] = "SENSOR TEST";
 	int currentPage = Model.PageIndex;
 	int pageSize = Model.PageSize;
 	int totalPages = Model.TotalPages;
@@ -113,8 +113,8 @@
 		</form>
 	</div>
 	<!-- /.card-header -->
-	<div class="card-body">
-		<table class="table table-bordered table-striped">
+	<div class="card-body" style="max-width: 100%; overflow-x: auto;">
+		<table id="example" class="table table-bordered table-striped" style="min-width: 1200px">
 			<thead>
 				<tr>
 
@@ -130,18 +130,34 @@
 					<th>
 						DateTime
 					</th>
-					<th>
-						Device No
-					</th>
-					<th>
-						Batt. Volt.
-					</th>
-					<th>
-						Result
-					</th>
-					<th>
-						Production Line
-					</th>
+					<th>Device No</th>
+					<th>J1_5-6[GND-GND](ohm)</th>
+					<th>J1_6-11[GND-GND](ohm)</th>
+					<th>J1_11-17[GND-GND](ohm)</th>
+					<th>J1_17-18[GND-GND](ohm)</th>
+					<th>SHORT(Kohm)</th>
+					<th>SPK TW(ohm)</th>
+					<th>SPK WF(ohm)</th>
+					<th>R2(Kohm)</th>
+					<th>DEVICE ID1</th>
+					<th>DEVICE ID2</th>
+					<th>DEVICE ID3</th>
+					<th>DEVICE ID4</th>
+					<th>DEVICE ID4</th>
+					<th>T0 OPEN</th>
+					<th>T1 OPEN</th>
+					<th>T0 KODAK CLOSE</th>
+					<th>T1 KODAK CLOSE</th>
+					<th>T0 KODAK DIFF</th>
+					<th>T1 KODAK DIFF</th>
+					<th>T0 SKIN CLOSE</th>
+					<th>T1 SKIN CLOSE</th>
+					<th>SKIN DIFF</th>
+					<th>MIC 768KHz Peak</th>
+					<th>Batt. Volt.</th>
+					<th>Result</th>
+					<th>Production Line</th>
+				
 				</tr>
 			</thead>
 			<tbody>
@@ -162,12 +178,31 @@
 							<td>
 								@Html.DisplayFor(modelItem => item.DateTime)
 							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.DeviceNo)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.BattVolt)
-							</td>
+							<td>@Html.DisplayFor(modelItem => item.DeviceNo)</td>
+							<td>@Html.DisplayFor(modelItem => item.J1_5)</td>
+							<td>@Html.DisplayFor(modelItem => item.J1_6)</td>
+							<td>@Html.DisplayFor(modelItem => item.J1_11)</td>
+							<td>@Html.DisplayFor(modelItem => item.J1_17)</td>
+							<td>@Html.DisplayFor(modelItem => item.SHORT)</td>
+							<td>@Html.DisplayFor(modelItem => item.SPK_TW)</td>
+							<td>@Html.DisplayFor(modelItem => item.SPK_WF)</td>
+							<td>@Html.DisplayFor(modelItem => item.R2)</td>
+							<td>@Html.DisplayFor(modelItem => item.DEVICE_ID1)</td>
+							<td>@Html.DisplayFor(modelItem => item.DEVICE_ID2)</td>
+							<td>@Html.DisplayFor(modelItem => item.DEVICE_ID3)</td>
+							<td>@Html.DisplayFor(modelItem => item.DEVICE_ID4)</td>
+							<td>@Html.DisplayFor(modelItem => item.TYPE_ID)</td>
+							<td>@Html.DisplayFor(modelItem => item.T0_OPEN)</td>
+							<td>@Html.DisplayFor(modelItem => item.T1_OPEN)</td>
+							<td>@Html.DisplayFor(modelItem => item.T0_KODAK_CLOSE)</td>
+							<td>@Html.DisplayFor(modelItem => item.T1_KODAK_CLOSE)</td>
+							<td>@Html.DisplayFor(modelItem => item.T0_KODAK_DIFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.T1_KODAK_DIFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.T0_SKIN_CLOSE)</td>
+							<td>@Html.DisplayFor(modelItem => item.T1_SKIN_CLOSE)</td>
+							<td>@Html.DisplayFor(modelItem => item.SKIN_DIFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.MIC_768KHz_Peak)</td>
+							<td>@Html.DisplayFor(modelItem => item.BattVolt)</td>
 							<td>
 								@Html.DisplayFor(modelItem => item.Result)
 							</td>
@@ -186,7 +221,7 @@
 				else
 				{
 					<tr>
-						<td colspan="8">No data available</td>
+						<td colspan="31">No data available</td>
 					</tr>
 				}
 			</tbody>

@@ -1,77 +1,96 @@
 ﻿@using static NFC.Data.Common.NFCUtil
-@model PaginatedList<NFC.Models.NFCModel>
+@model HomePageViewModel
 @{
 	ViewData["Title"] = "Home Page";
-	int currentPage = Model.PageIndex;
-	int pageSize = Model.PageSize;
-	int totalPages = Model.TotalPages;
-	int startPage = Math.Max(1, currentPage - 2);
-	int endPage = Math.Min(totalPages, currentPage + 2);
+	var mainList = Model.MainList;
+	var historyList = Model.HistoryHearingList;
+	var productionLines = ViewData["ProductionLines"] as SelectList;
 	var pageSizeOptions = new SelectList(new[] { 10, 25, 50, 100 }, ViewBag.PageSize);
 }
 
-<!-- Small boxes (Stat box) -->
+<!-- Info boxes -->
 <div class="row">
-	<div class="col-lg-3 col-6">
-		<!-- small box -->
-		<div class="small-box bg-info">
-			<div class="inner">
-				<h3>@ViewData["HistoryUploadCount"]</h3>
+	<div class="col-3">
+		<div class="info-box">
+			<span class="info-box-icon bg-info elevation-1"><i class="fas fa-microchip"></i></span>
 
-				<p>Request Upload Data</p>
+			<div class="info-box-content">
+				<span class="info-box-text">Input</span>
+				<span class="info-box-number" id="totalSensor">
+					@Model.TotalSensor
+				</span>
 			</div>
-			<div class="icon">
-				<i class="ion ion-bag"></i>
-			</div>
-			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+			<!-- /.info-box-content -->
 		</div>
+		<!-- /.info-box -->
 	</div>
-	<!-- ./col -->
-	<div class="col-lg-3 col-6">
-		<!-- small box -->
-		<div class="small-box bg-success">
-			<div class="inner">
-				<h3>53<sup style="font-size: 20px">%</sup></h3>
+	<!-- /.col -->
+	<div class="col-3">
+		<div class="info-box mb-3">
+			<span class="info-box-icon bg-danger elevation-1"><i class="fas fa-tasks"></i></span>
 
-				<p>Bounce Rate</p>
+			<div class="info-box-content">
+				<span class="info-box-text">Output</span>
+				<span class="info-box-number" id="hearingPass">@Model.HearingPass</span>
 			</div>
-			<div class="icon">
-				<i class="ion ion-stats-bars"></i>
-			</div>
-			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+			<!-- /.info-box-content -->
 		</div>
+		<!-- /.info-box -->
 	</div>
-	<!-- ./col -->
-	<div class="col-lg-3 col-6">
-		<!-- small box -->
-		<div class="small-box bg-warning">
-			<div class="inner">
-				<h3>@ViewData["UserCount"]</h3>
+	<!-- /.col -->
+	<div class="col-md-6">
+		<div class="card">
+			<div class="card-body p-0">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>TASK</th>
+							<th>TOTAL</th>
+							<th>PASS</th>
+							<th>FAIL</th>
+							<th style="width: 40px">Percent (%)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>SENSOR TEST</td>
+							<td id="totalSensor">@Model.TotalSensor</td>
+							<td id="sensorPass">@Model.SensorPass</td>
+							<td id="sensorFail">@Model.SensorFail</td>
+							<td><span id="sensorPercent" class="badge bg-danger">@Model.SensorPercent.ToString("F1") %</span></td>
+						</tr>
+						<tr>
+							<td>WF & MIC SPL TEST</td>
+							<td id="totalWF">@Model.TotalWF</td>
+							<td id="wfPass">@Model.WFPass</td>
+							<td id="wfFail">@Model.WFFail</td>
+							<td><span id="wfPercent" class="badge bg-primary">@Model.WFPercent.ToString("F1") %</span></td>
+						</tr>
+						<tr>
+							<td>TW & MIC SPL TEST</td>
+							<td id="totalTW">@Model.TotalTW</td>
+							<td id="twPass">@Model.TWPass</td>
+							<td id="twFail">@Model.TWFail</td>
+							<td><span id="twPercent" class="badge bg-warning">@Model.TWPercent.ToString("F1") %</span></td>
+						</tr>
+						<tr>
+							<td>HEARING TEST</td>
+							<td id="totalHearing">@Model.TotalHearing</td>
+							<td id="hearingPass">@Model.HearingPass</td>
+							<td id="hearingFail">@Model.HearingFail</td>
+							<td><span id="hearingPercent" class="badge bg-success">@Model.HearingPercent.ToString("F1") %</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- /.card-body -->
+		</div>
+		<!-- /.card -->
 
-				<p>User Registrations</p>
-			</div>
-			<div class="icon">
-				<i class="ion ion-person-add"></i>
-			</div>
-			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-		</div>
 	</div>
-	<!-- ./col -->
-	<div class="col-lg-3 col-6">
-		<!-- small box -->
-		<div class="small-box bg-danger">
-			<div class="inner">
-				<h3>65</h3>
-
-				<p>Unique Visitors</p>
-			</div>
-			<div class="icon">
-				<i class="ion ion-pie-graph"></i>
-			</div>
-			<a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-		</div>
-	</div>
-	<!-- ./col -->
+	<!-- /.col -->
+	<!-- fix for small devices only -->
+	<div class="clearfix hidden-md-up"></div>
 </div>
 <!-- /.row -->
 <!-- Main row -->
@@ -83,32 +102,32 @@
 				<div class="col-md-2">
 					<div class="form-group">
 						<label for="fromDate">From Date:</label>
-						<input type="date" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+						<input id="fromDate" type="datetime-local" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
 					</div>
 				</div>
 				<div class="col-md-2">
 					<div class="form-group">
 						<label for="toDate">To Date:</label>
-						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
+						<input id="toDate" type="datetime-local" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
 					</div>
 				</div>
 				<div class="col-md-2">
 					<div class="form-group">
 						<label for="productionLineId">Production Line:</label>
-						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control" })
+						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control", @id = "productionLineId" })
 					</div>
 				</div>
 				<div class="col-md-2">
-					<div class="form-group">
-						<label for="pageSize">Page Size:</label>
-						<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
-					</div>
+					@* <div class="form-group">
+					<label for="pageSize">Page Size:</label>
+					<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
+					</div> *@
 				</div>
 				<div class="col-md-4">
 					<div class="form-actions no-color" style="text-align:end">
 						<label></label>
 						<p>
-							<input type="text" name="SearchString" value="@ViewData["Searching"]" />
+							@* <input type="text" name="SearchString" value="@ViewData["Searching"]" /> *@
 							<input type="submit" value="Search" class="btn btn-default" />
 						</p>
 					</div>
@@ -119,391 +138,124 @@
 		</form>
 	</div>
 	<!-- /.card-header -->
-	<div class="card-body">
-		<table id="example" class="table table-bordered table-striped" style="overflow:auto">
+	<div class="card-body" style="max-width: 100%; overflow-x: auto;">
+		<table id="mainList" class="table table-bordered table-striped" style="min-width: 1200px">
 			<thead>
 				<tr style="text-align:center">
-					<th>
-						NUM
+					<th colspan="5">
+						SENSOR TEST
 					</th>
-					<th>
-						Model
+					<th colspan="5">
+						WF & MIC SPL TEST
 					</th>
-					<th>
-						Date Time
+					<th colspan="5">
+						TW & MIC SPL TEST
 					</th>
-					<th colspan="7">
-						KT TW SPL
-					</th>
-					<th colspan="3">
-						SENSOR
-					</th>
-					<th colspan="8">
-						KT MIC &amp; WF SPL
-					</th>
-					<th colspan="4">
-						HEARING
+					<th colspan="5">
+						HEARING TEST
 					</th>
 				</tr>
 				<tr>
-
 					<th>
-					</th>
-					<th>
-					</th>
-
-					<th>
-					</th>
-					<th>
-						Speaker GRADE
-					</th>
-
-					<th>
-						Speaker1 SPL[10kHz]
-					</th>
-					<th>
-						Speaker1 Polarity
-					</th>
-
-					<th>
-						Speaker1 THD[1KHz]
-					</th>
-					<th>
-						Speaker1 Impedance[10kHz]
-					</th>
-
-					<th>
-						Result
-					</th>
-					<th>
-						CH
-					</th>
-
-					<th>
-						Result
-					</th>
-					<th>
-						DEVICE NO
-					</th>
-					<th>
-						BATT. VOLT.
-					</th>
-					<th>
-						Speaker1 SPL[100Hz]
-					</th>
-
-					<th>
-						Speaker1 SPL[1kHz]
-					</th>
-					<th>
-						Speaker1 Polarity
-					</th>
-
-					<th>
-						Speaker1 Impedance[1kHz]
-					</th>
-					<th>
-						MIC1 SENS at 1kHz
-					</th>
-					<th>
-						MIC1 Current
-					</th>
-					<th>
-						Result
-					</th>
-
-					<th>
-						CH
-					</th>
-					<th>
-						Speaker1 SPL[1kHz]
-					</th>
-
-					<th>
-						Result
+						TOTAL
 					</th>
 					<th>
 						CH
 					</th>
 					<th>
-						NUM
-					</th>
-				</tr>
-				<tr>
-
-					<th>Lower</th>
-					<th></th>
-					<th></th>
-					<th>112,1</th>
-					<th>101,1</th>
-					<th>1</th>
-					<th>0</th>
-					<th>30,6</th>
-					<th>
-					</th>
-					<th></th>
-					<th></th>
-					<th></th>
-					<th>3,6</th>
-					<th>105</th>
-
-					<th>
-						98,7
+						PASS
 					</th>
 					<th>
-
+						NG
 					</th>
 
 					<th>
-						28,9
+						N.G(%)
+					</th>
+					
+					<th>
+						TOTAL
 					</th>
 					<th>
-						-41,5
+						CH
 					</th>
 					<th>
-						110
+						PASS
 					</th>
 					<th>
-					</th>
-
-					<th>
-					</th>
-					<th>
-						70
-					</th>
-
-					<th>
-					</th>
-					<th>
-					</th>
-					<th>
-					</th>
-				</tr>
-				<tr>
-					<th>
-						Upper
-					</th>
-					<th>
+						NG
 					</th>
 
 					<th>
+						N.G(%)
 					</th>
 					<th>
-						116,2
-					</th>
-
-					<th>
-						107,1
+						TOTAL
 					</th>
 					<th>
-						1
-					</th>
-
-					<th>
-						10
+						CH
 					</th>
 					<th>
-						41,1
+						PASS
+					</th>
+					<th>
+						NG
 					</th>
 
 					<th>
+						N.G(%)
 					</th>
 					<th>
-					</th>
-
-					<th>
+						TOTAL
 					</th>
 					<th>
+						CH
 					</th>
 					<th>
-						4,2
+						PASS
 					</th>
 					<th>
-						109
-					</th>
-
-					<th>
-						102,7
-					</th>
-					<th>
+						NG
 					</th>
 
 					<th>
-						39,1
-					</th>
-					<th>
-						-33,5
-					</th>
-					<th>
-						150
-					</th>
-					<th>
-					</th>
-
-					<th>
-					</th>
-					<th>
-						100
-					</th>
-
-					<th>
-					</th>
-					<th>
-					</th>
-					<th>
+						N.G(%)
 					</th>
 				</tr>
 			</thead>
 			<tbody>
-				@if (Model.Any())
+				@if (mainList.Any())
 				{
-					@foreach (var item in Model)
+					@foreach (var item in mainList.OrderBy(x => x.CH))
 					{
 						<tr>
 
+							<td>@(item.SensorTest != null ? item.SensorTest.Total : 0)</td>
+							<td>@item.CH</td>
+							<td>@(item.SensorTest != null ? item.SensorTest.TotalPass : 0)</td>
+							<td>@(item.SensorTest != null ? item.SensorTest.TotalFail : 0)</td>
+							<td>@(item.SensorTest != null ? item.SensorTest.PercentFail : "0%")</td>
+
+							<td>@(item.WFMICTest != null ? item.WFMICTest.Total : 0)</td>
+							<td>@item.CH</td>
+							<td>@(item.WFMICTest != null ? item.WFMICTest.TotalPass : 0)</td>
+							<td>@(item.WFMICTest != null ? item.WFMICTest.TotalFail : 0)</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.NUM)
+								@(item.WFMICTest != null ? item.WFMICTest.PercentFail : "0%")
 							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Model)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.DateTime)
-							</td>
-							@if (item.KT_TW_SPL != null)
-							{
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Grade)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.SPL_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Polarity)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.THD_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Impedance_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.Result)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_TW_SPL!.CH)
-								</td>
-							}
-							else
-							{
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-							}
-							@if (item.Sensor != null)
-							{
-								<td>
-									@Html.DisplayFor(modelItem => item.Sensor!.Result)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Sensor!.DeviceNo)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Sensor!.BattVolt)
-								</td>
-							}
-							else
-							{
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-							}
-							@if (item.KT_MIC_WF_SPL != null)
-							{
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_100Hz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.SPL_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Polarity)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Impedance_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1SENS_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.MIC1Current)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.Result)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.KT_MIC_WF_SPL!.CH)
-								</td>
-							}
-							else
-							{
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-							}
-							@if (item.Hearing != null)
-							{
-								<td>
-									@Html.DisplayFor(modelItem => item.Hearing!.Speaker1SPL_1kHz)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Hearing!.Result)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Hearing!.CH)
-								</td>
-								<td>
-									@Html.DisplayFor(modelItem => item.Hearing!.NUM)
-								</td>
-							}
-							else
-							{
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-								<td>
-								</td>
-							}
+
+							<td>@(item.TWTest != null ? item.TWTest.Total : 0)</td>
+							<td>@item.CH</td>
+							<td>@(item.TWTest != null ? item.TWTest.TotalPass : 0)</td>
+							<td>@(item.TWTest != null ? item.TWTest.TotalFail : 0)</td>
+							<td>@(item.TWTest != null ? item.TWTest.PercentFail : "0%")</td>
+
+							<td>@(item.HearingTest != null ? item.HearingTest.Total : 0)</td>
+							<td>@item.CH</td>
+							<td>@(item.HearingTest != null ? item.HearingTest.TotalPass : 0)</td>
+							<td>@(item.HearingTest != null ? item.HearingTest.TotalFail : 0)</td>
+							<td>@(item.HearingTest != null ? item.HearingTest.PercentFail : "0%")</td>
+
 						</tr>
 					}
 				}
@@ -511,63 +263,165 @@
 		</table>
 	</div>
 </div>
-<div class="row">
-	<div class="col-md-6">
-	</div>
-	<div class="col-md-6">
-		<nav>
-			<ul class="pagination justify-content-end">
-				<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
-					<a class="page-link" asp-route-pageNumber="1"
-					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-pageSize="@ViewBag.PageSize"
-					   asp-route-SearchString="@ViewData["Searching"]">
-						<span>First</span>
-					</a>
-				</li>
-				<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
-					<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
-					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-pageSize="@ViewBag.PageSize"
-					   asp-route-SearchString="@ViewData["Searching"]">
-						<span>Previous</span>
-					</a>
-				</li>
-				@for (int i = startPage; i <= endPage; i++)
-				{
-					<li class="page-item @(Model.PageIndex == i? " active" : "")">
-						<a class="page-link" asp-route-pageNumber="@i"
-						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-pageSize="@ViewBag.PageSize"
-						   asp-route-SearchString="@ViewData["Searching"]">
-							<span>@i</span>
-						</a>
-					</li>
-				}
-				<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
-					<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
-					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-pageSize="@ViewBag.PageSize"
-					   asp-route-SearchString="@ViewData["Searching"]">
-						<span>Next</span>
-					</a>
-				</li>
-				<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
-					<a class="page-link" asp-route-pageNumber="@endPage"
-					   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-					   asp-route-pageSize="@ViewBag.PageSize"
-					   asp-route-SearchString="@ViewData["Searching"]">
-						<span>Last</span>
-					</a>
-				</li>
-			</ul>
+<div class="card col-md-8">
+	<div class="card-header">
+		<h3 class="card-title">Hearing Test</h3>
 
-		</nav>
+		@* <div class="card-tools">
+			<div class="input-group input-group-sm" style="width: 150px;">
+				<input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+
+				<div class="input-group-append">
+					<button type="submit" id="table_search" class="btn btn-default ">
+						<i class="fas fa-search"></i>
+					</button>
+				</div>
+			</div>
+		</div> *@
+	</div>
+	<div class="card-body table-responsive p-0" style="height: 500px;">
+		<table id="historyHearing" class="table table-head-fixed text-nowrap">
+			<thead>
+				<tr>
+					<th>NO</th>
+					<th>LINE</th>
+					<th>BARCODE</th>
+					<th>DATE</th>
+					<th>RESULT</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (historyList.Any())
+				{
+					var i = 0;
+					@foreach (var item in historyList)
+					{
+						<tr>
+
+							<td>@(++i)</td>
+							<td>
+								@{
+									var productionLineId = item.ProductionLineId;
+									var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
+									var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
+								}
+								@productionLineName
+							</td>
+							<td><a asp-controller="Hearings" asp-action="Details" asp-route-num="@item.NUM">@Html.DisplayFor(modelItem => item.NUM)</a></td>
+							<td>@Html.DisplayFor(modelItem => item.DateTime)</td>
+							<td>@Html.DisplayFor(modelItem => item.Result)</td>
+
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
 	</div>
 </div>
+
 <!-- /.row (main row) -->
+@section Scripts {
+	@{
+		<script>
+			$(document).ready(function () {
+				setInterval(function () {
+					var url = "@Url.Action("GetUpdatedData", "Home")";
+					var params = {
+						productionLineId: $("#productionLineId").val(),
+						fromDate: $("#fromDate").val(),
+						toDate: $("#toDate").val()
+					};
+
+					url += "?" + $.param(params);
+					$.ajax({
+						type: "GET",
+						url: url,
+						dataType: "json",
+						success: function (data) {
+							// Assuming `data` is the updated JSON data from your AJAX call
+							$('#totalSensor').text(data.totalSensor);
+							$('#sensorPass').text(data.sensorPass);
+							$('#sensorFail').text(data.sensorFail);
+							$('#sensorPercent').text(data.sensorPercent.toFixed(1) + ' %');
+
+							// Similar updates for the other fields
+							$('#totalWF').text(data.totalWF);
+							$('#wfPass').text(data.wfPass);
+							$('#wfFail').text(data.wfFail);
+							$('#wfPercent').text(data.wfPercent.toFixed(1) + ' %');
+							// Update the main table
+							updateMainTable(data.mainList);
+
+							// Update the history table
+							updateHistoryTable(data.historyHearingList);
+						}
+					});
+				}, 10000); // Fetch data every 5 seconds
+
+			});
+
+			
+
+			function updateMainTable(data) {
+				var tableBody = $("#mainList tbody");
+				tableBody.empty();
+
+				$.each(data, function (index, item) {
+					var row = $("<tr>");
+
+					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.total : 0));
+					row.append($("<td>").text(item.ch));
+					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.totalPass : 0));
+					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.totalFail : 0));
+					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.percentFail : "0%"));
+					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.totalUpdate : 0));
+
+					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.total : 0));
+					row.append($("<td>").text(item.ch));
+					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.totalPass : 0));
+					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.totalFail : 0));
+					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.percentFail : "0%"));
+					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.totalUpdate : 0));
+
+					row.append($("<td>").text(item.twTest != null ? item.twTest.total : 0));
+					row.append($("<td>").text(item.ch));
+					row.append($("<td>").text(item.twTest != null ? item.twTest.totalPass : 0));
+					row.append($("<td>").text(item.twTest != null ? item.twTest.totalFail : 0));
+					row.append($("<td>").text(item.twTest != null ? item.twTest.percentFail : "0%"));
+					row.append($("<td>").text(item.twTest != null ? item.twTest.totalUpdate : 0));
+
+					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.total : 0));
+					row.append($("<td>").text(item.ch));
+					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.totalPass : 0));
+					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.totalFail : 0));
+					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.percentFail : "0%"));
+					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.totalUpdate : 0));
+
+					tableBody.append(row);
+				});
+			}
+			function updateHistoryTable(data) {
+				var tableBody = $("#historyHearing tbody");
+				tableBody.empty();
+				var productionLines = @Html.Raw(Json.Serialize(productionLines));
+
+				$.each(data, function (index, item) {
+					var row = $("<tr>");
+					// Find the corresponding production line name
+					var productionLine = productionLines.find(function(line) {
+						return line.value === item.productionLineId.toString();
+					});
+					var productionLineName = productionLine ? productionLine.text : "Unknown";
+					row.append($("<td>").text(index + 1));
+					row.append($("<td>").text(productionLineName));
+					row.append($("<td>").html("<a href='/Hearings/Details?num=" + item.num + "'>" + item.num + "</a>"));
+					row.append($("<td>").text(item.dateTime));
+					row.append($("<td>").text(item.result));
+
+					tableBody.append(row);
+				});
+			}
+		</script>
+
+	}
+}

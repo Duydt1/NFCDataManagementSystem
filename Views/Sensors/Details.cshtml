@@ -2,18 +2,22 @@
 @model NFC.Data.Entities.Sensor
 
 @{
-    ViewData["Title"] = "Sensor";
+	ViewData["Title"] = $"Sensor - {Model.NUM}";
     ViewData["SubTitle"] = "Details";
     List<Sensor> historyUpdateDatas = (List<Sensor>)ViewData["HistoryUpdateData"];
 }
 
 <div>
-    <h4>@Html.DisplayFor(model => model.NUM) -  @Html.DisplayFor(model => model.Model)</h4>
-    <hr />
     <div class="card">
         <div class="card-body">
             <table class="table table-bordered">
                 <tbody>
+					<tr>
+						<td><b>NUM</b></td>
+						<td>@Html.DisplayFor(model => model.NUM)</td>
+						<td><b>Model</b></td>
+						<td>@Html.DisplayFor(model => model.Model)</td>
+					</tr>
                     <tr>
                         <td><b>@Html.DisplayNameFor(model => model.CH)</b></td>
                         <td>@Html.DisplayFor(model => model.CH)</td>
@@ -32,6 +36,78 @@
                         <td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
                         <td>@Html.DisplayFor(model => model.ProductionLine!.Name)</td>
                     </tr>
+					<tr>
+						<td><b>J1_5</b></td>
+						<td>@Html.DisplayFor(model =>model.J1_5)</td>
+						<td><b>J1_6</b></td>
+						<td>@Html.DisplayFor(model =>model.J1_6)</td>
+					</tr>
+					<tr>
+						<td><b>J1_11</b></td>
+						<td>@Html.DisplayFor(model =>model.J1_11)</td>
+						<td><b>J1_17</b></td>
+						<td>@Html.DisplayFor(model =>model.J1_17)</td>
+					</tr>
+					<tr>
+						<td><b>SHORT</b></td>
+						<td>@Html.DisplayFor(model =>model.SHORT)</td>
+						<td><b>SPK TW</b></td>
+						<td>@Html.DisplayFor(model =>model.SPK_TW)</td>
+					</tr>
+					<tr>
+						<td><b>SPK WF</b></td>
+						<td>@Html.DisplayFor(model =>model.SPK_WF)</td>
+						<td><b>DEVICE ID1</b></td>
+						<td>@Html.DisplayFor(model =>model.DEVICE_ID1)</td>
+					</tr>
+					<tr>
+						<td><b>DEVICE ID2</b></td>
+						<td>@Html.DisplayFor(model =>model.DEVICE_ID2)</td>
+						<td><b>DEVICE ID3</b></td>
+						<td>@Html.DisplayFor(model =>model.DEVICE_ID3)</td>
+					</tr>
+					<tr>
+						<td><b>DEVICE ID4</b></td>
+						<td>@Html.DisplayFor(model =>model.DEVICE_ID4)</td>
+						<td><b>TYPE ID</b></td>
+						<td>@Html.DisplayFor(model =>model.TYPE_ID)</td>
+					</tr>
+					<tr>
+						<td><b>T0 OPEN</b></td>
+						<td>@Html.DisplayFor(model =>model.T0_OPEN)</td>
+						<td><b>T1 OPEN</b></td>
+						<td>@Html.DisplayFor(model =>model.T1_OPEN)</td>
+					</tr>
+					<tr>
+						<td><b>T0 KODAK CLOSE</b></td>
+						<td>@Html.DisplayFor(model =>model.T0_KODAK_CLOSE)</td>
+						<td><b>T1 KODAK CLOSE</b></td>
+						<td>@Html.DisplayFor(model =>model.T1_KODAK_CLOSE)</td>
+					</tr>
+					<tr>
+						<td><b>T0 KODAK DIFF</b></td>
+						<td>@Html.DisplayFor(model =>model.T0_KODAK_DIFF)</td>
+						<td><b>T1 KODAK DIFF</b></td>
+						<td>@Html.DisplayFor(model =>model.T1_KODAK_DIFF)</td>
+					</tr>
+					<tr>
+						<td><b>T0 SKIN CLOSE</b></td>
+						<td>@Html.DisplayFor(model =>model.T0_SKIN_CLOSE)</td>
+						<td><b>T1 SKIN CLOSE</b></td>
+						<td>@Html.DisplayFor(model =>model.T1_SKIN_CLOSE)</td>
+					</tr>
+					<tr>
+						<td><b>SKIN DIFF</b></td>
+						<td>@Html.DisplayFor(model =>model.SKIN_DIFF)</td>
+						<td><b>MIC 768KHz Peak</b></td>
+						<td>@Html.DisplayFor(model =>model.MIC_768KHz_Peak)</td>
+					</tr>
+					<tr>
+						<td><b>Result</b></td>
+						<td>@Html.DisplayFor(model =>model.Result)</td>
+						<td><b>Date Time</b></td>
+						<td>@Html.DisplayFor(model =>model.DateTime)</td>
+					</tr>
                 </tbody>
             </table>
         </div>
@@ -61,7 +137,7 @@
 															<tr data-widget="expandable-table" aria-expanded="false">
 																<td>
 																	<i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
-																	Update on: @Html.DisplayFor(item => item.ModifiedOn)
+																	Update on: @item.DateTime
 																</td>
 															</tr>
 															<tr class="expandable-body">
@@ -70,22 +146,94 @@
 																		<table class="table table-bordered">
 																			<tbody>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(model => model.CH)</b></td>
-																					<td>@Html.DisplayFor(model => model.CH)</td>
-																					<td><b>@Html.DisplayNameFor(model => model.Result)</b></td>
-																					<td>@Html.DisplayFor(model => model.Result)</td>
+																					<td><b>CH</b></td>
+																					<td>@item.CH</td>
+																					<td><b>Result</b></td>
+																					<td>@item.Result</td>
 																				</tr>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(model => model.DeviceNo)</b></td>
-																					<td>@Html.DisplayFor(model => model.DeviceNo)</td>
-																					<td><b>@Html.DisplayNameFor(model => model.BattVolt)</b></td>
-																					<td>@Html.DisplayFor(model => model.BattVolt)</td>
+																					<td><b>@item.DeviceNo</b></td>
+																					<td>@item.DeviceNo</td>
+																					<td><b>@item.BattVolt</b></td>
+																					<td>@item.BattVolt</td>
 																				</tr>
 																				<tr>
-																					<td><b>@Html.DisplayNameFor(model => model.DateTime)</b></td>
-																					<td>@Html.DisplayFor(model => model.DateTime)</td>
-																					<td><b>@Html.DisplayNameFor(model => model.ProductionLine!.Name)</b></td>
-																					<td>@Html.DisplayFor(model => model.ProductionLine!.Name)</td>
+																					<td><b>Date Time</b></td>
+																					<td>@item.DateTime</td>
+																					<td><b>Production Line</b></td>
+																					<td>@item.ProductionLine!.Name</td>
+																				</tr>
+																				<tr>
+																					<td><b>J1_5</b></td>
+																					<td>@item.J1_5</td>
+																					<td><b>J1_6</b></td>
+																					<td>@item.J1_6</td>
+																				</tr>
+																				<tr>
+																					<td><b>J1_11</b></td>
+																					<td>@item.J1_11</td>
+																					<td><b>J1_17</b></td>
+																					<td>@item.J1_17</td>
+																				</tr>
+																				<tr>
+																					<td><b>SHORT</b></td>
+																					<td>@item.SHORT</td>
+																					<td><b>SPK TW</b></td>
+																					<td>@item.SPK_TW</td>
+																				</tr>
+																				<tr>
+																					<td><b>SPK WF</b></td>
+																					<td>@item.SPK_WF</td>
+																					<td><b>DEVICE ID1</b></td>
+																					<td>@item.DEVICE_ID1</td>
+																				</tr>
+																				<tr>
+																					<td><b>DEVICE ID2</b></td>
+																					<td>@item.DEVICE_ID2</td>
+																					<td><b>DEVICE ID3</b></td>
+																					<td>@item.DEVICE_ID3</td>
+																				</tr>
+																				<tr>
+																					<td><b>DEVICE ID4</b></td>
+																					<td>@item.DEVICE_ID4</td>
+																					<td><b>TYPE ID</b></td>
+																					<td>@item.TYPE_ID</td>
+																				</tr>
+																				<tr>
+																					<td><b>T0 OPEN</b></td>
+																					<td>@item.T0_OPEN</td>
+																					<td><b>T1 OPEN</b></td>
+																					<td>@item.T1_OPEN</td>
+																				</tr>
+																				<tr>
+																					<td><b>T0 KODAK CLOSE</b></td>
+																					<td>@item.T0_KODAK_CLOSE</td>
+																					<td><b>T1 KODAK CLOSE</b></td>
+																					<td>@item.T1_KODAK_CLOSE</td>
+																				</tr>
+																				<tr>
+																					<td><b>T0 KODAK DIFF</b></td>
+																					<td>@item.T0_KODAK_DIFF</td>
+																					<td><b>T1 KODAK DIFF</b></td>
+																					<td>@item.T1_KODAK_DIFF</td>
+																				</tr>
+																				<tr>
+																					<td><b>T0 SKIN CLOSE</b></td>
+																					<td>@item.T0_SKIN_CLOSE</td>
+																					<td><b>T1 SKIN CLOSE</b></td>
+																					<td>@item.T1_SKIN_CLOSE</td>
+																				</tr>
+																				<tr>
+																					<td><b>SKIN DIFF</b></td>
+																					<td>@item.SKIN_DIFF</td>
+																					<td><b>MIC 768KHz Peak</b></td>
+																					<td>@item.MIC_768KHz_Peak</td>
+																				</tr>
+																				<tr>
+																					<td><b>Result</b></td>
+																					<td>@item.Result</td>
+																					<td><b>Date Time</b></td>
+																					<td>@item.DateTime</td>
 																				</tr>
 																			</tbody>
 																		</table>
@@ -111,9 +259,9 @@
 	}
 </div>
 <div class="row">
-    <div class="col-sm-1">
+    @* <div class="col-sm-1">
         <a asp-action="Edit" class="btn btn-block btn-warning " asp-route-id="@Model?.Id">Edit</a>
-    </div>
+    </div> *@
     <div class="col-sm-1">
         <a asp-action="Index" class="btn btn-block btn-danger">Back to List</a>
     </div>
