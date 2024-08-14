@@ -103,10 +103,76 @@
 						<td>@Html.DisplayFor(model =>model.MIC_768KHz_Peak)</td>
 					</tr>
 					<tr>
+						<td><b>SKIN RATIO</b></td>
+						<td>@Html.DisplayFor(model => model.SKIN_RATIO)</td>
+						<td><b>T0 TRIM CODE</b></td>
+						<td>@Html.DisplayFor(model => model.T0_TRIM_CODE)</td>
+					</tr>
+					<tr>
+						<td><b>T1 TRIM CODE</b></td>
+						<td>@Html.DisplayFor(model => model.T1_TRIM_CODE)</td>
+						<td><b>T0 TRIM FACTOR</b></td>
+						<td>@Html.DisplayFor(model => model.T0_TRIM_FACTOR)</td>
+					</tr>
+					<tr>
+						<td><b>T1 TRIM FACTOR</b></td>
+						<td>@Html.DisplayFor(model => model.T1_TRIM_FACTOR)</td>
+						<td><b>CT ADC T0 ON</b></td>
+						<td>@Html.DisplayFor(model => model.CT_ADC_T0_ON)</td>
+					</tr>
+					<tr>
+						<td><b>CT ADC T0 OFF</b></td>
+						<td>@Html.DisplayFor(model => model.CT_ADC_T0_OFF)</td>
+						<td><b>CT ADC T1 ON</b></td>
+						<td>@Html.DisplayFor(model => model.CT_ADC_T1_ON)</td>
+					</tr>
+					<tr>
+						<td><b>CT ADC T1 OFF</b></td>
+						<td>@Html.DisplayFor(model => model.CT_ADC_T1_OFF)</td>
+						<td><b>CARD ADC T0 ON</b></td>
+						<td>@Html.DisplayFor(model => model.CARD_ADC_T0_ON)</td>
+					</tr>
+					<tr>
+						<td><b>CARD ADC T0 OFF</b></td>
+						<td>@Html.DisplayFor(model => model.CARD_ADC_T0_OFF)</td>
+						<td><b>CARD ADC T1 ON</b></td>
+						<td>@Html.DisplayFor(model => model.CARD_ADC_T1_ON)</td>
+					</tr>
+					<tr>
+						<td><b>CARD ADC T1 OFF</b></td>
+						<td>@Html.DisplayFor(model => model.CARD_ADC_T1_OFF)</td>
+						<td><b>SKIN ADC T0 ON</b></td>
+						<td>@Html.DisplayFor(model => model.SKIN_ADC_T0_ON)</td>
+					</tr>
+					<tr>
+						<td><b>SKIN ADC T0 OFF</b></td>
+						<td>@Html.DisplayFor(model => model.SKIN_ADC_T0_OFF)</td>
+						<td><b>SKIN ADC T1 ON</b></td>
+						<td>@Html.DisplayFor(model => model.SKIN_ADC_T1_ON)</td>
+					</tr>
+					<tr>
+						<td><b>SKIN ADC T1 OFF</b></td>
+						<td>@Html.DisplayFor(model => model.SKIN_ADC_T1_OFF)</td>
+						<td><b>TYP 1 T0 G4</b></td>
+						<td>@Html.DisplayFor(model => model.TYP_1_T0_G4)</td>
+					</tr>
+					<tr>
+						<td><b>TYP 1 T1 G4</b></td>
+						<td>@Html.DisplayFor(model => model.TYP_1_T1_G4)</td>
+						<td><b>TYP 1 T0 TARGET</b></td>
+						<td>@Html.DisplayFor(model => model.TYP_1_T0_TARGET)</td>
+					</tr>
+					<tr>
+						<td><b>TYP 1 T1 TARGET</b></td>
+						<td>@Html.DisplayFor(model => model.TYP_1_T1_TARGET)</td>
+						<td><b>POC TEMP</b></td>
+						<td>@Html.DisplayFor(model => model.POC_TEMP)</td>
+					</tr>
+					<tr>
+						<td><b>ACT TEMP</b></td>
+						<td>@Html.DisplayFor(model => model.ACT_TEMP)</td>
 						<td><b>Result</b></td>
-						<td>@Html.DisplayFor(model =>model.Result)</td>
-						<td><b>Date Time</b></td>
-						<td>@Html.DisplayFor(model =>model.DateTime)</td>
+						<td>@Html.DisplayFor(model => model.Result)</td>
 					</tr>
                 </tbody>
             </table>
@@ -223,6 +289,17 @@
 																					<td><b>T1 SKIN CLOSE</b></td>
 																					<td>@item.T1_SKIN_CLOSE</td>
 																				</tr>
+																				Verify
+
+																				Open In Editor
+																				Edit
+																				Copy code
+																				<tr>
+																					<td><b>T0 SKIN CLOSE</b></td>
+																					<td>@item.T0_SKIN_CLOSE</td>
+																					<td><b>T1 SKIN CLOSE</b></td>
+																					<td>@item.T1_SKIN_CLOSE</td>
+																				</tr>
 																				<tr>
 																					<td><b>SKIN DIFF</b></td>
 																					<td>@item.SKIN_DIFF</td>
@@ -230,10 +307,82 @@
 																					<td>@item.MIC_768KHz_Peak</td>
 																				</tr>
 																				<tr>
+																					<td><b>SKIN RATIO</b></td>
+																					<td>@item.SKIN_RATIO</td>
+																					<td><b>T0 TRIM CODE</b></td>
+																					<td>@item.T0_TRIM_CODE</td>
+																				</tr>
+																				<tr>
+																					<td><b>T1 TRIM CODE</b></td>
+																					<td>@item.T1_TRIM_CODE</td>
+																					<td><b>T0 TRIM FACTOR</b></td>
+																					<td>@item.T0_TRIM_FACTOR</td>
+																				</tr>
+																				<tr>
+																					<td><b>T1 TRIM FACTOR</b></td>
+																					<td>@item.T1_TRIM_FACTOR</td>
+																					<td><b>CT ADC T0 ON</b></td>
+																					<td>@item.CT_ADC_T0_ON</td>
+																				</tr>
+																				<tr>
+																					<td><b>CT ADC T0 OFF</b></td>
+																					<td>@item.CT_ADC_T0_OFF</td>
+																					<td><b>CT ADC T1 ON</b></td>
+																					<td>@item.CT_ADC_T1_ON</td>
+																				</tr>
+																				<tr>
+																					<td><b>CT ADC T1 OFF</b></td>
+																					<td>@item.CT_ADC_T1_OFF</td>
+																					<td><b>CARD ADC T0 ON</b></td>
+																					<td>@item.CARD_ADC_T0_ON</td>
+																				</tr>
+																				<tr>
+																					<td><b>CARD ADC T0 OFF</b></td>
+																					<td>@item.CARD_ADC_T0_OFF</td>
+																					<td><b>CARD ADC T1 ON</b></td>
+																					<td>@item.CARD_ADC_T1_ON</td>
+																				</tr>
+																				<tr>
+																					<td><b>CARD ADC T1 OFF</b></td>
+																					<td>@item.CARD_ADC_T1_OFF</td>
+																					<td><b>SKIN ADC T0 ON</b></td>
+																					<td>@item.SKIN_ADC_T0_ON</td>
+																				</tr>
+																				<tr>
+																					<td><b>SKIN ADC T0 OFF</b></td>
+																					<td>@item.SKIN_ADC_T0_OFF</td>
+																					<td><b>SKIN ADC T1 ON</b></td>
+																					<td>@item.SKIN_ADC_T1_ON</td>
+																				</tr>
+																				<tr>
+																					<td><b>SKIN ADC T1 OFF</b></td>
+																					<td>@item.SKIN_ADC_T1_OFF</td>
+																					<td><b>TYP 1 T0 G4</b></td>
+																					<td>@item.TYP_1_T0_G4</td>
+																				</tr>
+																				<tr>
+																					<td><b>TYP 1 T1 G4</b></td>
+																					<td>@item.TYP_1_T1_G4</td>
+																					<td><b>TYP 1 T0 TARGET</b></td>
+																					<td>@item.TYP_1_T0_TARGET</td>
+																				</tr>
+																				<tr>
+																					<td><b>TYP 1 T1 TARGET</b></td>
+																					<td>@item.TYP_1_T1_TARGET</td>
+																					<td><b>POC TEMP</b></td>
+																					<td>@item.POC_TEMP</td>
+																				</tr>
+																				<tr>
+																					<td><b>SKIN DIFF</b></td>
+																					<td>@item.SKIN_DIFF</td>
+																					<td><b>MIC 768KHz Peak</b></td>
+																					<td>@item.MIC_768KHz_Peak</td>
+																				</tr>
+																				<tr>
+																					<td><b>ACT TEMP</b></td>
+																					<td>@item.ACT_TEMP</td>
 																					<td><b>Result</b></td>
 																					<td>@item.Result</td>
-																					<td><b>Date Time</b></td>
-																					<td>@item.DateTime</td>
 																				</tr>
 																			</tbody>
 																		</table>

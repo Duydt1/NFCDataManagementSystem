@@ -53,6 +53,7 @@ namespace NFC.Services
         {
             var lstKTTW = await NFCReadFile.ReadListKTTWAsync(reader);
             var result = new UploadNFCDataResponse();
+            var title = "Upload Data: ";
             if (lstKTTW.Count < 1)
                 result.Message = "List data is empty";
             else
@@ -73,7 +74,13 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
+                    else
+                    {
+						title += $"{item.NUM}; ";
+                    }
+
                 }
+                result.Title = title;
 				result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
 			}
 
@@ -86,7 +93,8 @@ namespace NFC.Services
         {
             var lstKTTW = await NFCReadFile.ReadListKTMICAsync(reader);
             var result = new UploadNFCDataResponse();
-            if (lstKTTW.Count < 1)
+			var title = "Upload Data: ";
+			if (lstKTTW.Count < 1)
                 result.Message = "List data is empty";
             else
             {
@@ -110,9 +118,14 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
-					result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+					else
+					{
+						title += $"{item.NUM}; ";
+					}
 				}
-            }
+				result.Title = title;
+				result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+			}
 
             if (!string.IsNullOrEmpty(result.Message))
                 result.Code = System.Net.HttpStatusCode.BadRequest;
@@ -123,7 +136,8 @@ namespace NFC.Services
         {
             var lstKTTW = await NFCReadFile.ReadListSensorAsync(reader);
             var result = new UploadNFCDataResponse();
-            if (lstKTTW.Count < 1)
+			var title = "Upload Data: ";
+			if (lstKTTW.Count < 1)
                 result.Message = "List data is empty";
             else
             {
@@ -143,11 +157,18 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
-					result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+					else
+					{
+						title += $"{item.NUM}; ";
+					}
 				}
-            }
+				result.Title = title;
+				result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
 
-            if (!string.IsNullOrEmpty(result.Message))
+
+			}
+
+			if (!string.IsNullOrEmpty(result.Message))
                 result.Code = System.Net.HttpStatusCode.BadRequest;
 
             return result;
@@ -156,7 +177,8 @@ namespace NFC.Services
         {
             var lstKTTW = await NFCReadFile.ReadListHearingAsync(reader);
             var result = new UploadNFCDataResponse();
-            if (lstKTTW.Count < 1)
+			var title = "Upload Data: ";
+			if (lstKTTW.Count < 1)
                 result.Message = "List data is empty";
             else
             {
@@ -175,9 +197,14 @@ namespace NFC.Services
                         string strNum = $"Error Data in line {line} : ";
                         result.Message = strNum + result.Message;
                     }
-					result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+					else
+					{
+						title += $"{item.NUM}; ";
+					}
 				}
-            }
+				result.Title = title;
+				result.NFCDatas = JsonConvert.SerializeObject(lstKTTW);
+			}
             if (!string.IsNullOrEmpty(result.Message))
                 result.Code = System.Net.HttpStatusCode.BadRequest;
 

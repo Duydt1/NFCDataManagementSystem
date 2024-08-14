@@ -105,17 +105,14 @@ namespace NFC.Controllers
                 };
                 var result = await repo.CreateUserAsync(user, model.Password);
                 if (result.Id != null)
-                    return RedirectToAction(nameof(Index));
-                else return View(model);
+                {
+					await RefreshRolesCache();
+					return RedirectToAction(nameof(Index));
+				}
+				else return View(model);
 
 
             }
-			var productionLinesCacheKey = $"productionLines_";
-			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
-			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
-			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
-            ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
             return View(model);
         }
 
@@ -193,7 +190,9 @@ namespace NFC.Controllers
                 {
                     throw ex;
                 }
-                return RedirectToAction(nameof(Index));
+                await RefreshRolesCache();
+
+				return RedirectToAction(nameof(Index));
             }
 			var cache = _serviceProvider.GetService<IDistributedCache>();
 			var productionLinesCacheKey = $"productionLines_";
@@ -247,5 +246,16 @@ namespace NFC.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-    }
+
+		private async Task RefreshRolesCache()
+		{
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+
+			var cacheKey = $"users";
+			var users = await repo.GetAllUserAsync();
+
+			await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromDays(1));
+		}
+	}
 }

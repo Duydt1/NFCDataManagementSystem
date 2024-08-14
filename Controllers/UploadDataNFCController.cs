@@ -142,6 +142,7 @@ namespace NFC.Controllers
 					FileContent = request.NFCContent,
 					Status = response.Code != HttpStatusCode.OK ? (int)NFCCommon.HistoryStatus.Declined : (int)NFCCommon.HistoryStatus.New,
 					Type = request.NFCType,
+					Title = response.Title,
 					Message = response.Message,
 					ProductionLineId = productionLineId != 0 ? productionLineId : null,
 					CreatedById = user != null ? user.Id : null,
@@ -149,16 +150,20 @@ namespace NFC.Controllers
 				};
 				var repoHistoryUpload = _serviceProvider.GetService<IHistoryUploadRepository>();
 				await repoHistoryUpload.CreateAsync(historyUpload);
-
-				var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
-				await publishEndpoint.Publish(new MessageUpload
+				if (response.Code == HttpStatusCode.OK)
 				{
-					Id = historyUpload.Id,
-					Type = request.NFCType,
-					ProductionLineId = productionLineId,
-					Datas = response.NFCDatas,
-					UserId = historyUpload.CreatedById
-				});
+					var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
+					await publishEndpoint.Publish(new MessageUpload
+					{
+						Id = historyUpload.Id,
+						Type = request.NFCType,
+						Title = response.Title,
+						ProductionLineId = productionLineId,
+						Datas = response.NFCDatas,
+						UserId = historyUpload.CreatedById
+					});
+				}
+				
 
 			}
 			catch (Exception ex)

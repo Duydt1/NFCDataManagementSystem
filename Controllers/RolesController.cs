@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Distributed;
+using NFC.Data.Entities;
 using NFC.Models;
 
 namespace NFC.Controllers
@@ -52,6 +53,7 @@ namespace NFC.Controllers
 			var repo = _serviceProvider.GetService<IProductionLineRepository>();
 			var productionLines = await repo.GetAllAsync();
 			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
+
 			return View();
 		}
 
@@ -70,7 +72,11 @@ namespace NFC.Controllers
 						Name = model.RoleName
 					});
 					if (result.Succeeded)
+					{
+						await RefreshRolesCache();
 						return RedirectToAction(nameof(Index));
+
+					}
 					else return View(result);
 				}
 			}
@@ -112,6 +118,7 @@ namespace NFC.Controllers
 					var result = await repo.GetRoleAsync(id);
 					result.Name = model.RoleName;
 					await repo.UpdateRoleAsync(result);
+					await RefreshRolesCache();
 				}
 				return RedirectToAction(nameof(Index));
 			}
@@ -143,10 +150,20 @@ namespace NFC.Controllers
 			if (role != null)
 			{
 				await repo.DeleteRoleAsync(role);
+				await RefreshRolesCache();
 			}
 			return RedirectToAction(nameof(Index));
 		}
+		private async Task RefreshRolesCache()
+		{
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var cache = _serviceProvider.GetService<IDistributedCache>();
 
+			var roles = await repo.GetAllRolesAsync();
+			var cacheKey = $"roles";
+
+			await cache.SetRecordAsync(cacheKey, roles, TimeSpan.FromDays(1), TimeSpan.FromDays(1));
+		}
 		private async Task<bool> RoleExists(string roleName)
 		{
 			var repo = _serviceProvider.GetService<IIdentityRepository>();

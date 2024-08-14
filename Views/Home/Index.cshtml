@@ -172,7 +172,7 @@
 					<th>
 						N.G(%)
 					</th>
-					
+
 					<th>
 						TOTAL
 					</th>
@@ -268,15 +268,15 @@
 		<h3 class="card-title">Hearing Test</h3>
 
 		@* <div class="card-tools">
-			<div class="input-group input-group-sm" style="width: 150px;">
-				<input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+		<div class="input-group input-group-sm" style="width: 150px;">
+		<input type="text" name="table_search" class="form-control float-right" placeholder="Search">
 
-				<div class="input-group-append">
-					<button type="submit" id="table_search" class="btn btn-default ">
-						<i class="fas fa-search"></i>
-					</button>
-				</div>
-			</div>
+		<div class="input-group-append">
+		<button type="submit" id="table_search" class="btn btn-default ">
+		<i class="fas fa-search"></i>
+		</button>
+		</div>
+		</div>
 		</div> *@
 	</div>
 	<div class="card-body table-responsive p-0" style="height: 500px;">
@@ -324,44 +324,52 @@
 	@{
 		<script>
 			$(document).ready(function () {
-				setInterval(function () {
-					var url = "@Url.Action("GetUpdatedData", "Home")";
-					var params = {
-						productionLineId: $("#productionLineId").val(),
-						fromDate: $("#fromDate").val(),
-						toDate: $("#toDate").val()
-					};
-
-					url += "?" + $.param(params);
-					$.ajax({
-						type: "GET",
-						url: url,
-						dataType: "json",
-						success: function (data) {
-							// Assuming `data` is the updated JSON data from your AJAX call
-							$('#totalSensor').text(data.totalSensor);
-							$('#sensorPass').text(data.sensorPass);
-							$('#sensorFail').text(data.sensorFail);
-							$('#sensorPercent').text(data.sensorPercent.toFixed(1) + ' %');
-
-							// Similar updates for the other fields
-							$('#totalWF').text(data.totalWF);
-							$('#wfPass').text(data.wfPass);
-							$('#wfFail').text(data.wfFail);
-							$('#wfPercent').text(data.wfPercent.toFixed(1) + ' %');
-							// Update the main table
-							updateMainTable(data.mainList);
-
-							// Update the history table
-							updateHistoryTable(data.historyHearingList);
-						}
+				loadData();
+				setInterval(loadData, 5000);
+				let timeoutId = null;
+				$('#fromDate, #toDate').on('change', function () {
+					if (timeoutId) {
+						clearTimeout(timeoutId);
+					}
+					timeoutId = setTimeout(loadData, 500); // 500ms delay
+				});
+				$('#productionLineId').on('change', function () {
+						loadData();
 					});
-				}, 10000); // Fetch data every 5 seconds
-
 			});
+			function loadData() {
+				var url = '@Url.Action("GetUpdatedData", "Home")';
+				var params = {
+					productionLineId: $("#productionLineId").val(),
+					fromDate: $("#fromDate").val(),
+					toDate: $("#toDate").val()
+				};
 
-			
+				url += "?" + $.param(params);
+				$.ajax({
+					type: "GET",
+					url: url,
+					dataType: "json",
+					success: function (data) {
+						// Assuming `data` is the updated JSON data from your AJAX call
+						$('#totalSensor').text(data.totalSensor);
+						$('#sensorPass').text(data.sensorPass);
+						$('#sensorFail').text(data.sensorFail);
+						$('#sensorPercent').text(data.sensorPercent.toFixed(1) + ' %');
 
+						// Similar updates for the other fields
+						$('#totalWF').text(data.totalWF);
+						$('#wfPass').text(data.wfPass);
+						$('#wfFail').text(data.wfFail);
+						$('#wfPercent').text(data.wfPercent.toFixed(1) + ' %');
+						// Update the main table
+						updateMainTable(data.mainList);
+
+						// Update the history table
+						updateHistoryTable(data.historyHearingList);
+					}
+				});
+			};
 			function updateMainTable(data) {
 				var tableBody = $("#mainList tbody");
 				tableBody.empty();
@@ -408,7 +416,7 @@
 				$.each(data, function (index, item) {
 					var row = $("<tr>");
 					// Find the corresponding production line name
-					var productionLine = productionLines.find(function(line) {
+					var productionLine = productionLines.find(function (line) {
 						return line.value === item.productionLineId.toString();
 					});
 					var productionLineName = productionLine ? productionLine.text : "Unknown";

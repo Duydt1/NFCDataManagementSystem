@@ -65,6 +65,7 @@ namespace NFC.Controllers
 				ProductionLineId = productionLineId,
 				FromDate = fromDate,
 				SearchString = searching,
+				PageNumber = 1,
 				ToDate = toDate
 			};
 

@@ -9,6 +9,7 @@
 	int startPage = Math.Max(1, currentPage - 2);
 	int endPage = Math.Min(totalPages, currentPage + 2);
 	var pageSizeOptions = new SelectList(new[] { 10, 25, 50, 100 }, ViewBag.PageSize);
+	var productionLines = ViewData["ProductionLines"] as SelectList;
 }
 <div class="row">
 	<!-- ./col -->
@@ -19,7 +20,7 @@
 			<div class="col-6">
 				<div class="small-box bg-success">
 					<div class="inner">
-						<h3>@ViewData["ToTalDayPass"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalDayPass">@ViewData["TotalDayPass"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Passed</p>
 					</div>
 					<div class="icon">
@@ -30,7 +31,7 @@
 			<div class="col-6">
 				<div class="small-box bg-danger">
 					<div class="inner">
-						<h3>@ViewData["ToTalDayFail"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalDayFail">@ViewData["TotalDayFail"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Failed</p>
 					</div>
 					<div class="icon">
@@ -49,7 +50,7 @@
 			<div class="col-6">
 				<div class="small-box bg-success">
 					<div class="inner">
-						<h3>@ViewData["ToTalNightPass"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalNightPass">@ViewData["TotalNightPass"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Passed</p>
 					</div>
 					<div class="icon">
@@ -60,7 +61,7 @@
 			<div class="col-6">
 				<div class="small-box bg-danger">
 					<div class="inner">
-						<h3>@ViewData["ToTalNightFail"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalNightFail">@ViewData["TotalNightFail"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Failed</p>
 					</div>
 					<div class="icon">
@@ -73,238 +74,470 @@
 </div>
 <div class="card">
 	<div class="card-header">
-		<form asp-action="Index" method="get">
-
-			<div class="row">
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="fromDate">From Date:</label>
-						<input type="date" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
-					</div>
+		<div class="row">
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="fromDate">From Date:</label>
+					<input id="fromDate" type="datetime-local" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
 				</div>
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="toDate">To Date:</label>
-						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
-					</div>
-				</div>
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="productionLineId">Production Line:</label>
-						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control" })
-					</div>
-				</div>
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="pageSize">Page Size:</label>
-						<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="form-actions no-color" style="text-align:end">
-						<label></label>
-						<p>
-							<input type="text" name="SearchString" value="@ViewData["Searching"]" />
-							<input type="submit" value="Search" class="btn btn-default" />
-						</p>
-					</div>
-				</div>
-
 			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="toDate">To Date:</label>
+					<input id="toDate" type="datetime-local" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="productionLineId">Production Line:</label>
+					@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control", @id = "productionLineId" })
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="pageSize">Page Size:</label>
+					<select name="pageSize" id="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-actions no-color" style="text-align">
+					<label>Search:</label>
+					<div class="form-group">
+						<input type="text" name="SearchString" class="form-control" id="searching" value="@ViewData["Searching"]" />
+					</div>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group" style="align-items:end">
+					<div class="form-group">
+						<a class="btn btn-app" id="exportExcel"><i class="fas fa-file-excel"></i>Exoprt Excel</a>
+						<a class="btn btn-app" id="exportCsv"><i class="fas fa-file-csv"></i>Exoprt Csv</a>
+					</div>
 
-		</form>
-	</div>
-	<!-- /.card-header -->
-	<div class="card-body" style="max-width: 100%; overflow-x: auto;">
-		<table id="example" class="table table-bordered table-striped" style="min-width: 1200px">
-			<thead>
-				<tr>
-					<th>
-						NUM
-					</th>
-					<th>
-						Model
-					</th>
-					<th>
-						CH
-					</th>
+				</div>
+			</div>
+		</div>
+		<!-- /.card-header -->
+		<div class="card-body" style="max-width: 100%; overflow-x: auto;">
+			<table id="example" class="table table-bordered table-striped" style="min-width: 1200px">
+				<thead>
+					<tr>
+						<th>Index</th>
+						<th>
+							NUM
+						</th>
+						<th>
+							Model
+						</th>
+						<th>
+							CH
+						</th>
 
-					<th>
-						DateTime
-					</th>
-					<th>
-						FRF Limit
-					</th>
-					<th>
-						Speaker1 SPL[1kHz]
-					</th>
-					<th>
-						THD Limit
-					</th>
-					<th>
-						Speaker1 Polarity
-					</th>
-					<th>
-						Speaker1 Impedance[1kHz]
-					</th>
-					<th>
-						Speaker1 Impedance Limit
-					</th>
-					<th>
-						MIC1 SENS at 1kHz
-					</th>
-					<th>
-						MIC1 Current
-					</th>
-					<th>
-						MIC1 SEQ2 FRF Limit
-					</th>
-					<th>
-						MIC1 CUR_AVDD
-					</th>
-					<th>
-						MIC1 CUR_DVDD
-					</th>
-					<th>
-						Result
-					</th>
-					<th>
-						Production Line
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-				@if (Model.Any())
-				{
-					foreach (var item in Model)
+						<th style="width:150px">
+							DateTime
+						</th>
+						<th>
+							FRF Limit
+						</th>
+						<th>
+							Speaker1 SPL[1kHz]
+						</th>
+						<th>
+							THD Limit
+						</th>
+						<th>
+							Speaker1 Polarity
+						</th>
+						<th>
+							Speaker1 Impedance[1kHz]
+						</th>
+						<th>
+							Speaker1 Impedance Limit
+						</th>
+						<th>
+							MIC1 SENS at 1kHz
+						</th>
+						<th>
+							MIC1 Current
+						</th>
+						<th>
+							MIC1 SEQ2 FRF Limit
+						</th>
+						<th>
+							MIC1 CUR_AVDD
+						</th>
+						<th>
+							MIC1 CUR_DVDD
+						</th>
+						<th>
+							MIC1 Phase Limit
+						</th>
+						<th>
+							Result
+						</th>
+						<th>
+							Production Line
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					@if (Model.Any())
+					{
+						var i = 0;
+						foreach (var item in Model)
+						{
+							<tr>
+								<td>@(++i)</td>
+								<td><a asp-action="Details" asp-route-num="@item.NUM">@Html.DisplayFor(modelItem => item.NUM)</a></td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Model)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.CH)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.DateTime)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.FRFLimit)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.SPL_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.THDLimit)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Polarity)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Impedance_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.ImpedanceLimit)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.MIC1SENS_1kHz)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.MIC1Current)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.MIC1SEQ2_FRFLimit)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.MIC1CUR_AVDD)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.MIC1CUR_DVDD)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.MIC1PHASE_Limit)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Result)
+								</td>
+								<td>
+									@{
+										var productionLineId = item.ProductionLineId;
+										var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
+										var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
+									}
+									@productionLineName
+								</td>
+							</tr>
+						}
+					}
+					else
 					{
 						<tr>
-							<td>
-								<a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.NUM)</a>
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Model)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.CH)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.DateTime)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.FRFLimit)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.SPL_1kHz)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.THDLimit)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Polarity)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Impedance_1kHz)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.ImpedanceLimit)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.MIC1SENS_1kHz)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.MIC1Current)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.MIC1SEQ2_FRFLimit)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.MIC1CUR_AVDD)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.MIC1CUR_DVDD)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Result)
-							</td>
-							<td>
-								@{
-									var productionLineId = item.ProductionLineId;
-									var productionLines = (SelectList)ViewData["ProductionLines"];
-									var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
-									var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
-								}
-								@productionLineName
-							</td>
+							<td colspan="17">No data available</td>
 						</tr>
 					}
-				}
-				else
-				{
-					<tr>
-						<td colspan="17">No data available</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-	<div class="row">
-		<div class="col-md-6">
+				</tbody>
+			</table>
 		</div>
-		<div class="col-md-6">
-			<nav>
-				<ul class="pagination justify-content-end">
-					<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="1"
-						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-pageSize="@ViewBag.PageSize"
-						   asp-route-SearchString="@ViewData["Searching"]">
-							<span>First</span>
-						</a>
-					</li>
-					<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
-						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-pageSize="@ViewBag.PageSize"
-						   asp-route-SearchString="@ViewData["Searching"]">
-							<span>Previous</span>
-						</a>
-					</li>
-					@for (int i = startPage; i <= endPage; i++)
-					{
-						<li class="page-item @(Model.PageIndex == i? " active" : "")">
-							<a class="page-link" asp-route-pageNumber="@i"
+		<div class="row">
+			<div class="col-md-6">
+			</div>
+			<div class="col-md-6">
+				<nav>
+					<ul class="pagination justify-content-end">
+						<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+							<a class="page-link" asp-route-pageNumber="1"
 							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
 							   asp-route-pageSize="@ViewBag.PageSize"
 							   asp-route-SearchString="@ViewData["Searching"]">
-								<span>@i</span>
+								<span>First</span>
 							</a>
 						</li>
-					}
-					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
-						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-pageSize="@ViewBag.PageSize"
-						   asp-route-SearchString="@ViewData["Searching"]">
-							<span>Next</span>
-						</a>
-					</li>
-					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="@endPage"
-						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
-						   asp-route-pageSize="@ViewBag.PageSize"
-						   asp-route-SearchString="@ViewData["Searching"]">
-							<span>Last</span>
-						</a>
-					</li>
-				</ul>
+						<li class="page-item @(!Model.HasPreviousPage? " disabled" : "") ">
+							<a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)"
+							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-pageSize="@ViewBag.PageSize"
+							   asp-route-SearchString="@ViewData["Searching"]">
+								<span>Previous</span>
+							</a>
+						</li>
+						@for (int i = startPage; i <= endPage; i++)
+						{
+							<li class="page-item @(Model.PageIndex == i? " active" : "")">
+								<a class="page-link" asp-route-pageNumber="@i"
+								   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+								   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+								   asp-route-pageSize="@ViewBag.PageSize"
+								   asp-route-SearchString="@ViewData["Searching"]">
+									<span>@i</span>
+								</a>
+							</li>
+						}
+						<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+							<a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)"
+							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-pageSize="@ViewBag.PageSize"
+							   asp-route-SearchString="@ViewData["Searching"]">
+								<span>Next</span>
+							</a>
+						</li>
+						<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
+							<a class="page-link" asp-route-pageNumber="@totalPages"
+							   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
+							   asp-route-pageSize="@ViewBag.PageSize"
+							   asp-route-SearchString="@ViewData["Searching"]">
+								<span>Last</span>
+							</a>
+						</li>
+					</ul>
 
-			</nav>
+				</nav>
+			</div>
 		</div>
 	</div>
-</div>
+	@section Scripts {
+		@{
+			<script>
+
+				$(document).ready(function () {
+					loadData();
+					setInterval(loadData, 10000);
+					let timeoutId = null;
+					$('#fromDate, #toDate').on('change', function () {
+						if (timeoutId) {
+							clearTimeout(timeoutId);
+						}
+						timeoutId = setTimeout(loadData, 500); // 500ms delay
+					});
+					$('#productionLineId, #searching, #pageSize').on('change', function () {
+						loadData();
+					});
+					$(document).on("click", ".pagination a.page-link", function (e) {
+						e.preventDefault(); // Prevent the default link behavior
+						var href = $(this).attr('href');
+						var params = href.split('?')[1].split('&');
+						var pageNumber = params[0].split('=')[1];
+						var fromDate = params[1].split('=')[1];
+						var toDate = params[2].split('=')[1];
+						var pageSize = params[3].split('=')[1];
+						var searching = params[4].split('=')[1];
+
+						// call the loadData function
+						loadDataPagi(pageNumber, fromDate, toDate, pageSize, searching);
+					});
+					$('#exportCsv').on('click', function () {
+						exportCsvData();
+					});
+					$('#exportExcel').on('click', function () {
+						exportExcelData();
+					});
+				});
+				function loadData() {
+					var url = '@Url.Action("RefreshData", "KT_MIC_WF_SPL")';
+					var currentPage = @currentPage;
+					var params = {
+						productionLineId: $("#productionLineId").val(),
+						fromDate: $("#fromDate").val(),
+						toDate: $("#toDate").val(),
+						searching: $("#searching").val(),
+						pageSize: $("#pageSize").val(),
+						pageNumber: currentPage,
+					};
+
+					url += "?" + $.param(params);
+					$.ajax({
+						type: "GET",
+						url: url,
+						dataType: "json",
+						success: function (data) {
+							updateTable(data.items);
+							updatePagination(data);
+							$("#TotalDayPass").html(data.totalDayPass + '<sup style="font-size: 20px">%</sup>');
+							$("#TotalDayFail").html(data.totalDayFail + '<sup style="font-size: 20px">%</sup>');
+							$("#TotalNightPass").html(data.totalNightPass + '<sup style="font-size: 20px">%</sup>');
+							$("#TotalNightFail").html(data.totalNightFail + '<sup style="font-size: 20px">%</sup>');
+						}
+					});
+				};
+				function exportCsvData() {
+					var url = '@Url.Action("ExportToCsv", "KT_MIC_WF_SPL")';
+					var currentPage = @currentPage;
+					var params = {
+						productionLineId: $("#productionLineId").val(),
+						fromDate: $("#fromDate").val(),
+						toDate: $("#toDate").val(),
+						searching: $("#searching").val(),
+						pageSize: $("#pageSize").val(),
+						pageNumber: currentPage,
+					};
+
+					url += "?" + $.param(params);
+					window.location.href = url;
+
+				};
+				function exportExcelData() {
+					var url = '@Url.Action("ExportToExcel", "KT_MIC_WF_SPL")';
+					var currentPage = @currentPage;
+					var params = {
+						productionLineId: $("#productionLineId").val(),
+						fromDate: $("#fromDate").val(),
+						toDate: $("#toDate").val(),
+						searching: $("#searching").val(),
+						pageSize: $("#pageSize").val(),
+						pageNumber: currentPage,
+					};
+
+					url += "?" + $.param(params);
+					window.location.href = url;
+
+				};
+				function updateTable(data) {
+					var tableBody = $("#example tbody");
+					tableBody.empty();
+					var productionLines = @Html.Raw(Json.Serialize(productionLines));
+					$.each(data, function (index, item) {
+						var row = $("<tr>");
+
+						var productionLine = productionLines.find(function (line) {
+							return line.value === item.productionLineId.toString();
+						});
+						var productionLineName = productionLine ? productionLine.text : "Unknown";
+						row.append($("<td>").text(index + 1));
+						row.append($("<td>").html("<a href='/KT_MIC_WF_SPL/Details?num=" + item.num + "'>" + item.num + "</a>"));
+						row.append($("<td>").text(item.model));
+						row.append($("<td>").text(item.ch));
+						row.append($("<td>").text(item.dateTime));
+						row.append($("<td>").text(item.frfLimit));
+						row.append($("<td>").text(item.spL_1kHz));
+						row.append($("<td>").text(item.thdLimit));
+						row.append($("<td>").text(item.polarity));
+						row.append($("<td>").text(item.impedance_1kHz));
+						row.append($("<td>").text(item.impedanceLimit));
+						row.append($("<td>").text(item.miC1SENS_1kHz));
+						row.append($("<td>").text(item.miC1Current));
+						row.append($("<td>").text(item.miC1SEQ2_FRFLimit));
+						row.append($("<td>").text(item.miC1CUR_AVDD));
+						row.append($("<td>").text(item.miC1CUR_DVDD));
+						row.append($("<td>").text(item.miC1PHASE_Limit));
+						row.append($("<td>").text(item.result));
+						row.append($("<td>").text(productionLineName));
+						tableBody.append(row);
+					});
+				}
+				function updatePagination(data) {
+					// get the total pages
+					var totalPages = data.totalPages;
+					var fromDate = $("#fromDate").val();
+					var toDate = $("#toDate").val();
+					var pageSize = $("#pageSize").val();
+					var searching = $("#searching").val();
+					// get the current page index
+					var currentPageIndex = data.pageIndex;
+					// get the start and end page indices
+					var startPage = Math.max(1, currentPageIndex - 2);
+					var endPage = Math.min(totalPages, currentPageIndex + 2);
+
+					// generate the pagination links
+					var paginationHtml = '';
+
+
+					paginationHtml += '<li class="page-item ' + (currentPageIndex == 1 ? 'disabled' : '') + '">';
+					paginationHtml += '<a class="page-link" href="/KT_MIC_WF_SPL?pageNumber=1&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+					paginationHtml += '<span>First</span>';
+					paginationHtml += '</a>';
+					paginationHtml += '</li>';
+
+					// previous page link
+					paginationHtml += '<li class="page-item ' + (currentPageIndex == 1 ? 'disabled' : '') + '">';
+					paginationHtml += '<a class="page-link" href="/KT_MIC_WF_SPL?pageNumber=' + (currentPageIndex - 1) + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+					paginationHtml += '<span>Previous</span>';
+					paginationHtml += '</a>';
+					paginationHtml += '</li>';
+
+					// page links
+					for (var i = startPage; i <= endPage; i++) {
+						paginationHtml += '<li class="page-item ' + (currentPageIndex == i ? 'active' : '') + '">';
+						paginationHtml += '<a class="page-link" href="/KT_MIC_WF_SPL?pageNumber=' + i + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+						paginationHtml += '<span>' + i + '</span>';
+						paginationHtml += '</a>';
+						paginationHtml += '</li>';
+					}
+
+					// next page link
+					paginationHtml += '<li class="page-item ' + (currentPageIndex == totalPages ? 'disabled' : '') + '">';
+					paginationHtml += '<a class="page-link" href="/KT_MIC_WF_SPL?pageNumber=' + (currentPageIndex + 1) + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+					paginationHtml += '<span>Next</span>';
+					paginationHtml += '</a>';
+					paginationHtml += '</li>';
+
+					// last page link
+					paginationHtml += '<li class="page-item ' + (currentPageIndex == totalPages ? 'active' : '') + '">';
+					paginationHtml += '<a class="page-link" href="/KT_MIC_WF_SPL?pageNumber=' + totalPages + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+					paginationHtml += '<span>Last</span>';
+					paginationHtml += '</a>';
+					paginationHtml += '</li>';
+					$('#pagination').on('click', 'a.page-link', function (event) {
+						event.preventDefault();
+
+						// get the page number and other parameters from the link
+						var pageNumber = $(this).data('pageNumber');
+						var fromDate = $(this).data('fromDate');
+						var toDate = $(this).data('toDate');
+						var pageSize = $(this).data('pageSize');
+						var searching = $(this).data('searching');
+
+						// call the loadData function
+						loadDataPagi(pageNumber, fromDate, toDate, pageSize, searching);
+					});
+					// update the pagination links
+					$('.pagination').html(paginationHtml);
+				}
+				function loadDataPagi(pageNumber, fromDate, toDate, pageSize, searching) {
+					var url = '@Url.Action("RefreshData", "Hearings")';
+					var currentPage = @currentPage;
+					var params = {
+						productionLineId: $("#productionLineId").val(),
+						fromDate: fromDate,
+						toDate: toDate,
+						searching: searching,
+						pageSize: pageSize,
+						pageNumber: pageNumber,
+					};
+
+					url += "?" + $.param(params);
+					$.ajax({
+						type: "GET",
+						url: url,
+						dataType: "json",
+						success: function (data) {
+							updateTable(data.items);
+							updatePagination(data);
+						}
+					});
+				};
+			</script>
+
+		}
+	}

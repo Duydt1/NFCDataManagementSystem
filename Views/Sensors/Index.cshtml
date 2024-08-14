@@ -8,6 +8,7 @@
 	int startPage = Math.Max(1, currentPage - 2);
 	int endPage = Math.Min(totalPages, currentPage + 2);
 	var pageSizeOptions = new SelectList(new[] { 10, 25, 50, 100 }, ViewBag.PageSize);
+	var productionLines = ViewData["ProductionLines"] as SelectList;
 }
 <div class="row">
 	<!-- ./col -->
@@ -18,7 +19,7 @@
 			<div class="col-6">
 				<div class="small-box bg-success">
 					<div class="inner">
-						<h3>@ViewData["ToTalDayPass"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalDayPass">@ViewData["TotalDayPass"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Passed</p>
 					</div>
 					<div class="icon">
@@ -29,7 +30,7 @@
 			<div class="col-6">
 				<div class="small-box bg-danger">
 					<div class="inner">
-						<h3>@ViewData["ToTalDayFail"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalDayFail">@ViewData["TotalDayFail"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Failed</p>
 					</div>
 					<div class="icon">
@@ -48,7 +49,7 @@
 			<div class="col-6">
 				<div class="small-box bg-success">
 					<div class="inner">
-						<h3>@ViewData["ToTalNightPass"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalNightPass">@ViewData["TotalNightPass"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Passed</p>
 					</div>
 					<div class="icon">
@@ -59,7 +60,7 @@
 			<div class="col-6">
 				<div class="small-box bg-danger">
 					<div class="inner">
-						<h3>@ViewData["ToTalNightFail"]<sup style="font-size: 20px">%</sup></h3>
+						<h3 id="TotalNightFail">@ViewData["TotalNightFail"]<sup style="font-size: 20px">%</sup></h3>
 						<p>Failed</p>
 					</div>
 					<div class="icon">
@@ -72,64 +73,61 @@
 </div>
 <div class="card">
 	<div class="card-header">
-		<form asp-action="Index" method="get">
-
-			<div class="row">
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="fromDate">From Date:</label>
-						<input type="date" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
-					</div>
+		<div class="row">
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="fromDate">From Date:</label>
+					<input id="fromDate" type="datetime-local" name="fromDate" value="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
 				</div>
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="toDate">To Date:</label>
-						<input type="date" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))" class="form-control" />
-					</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="toDate">To Date:</label>
+					<input id="toDate" type="datetime-local" name="toDate" value="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-ddTHH:mm"))" class="form-control" />
 				</div>
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="productionLineId">Production Line:</label>
-						@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control" })
-					</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="productionLineId">Production Line:</label>
+					@Html.DropDownList("productionLineId", (SelectList)ViewData["ProductionLines"], new { @class = "form-control", @id = "productionLineId" })
 				</div>
-				<div class="col-md-2">
-					<div class="form-group">
-						<label for="pageSize">Page Size:</label>
-						<select name="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
-					</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<label for="pageSize">Page Size:</label>
+					<select name="pageSize" id="pageSize" class="form-control" asp-items="@pageSizeOptions"></select>
 				</div>
-				<div class="col-md-4">
-					<div class="form-actions no-color" style="text-align:end">
-						<label></label>
-						<p>
-							<input type="text" name="SearchString" value="@ViewData["Searching"]" />
-							<input type="submit" value="Search" class="btn btn-default" />
-						</p>
+			</div>
+			<div class="col-md-2">
+				<div class="form-actions no-color" style="text-align">
+					<label>Search:</label>
+					<div class="form-group">
+						<input type="text" name="SearchString" class="form-control" id="searching" value="@ViewData["Searching"]" />
 					</div>
 				</div>
 			</div>
+			<div class="col-md-2">
+				<div class="form-group" style="align-items:end">
+					<div class="form-group">
+						<a class="btn btn-app" id="exportExcel"><i class="fas fa-file-excel"></i>Exoprt Excel</a>
+						<a class="btn btn-app" id="exportCsv"><i class="fas fa-file-csv"></i>Exoprt Csv</a>
+					</div>
 
-		</form>
+				</div>
+			</div>
+
+		</div>
 	</div>
 	<!-- /.card-header -->
 	<div class="card-body" style="max-width: 100%; overflow-x: auto;">
-		<table id="example" class="table table-bordered table-striped" style="min-width: 1200px">
+		<table id="example" class="table table-bordered table-striped" style="min-width: 1200px; text">
 			<thead>
 				<tr>
-
-					<th>
-						NUM
-					</th>
-					<th>
-						Model
-					</th>
-					<th>
-						CH
-					</th>
-					<th>
-						DateTime
-					</th>
+					<th>Index</th>
+					<th>NUM</th>
+					<th>Model</th>
+					<th>CH</th>
+					<th style="width:150px">DateTime</th>
 					<th>Device No</th>
 					<th>J1_5-6[GND-GND](ohm)</th>
 					<th>J1_6-11[GND-GND](ohm)</th>
@@ -143,7 +141,7 @@
 					<th>DEVICE ID2</th>
 					<th>DEVICE ID3</th>
 					<th>DEVICE ID4</th>
-					<th>DEVICE ID4</th>
+					<th>TYPE ID</th>
 					<th>T0 OPEN</th>
 					<th>T1 OPEN</th>
 					<th>T0 KODAK CLOSE</th>
@@ -152,7 +150,29 @@
 					<th>T1 KODAK DIFF</th>
 					<th>T0 SKIN CLOSE</th>
 					<th>T1 SKIN CLOSE</th>
-					<th>SKIN DIFF</th>
+					<th>SKIN_RATIO</th>
+					<th>T0 TRIM CODE</th>
+					<th>T1 TRIM CODE</th>
+					<th>T0 TRIM FACTOR</th>
+					<th>T1 TRIM FACTOR</th>
+					<th>CT ADC T0 ON</th>
+					<th>CT ADC T0 OFF</th>
+					<th>CT ADC T1 ON</th>
+					<th>CT ADC T1 OFF</th>
+					<th>CARD ADC T0 ON</th>
+					<th>CARD ADC T0 OFF</th>
+					<th>CARD ADC T1 ON</th>
+					<th>CARD ADC T1 OFF</th>
+					<th>SKIN ADC T0 ON</th>
+					<th>SKIN ADC T0 OFF</th>
+					<th>SKIN ADC T1 ON</th>
+					<th>SKIN ADC T1 OFF</th>
+					<th>TYP 1 T0 G4</th>
+					<th>TYP 1 T1 G4</th>
+					<th>TYP 1 T0 TARGET</th>
+					<th>TYP 1 T1 TARGET</th>
+					<th>POC TEMP</th>
+					<th>ACT TEMP</th>
 					<th>MIC 768KHz Peak</th>
 					<th>Batt. Volt.</th>
 					<th>Result</th>
@@ -163,21 +183,15 @@
 			<tbody>
 				@if (Model.Any())
 				{
+					var i = 0;
 					foreach (var item in Model)
 					{
 						<tr>
-							<td>
-								<a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.NUM)</a>
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Model)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.CH)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.DateTime)
-							</td>
+							<td>@(++i)</td>
+							<td><a asp-action="Details" asp-route-num="@item.NUM">@Html.DisplayFor(modelItem => item.NUM)</a></td>
+							<td>@Html.DisplayFor(modelItem => item.Model)</td>
+							<td>@Html.DisplayFor(modelItem => item.CH)</td>
+							<td>@Html.DisplayFor(modelItem => item.DateTime)</td>
 							<td>@Html.DisplayFor(modelItem => item.DeviceNo)</td>
 							<td>@Html.DisplayFor(modelItem => item.J1_5)</td>
 							<td>@Html.DisplayFor(modelItem => item.J1_6)</td>
@@ -200,16 +214,35 @@
 							<td>@Html.DisplayFor(modelItem => item.T1_KODAK_DIFF)</td>
 							<td>@Html.DisplayFor(modelItem => item.T0_SKIN_CLOSE)</td>
 							<td>@Html.DisplayFor(modelItem => item.T1_SKIN_CLOSE)</td>
-							<td>@Html.DisplayFor(modelItem => item.SKIN_DIFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.SKIN_RATIO)</td>
+							<td>@Html.DisplayFor(modelItem => item.T0_TRIM_CODE)</td>
+							<td>@Html.DisplayFor(modelItem => item.T1_TRIM_CODE)</td>
+							<td>@Html.DisplayFor(modelItem => item.T0_TRIM_FACTOR)</td>
+							<td>@Html.DisplayFor(modelItem => item.T1_TRIM_FACTOR)</td>
+							<td>@Html.DisplayFor(modelItem => item.CT_ADC_T0_ON)</td>
+							<td>@Html.DisplayFor(modelItem => item.CT_ADC_T0_OFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.CT_ADC_T1_ON)</td>
+							<td>@Html.DisplayFor(modelItem => item.CT_ADC_T1_OFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.CARD_ADC_T0_ON)</td>
+							<td>@Html.DisplayFor(modelItem => item.CARD_ADC_T0_OFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.CARD_ADC_T1_ON)</td>
+							<td>@Html.DisplayFor(modelItem => item.CARD_ADC_T1_OFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.SKIN_ADC_T0_ON)</td>
+							<td>@Html.DisplayFor(modelItem => item.SKIN_ADC_T0_OFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.SKIN_ADC_T1_ON)</td>
+							<td>@Html.DisplayFor(modelItem => item.SKIN_ADC_T1_OFF)</td>
+							<td>@Html.DisplayFor(modelItem => item.TYP_1_T0_G4)</td>
+							<td>@Html.DisplayFor(modelItem => item.TYP_1_T1_G4)</td>
+							<td>@Html.DisplayFor(modelItem => item.TYP_1_T0_TARGET)</td>
+							<td>@Html.DisplayFor(modelItem => item.TYP_1_T1_TARGET)</td>
+							<td>@Html.DisplayFor(modelItem => item.POC_TEMP)</td>
+							<td>@Html.DisplayFor(modelItem => item.ACT_TEMP)</td>
 							<td>@Html.DisplayFor(modelItem => item.MIC_768KHz_Peak)</td>
 							<td>@Html.DisplayFor(modelItem => item.BattVolt)</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Result)
-							</td>
+							<td>@Html.DisplayFor(modelItem => item.Result)</td>
 							<td>
 								@{
 									var productionLineId = item.ProductionLineId;
-									var productionLines = (SelectList)ViewData["ProductionLines"];
 									var productionLine = productionLines.FirstOrDefault(sl => sl.Value == productionLineId.ToString());
 									var productionLineName = productionLine != null ? productionLine.Text : "Unknown";
 								}
@@ -218,12 +251,7 @@
 						</tr>
 					}
 				}
-				else
-				{
-					<tr>
-						<td colspan="31">No data available</td>
-					</tr>
-				}
+				
 			</tbody>
 		</table>
 	</div>
@@ -273,7 +301,7 @@
 						</a>
 					</li>
 					<li class="page-item @(!Model.HasNextPage? " disabled" : "") ">
-						<a class="page-link" asp-route-pageNumber="@endPage"
+						<a class="page-link" asp-route-pageNumber="@totalPages"
 						   asp-route-fromDate="@(((DateTime)ViewData["CurrentFromDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-toDate="@(((DateTime)ViewData["CurrentToDate"]).ToString("yyyy-MM-dd"))"
 						   asp-route-pageSize="@ViewBag.PageSize"
@@ -286,3 +314,263 @@
 		</div>
 	</div>
 </div>
+@section Scripts {
+	@{
+		<script>
+
+			$(document).ready(function () {
+				loadData();
+				setInterval(loadData, 5000);
+				let timeoutId = null;
+				$('#fromDate, #toDate').on('change', function () {
+					if (timeoutId) {
+						clearTimeout(timeoutId);
+					}
+					timeoutId = setTimeout(loadData, 500); // 500ms delay
+				});
+				$('#productionLineId, #searching, #pageSize').on('change', function () {
+					loadData();
+				});
+				$(document).on("click", ".pagination a.page-link", function (e) {
+					e.preventDefault(); // Prevent the default link behavior
+					var href = $(this).attr('href');
+					var params = href.split('?')[1].split('&');
+					var pageNumber = params[0].split('=')[1];
+					var fromDate = params[1].split('=')[1];
+					var toDate = params[2].split('=')[1];
+					var pageSize = params[3].split('=')[1];
+					var searching = params[4].split('=')[1];
+
+					// call the loadData function
+					loadDataPagi(pageNumber, fromDate, toDate, pageSize, searching);
+				});
+				$('#exportCsv').on('click', function () {
+					exportCsvData();
+				});
+				$('#exportExcel').on('click', function () {
+					exportExcelData();
+				});
+			});
+			function loadData() {
+				var url = '@Url.Action("RefreshData", "Sensors")';
+				var currentPage = @currentPage;
+				var params = {
+					productionLineId: $("#productionLineId").val(),
+					fromDate: $("#fromDate").val(),
+					toDate: $("#toDate").val(),
+					searching: $("#searching").val(),
+					pageSize: $("#pageSize").val(),
+					pageNumber: currentPage,
+				};
+
+				url += "?" + $.param(params);
+				$.ajax({
+					type: "GET",
+					url: url,
+					dataType: "json",
+					success: function (data) {
+						updateTable(data.items);
+						updatePagination(data);
+						$("#TotalDayPass").html(data.totalDayPass + '<sup style="font-size: 20px">%</sup>');
+						$("#TotalDayFail").html(data.totalDayFail + '<sup style="font-size: 20px">%</sup>');
+						$("#TotalNightPass").html(data.totalNightPass + '<sup style="font-size: 20px">%</sup>');
+						$("#TotalNightFail").html(data.totalNightFail + '<sup style="font-size: 20px">%</sup>');
+					}
+				});
+			};
+			function exportCsvData() {
+				var url = '@Url.Action("ExportToCsv", "Sensors")';
+				var currentPage = @currentPage;
+				var params = {
+					productionLineId: $("#productionLineId").val(),
+					fromDate: $("#fromDate").val(),
+					toDate: $("#toDate").val(),
+					searching: $("#searching").val(),
+					pageSize: $("#pageSize").val(),
+					pageNumber: currentPage,
+				};
+
+				url += "?" + $.param(params);
+				window.location.href = url;
+
+			};
+			function exportExcelData() {
+				var url = '@Url.Action("ExportToExcel", "Sensors")';
+				var currentPage = @currentPage;
+				var params = {
+					productionLineId: $("#productionLineId").val(),
+					fromDate: $("#fromDate").val(),
+					toDate: $("#toDate").val(),
+					searching: $("#searching").val(),
+					pageSize: $("#pageSize").val(),
+					pageNumber: currentPage,
+				};
+
+				url += "?" + $.param(params);
+				window.location.href = url;
+
+			};
+
+			function updateTable(data) {
+				var tableBody = $("#example tbody");
+				tableBody.empty();
+				var productionLines = @Html.Raw(Json.Serialize(productionLines));
+				$.each(data, function (index, item) {
+					var row = $("<tr>");
+
+					var productionLine = productionLines.find(function (line) {
+						return line.value === item.productionLineId.toString();
+					});
+					var productionLineName = productionLine ? productionLine.text : "Unknown";
+					row.append($("<td>").text(index + 1));
+					row.append($("<td>").html("<a href='/Sensors/Details?num=" + item.num + "'>" + item.num + "</a>"));
+					row.append($("<td>").text(item.model));
+					row.append($("<td>").text(item.ch));
+					row.append($("<td>").text(item.dateTime));
+					row.append($("<td>").text(item.deviceNo));
+					row.append($("<td>").text(item.j1_5));
+					row.append($("<td>").text(item.j1_6));
+					row.append($("<td>").text(item.j1_11));
+					row.append($("<td>").text(item.j1_17));
+					row.append($("<td>").text(item.short));
+					row.append($("<td>").text(item.spK_TW));
+					row.append($("<td>").text(item.spK_WF));
+					row.append($("<td>").text(item.r2));
+					row.append($("<td>").text(item.devicE_ID1));
+					row.append($("<td>").text(item.devicE_ID2));
+					row.append($("<td>").text(item.devicE_ID3));
+					row.append($("<td>").text(item.devicE_ID4));
+					row.append($("<td>").text(item.typE_ID));
+					row.append($("<td>").text(item.t0_OPEN));
+					row.append($("<td>").text(item.t1_OPEN));
+					row.append($("<td>").text(item.t0_KODAK_CLOSE));
+					row.append($("<td>").text(item.t1_KODAK_CLOSE));
+					row.append($("<td>").text(item.t0_KODAK_DIFF));
+					row.append($("<td>").text(item.t1_KODAK_DIFF));
+					row.append($("<td>").text(item.t0_SKIN_CLOSE));
+					row.append($("<td>").text(item.t1_SKIN_CLOSE));
+					row.append($("<td>").text(item.skiN_RATIO));
+					row.append($("<td>").text(item.t0_TRIM_CODE));
+					row.append($("<td>").text(item.t1_TRIM_CODE));
+					row.append($("<td>").text(item.t0_TRIM_FACTOR));
+					row.append($("<td>").text(item.t1_TRIM_FACTOR));
+					row.append($("<td>").text(item.cT_ADC_T0_ON));
+					row.append($("<td>").text(item.cT_ADC_T0_OFF));
+					row.append($("<td>").text(item.cT_ADC_T1_ON));
+					row.append($("<td>").text(item.cT_ADC_T1_OFF));
+					row.append($("<td>").text(item.carD_ADC_T0_ON));
+					row.append($("<td>").text(item.carD_ADC_T0_OFF));
+					row.append($("<td>").text(item.carD_ADC_T1_ON));
+					row.append($("<td>").text(item.carD_ADC_T1_OFF));
+					row.append($("<td>").text(item.skiN_ADC_T0_ON));
+					row.append($("<td>").text(item.skiN_ADC_T0_OFF));
+					row.append($("<td>").text(item.skiN_ADC_T1_ON));
+					row.append($("<td>").text(item.skiN_ADC_T1_OFF));
+					row.append($("<td>").text(item.tyP_1_T0_G4));
+					row.append($("<td>").text(item.tyP_1_T1_G4));
+					row.append($("<td>").text(item.tyP_1_T0_TARGET));
+					row.append($("<td>").text(item.tyP_1_T1_TARGET));
+					row.append($("<td>").text(item.poC_TEMP));
+					row.append($("<td>").text(item.acT_TEMP));
+					row.append($("<td>").text(item.miC_768KHz_Peak));
+					row.append($("<td>").text(item.battVolt));
+					row.append($("<td>").text(item.result));
+					row.append($("<td>").text(productionLineName));
+					tableBody.append(row);
+				});
+			}
+			function updatePagination(data) {
+				// get the total pages
+				var totalPages = data.totalPages;
+				var fromDate = $("#fromDate").val();
+				var toDate = $("#toDate").val();
+				var pageSize = $("#pageSize").val();
+				var searching = $("#searching").val();
+				// get the current page index
+				var currentPageIndex = data.pageIndex;
+				// get the start and end page indices
+				var startPage = Math.max(1, currentPageIndex - 2);
+				var endPage = Math.min(totalPages, currentPageIndex + 2);
+
+				// generate the pagination links
+				var paginationHtml = '';
+
+
+				paginationHtml += '<li class="page-item ' + (currentPageIndex == 1 ? 'disabled' : '') + '">';
+				paginationHtml += '<a class="page-link" href="/Sensors?pageNumber=1&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+				paginationHtml += '<span>First</span>';
+				paginationHtml += '</a>';
+				paginationHtml += '</li>';
+
+				// previous page link
+				paginationHtml += '<li class="page-item ' + (currentPageIndex == 1 ? 'disabled' : '') + '">';
+				paginationHtml += '<a class="page-link" href="/Sensors?pageNumber=' + (currentPageIndex - 1) + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+				paginationHtml += '<span>Previous</span>';
+				paginationHtml += '</a>';
+				paginationHtml += '</li>';
+
+				// page links
+				for (var i = startPage; i <= endPage; i++) {
+					paginationHtml += '<li class="page-item ' + (currentPageIndex == i ? 'active' : '') + '">';
+					paginationHtml += '<a class="page-link" href="/Sensors?pageNumber=' + i + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+					paginationHtml += '<span>' + i + '</span>';
+					paginationHtml += '</a>';
+					paginationHtml += '</li>';
+				}
+
+				// next page link
+				paginationHtml += '<li class="page-item ' + (currentPageIndex == totalPages ? 'disabled' : '') + '">';
+				paginationHtml += '<a class="page-link" href="/Sensors?pageNumber=' + (currentPageIndex + 1) + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+				paginationHtml += '<span>Next</span>';
+				paginationHtml += '</a>';
+				paginationHtml += '</li>';
+
+				// last page link
+				paginationHtml += '<li class="page-item ' + (currentPageIndex == totalPages ? 'active' : '') + '">';
+				paginationHtml += '<a class="page-link" href="/Sensors?pageNumber=' + totalPages + '&fromDate=' + fromDate + '&toDate=' + toDate + '&pageSize=' + pageSize + '&searchString=' + searching + '">';
+				paginationHtml += '<span>Last</span>';
+				paginationHtml += '</a>';
+				paginationHtml += '</li>';
+				$('#pagination').on('click', 'a.page-link', function (event) {
+					event.preventDefault();
+
+					// get the page number and other parameters from the link
+					var pageNumber = $(this).data('pageNumber');
+					var fromDate = $(this).data('fromDate');
+					var toDate = $(this).data('toDate');
+					var pageSize = $(this).data('pageSize');
+					var searching = $(this).data('searching');
+
+					// call the loadData function
+					loadDataPagi(pageNumber, fromDate, toDate, pageSize, searching);
+				});
+				// update the pagination links
+				$('.pagination').html(paginationHtml);
+			}
+			function loadDataPagi(pageNumber, fromDate, toDate, pageSize, searching) {
+				var url = '@Url.Action("RefreshData", "Sensors")';
+				var currentPage = @currentPage;
+				var params = {
+					productionLineId: $("#productionLineId").val(),
+					fromDate: fromDate,
+					toDate: toDate,
+					searching: searching,
+					pageSize: pageSize,
+					pageNumber: pageNumber,
+				};
+
+				url += "?" + $.param(params);
+				$.ajax({
+					type: "GET",
+					url: url,
+					dataType: "json",
+					success: function (data) {
+						updateTable(data.items);
+						updatePagination(data);
+					}
+				});
+			};
+		</script>
+
+	}
+}

@@ -263,6 +263,18 @@
 							<td>@Html.DisplayFor(model => model.hearing.Speaker1SPL_1kHz)</td>
 						</tr>
 						<tr>
+							<td>Speaker1 Rub&Buzz Limit</td>
+							<td>@Html.DisplayFor(model => model.hearing.Rub_Buzz_Limit)</td>
+						</tr>
+						<tr>
+							<td>"Speaker1 Rub&Buzz[Freq Max]</td>
+							<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_FreqMax)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Rub&Buzz[dB Max]</td>
+							<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_dBMax)</td>
+						</tr>
+						<tr>
 							<td>Result</td>
 							<td>@Html.DisplayFor(model => model.hearing.Result)</td>
 						</tr>
@@ -306,19 +318,30 @@
 																	<table class="table table-bordered">
 																		<tbody>
 																			<tr>
-																				<td><b>@Html.DisplayNameFor(model => item.CH)</b></td>
-																				<td>@Html.DisplayFor(model => item.CH)</td>
-																				<td><b>@Html.DisplayNameFor(model => item.Result)</b></td>
-																				<td>@Html.DisplayFor(model => item.Result)</td>
+																				<td>Model</td>
+																				<td>@Html.DisplayFor(model => model.hearing.Model)</td>
+																				<td>CH</td>
+																				<td>@Html.DisplayFor(model => model.hearing.CH)</td>
 																			</tr>
 																			<tr>
-																				<td><b>@Html.DisplayNameFor(model => item.Speaker1SPL_1kHz)</b></td>
-																				<td>@Html.DisplayFor(model => item.Speaker1SPL_1kHz)</td>
-
+																				<td>Date Time</td>
+																				<td>@Html.DisplayFor(model => model.hearing.DateTime)</td>
+																				<td>Speaker1 SPL [1kHz]</td>
+																				<td>@Html.DisplayFor(model => model.hearing.Speaker1SPL_1kHz)</td>
 																			</tr>
 																			<tr>
-																				<td><b>@Html.DisplayNameFor(model => item.DateTime)</b></td>
-																				<td>@Html.DisplayFor(model => item.DateTime)</td>
+																				<td>Speaker1 Rub&Buzz Limit</td>
+																				<td>@Html.DisplayFor(model => model.hearing.Rub_Buzz_Limit)</td>
+																				<td>"Speaker1 Rub&Buzz[Freq Max]</td>
+																				<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_FreqMax)</td>
+																			</tr>
+																			<tr>
+																				<td>Speaker1 Rub&Buzz[dB Max]</td>
+																				<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_dBMax)</td>
+																				<td>Result</td>
+																				<td>@Html.DisplayFor(model => model.hearing.Result)</td>
+																			</tr>
+																			<tr>
 																				<td><b>Production Line</b></td>
 																				<td>
 																					@{

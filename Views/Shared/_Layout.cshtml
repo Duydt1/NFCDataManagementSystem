@@ -41,11 +41,9 @@
 		<!-- Navbar -->
 		@await Html.PartialAsync("_NavBar")
 		<!-- /.navbar -->
-
 		<!-- Main Sidebar Container -->
 		@await Html.PartialAsync("_MenuBar")
 		<!-- Main Sidebar Container -->
-
 		<!-- Content Wrapper. Contains page content -->
 		<div class="content-wrapper">
 			<!-- Content Header (Page header) -->
@@ -130,10 +128,10 @@
 	<script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 	<script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 	<script>
-		$(function () {	
+		$(function () {
 			$("#example1").DataTable({
-				"responsive": false, "lengthChange": false, "autoWidth": false, "ordering": false, "searching": false,
-				"buttons": ["csv", "excel", "pdf", "print", "colvis"]
+				"responsive": false, "lengthChange": false, "autoWidth": false, "ordering": false, "searching": false,"paging": false,"info": false,
+				"buttons": ["csv", "excel", "pdf"]
 			}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 			$('#example2').DataTable({
 				"paging": true,
@@ -145,14 +143,17 @@
 				"autoWidth": false,
 				"responsive": true,
 			});
-			new DataTable('#example', {
-				paging: false,
-				scrollCollapse: true,
-				scrollY: '1000px',
-				scrollX: true,
-				ordering: false,
-				searching: false,
-				info: false,
+			$("#example").DataTable({
+				"responsive": false, 
+				"lengthChange": false,
+				"paging": false,
+				"scrollCollapse": true,
+				"scrollY": "1000px",
+				"scrollX": true,
+				"autoWidth": true, 
+				"ordering": false, 
+				"searching": false,
+				"info": false,
 			});
 		});
 	</script>

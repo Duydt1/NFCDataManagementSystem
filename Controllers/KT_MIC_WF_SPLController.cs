@@ -1,4 +1,5 @@
-﻿using Data.Common;
+﻿using ClosedXML.Excel;
+using Data.Common;
 using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using NFC.Data.Entities;
 using NFC.Data.Models;
+using System.Text;
 using static NFC.Data.Common.NFCUtil;
 
 namespace NFC.Controllers
@@ -49,55 +51,212 @@ namespace NFC.Controllers
 				filterModel.ProductionLineId = productionLines.FirstOrDefault().Id;
 
 			if (filterModel.PageNumber < 1) filterModel.PageNumber = 1;
-			//var cacheKey = GetCacheKey(filterModel);
-			//var cachedResults = await cache.GetRecordAsync<List<KT_MIC_WF_SPL>>(cacheKey);
-			//PaginatedList<KT_MIC_WF_SPL> results;
-			//if (cachedResults != null)
-			//{
-			//	results = new PaginatedList<KT_MIC_WF_SPL>(cachedResults, cachedResults.Count, filterModel.PageNumber, filterModel.PageSize);
-			//}
-			//else
-			//{
-			//	var repository = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
-			//	results = await repository.GetAllAsync(filterModel);
-			//	await cache.SetRecordAsync(cacheKey, results, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(2));
-			//}
 			var repository = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
 			var results = await repository.GetAllAsync(filterModel);
 			GetDayShiftCount(results);
 			GetNightShiftCount(results);
 			return View(results);
 		}
+		public async Task<IActionResult> RefreshDataAsync(int productionLineId, DateTime fromDate, DateTime toDate, string searching, int pageSize, int pageNumber)
+		{
+			var filterModel = new FilterModel
+			{
+				ProductionLineId = productionLineId,
+				FromDate = fromDate,
+				SearchString = searching,
+				PageNumber = pageNumber,
+				PageSize = pageSize,
+				ToDate = toDate,
+			};
+			var repoHearing = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
+			var results = await repoHearing.GetAllAsync(filterModel);
+			var dayShift = GetDayShiftCount(results);
+			var nightShift = GetNightShiftCount(results);
+			return Json(new
+			{
+				items = results.Items,
+				pageIndex = results.PageIndex,
+				totalPages = results.TotalPages,
+				hasPreviousPage = results.HasPreviousPage,
+				hasNextPage = results.HasNextPage,
+				firstItemIndex = results.FirstItemIndex,
+				lastItemIndex = results.LastItemIndex,
+				totalItems = results.TotalItems,
+				totalDayPass = dayShift.TotalDayPass,
+				totalDayFail = dayShift.TotalDayFail,
+				totalNightPass = nightShift.TotalNightPass,
+				totalNightFail = nightShift.TotalNightFail,
+			});
+		}
 		private string GetCacheKey(FilterModel filterModel)
 		{
 			return $"ktmics_{filterModel.FromDate?.ToString("yyyy-MM-dd")}_{filterModel.ToDate?.ToString("yyyy-MM-dd")}_{filterModel.ProductionLineId}_{filterModel.PageSize}_{filterModel.PageNumber}";
 		}
-		private void GetDayShiftCount(PaginatedList<KT_MIC_WF_SPL> results)
+
+		public async Task<IActionResult> ExportToCsv(int productionLineId, DateTime fromDate, DateTime toDate, string searching, int pageSize, int pageNumber)
+		{
+			var filterModel = new FilterModel
+			{
+				ProductionLineId = productionLineId,
+				FromDate = fromDate,
+				SearchString = searching,
+				PageNumber = pageNumber,
+				PageSize = pageSize,
+				ToDate = toDate,
+			};
+			var repoHearing = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
+			var results = await repoHearing.GetAllAsync(filterModel);
+
+			// Generate CSV content
+			var csv = new StringBuilder();
+			csv.AppendLine("Index,NUM,Model,CH,DateTime,FRF Limit,Speaker1 SPL[1kHz],THD Limit,Speaker1 Polarity,Speaker1 Impedance[1kHz],Speaker1 Impedance Limit,MIC1 SENS at 1kHz,MIC1 Current,MIC1 SEQ2 FRF Limit,MIC1 CUR_AVDD,MIC1 CUR_DVDD,Result,ProductionLine");
+
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
+			var dicProductionLine = productionLines.ToDictionary(x => x.Id, x => x.Name);
+
+			for (int i = 0; i < results.Items.Count; i++)
+			{
+				var item = results.Items[i];
+				var productionLineName = item.ProductionLineId != null && dicProductionLine.ContainsKey(item.ProductionLineId)
+					? dicProductionLine[item.ProductionLineId]
+					: "Unknown";
+
+				csv.AppendLine($"{i + 1},{item.NUM},{item.Model},{item.CH},{item.DateTime},{item.FRFLimit},{item.SPL_1kHz},{item.THDLimit},{item.Polarity},{item.Impedance_1kHz},{item.ImpedanceLimit},{item.MIC1SENS_1kHz},{item.MIC1Current},{item.MIC1SEQ2_FRFLimit},{item.MIC1CUR_AVDD},{item.MIC1CUR_DVDD},{item.Result},{productionLineName}");
+			}
+			// Return as a CSV file
+			return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"WF_MIC_SPLTest{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}.csv");
+		}
+		public async Task<IActionResult> ExportToExcel(int productionLineId, DateTime fromDate, DateTime toDate, string searching, int pageSize, int pageNumber)
+		{
+			var filterModel = new FilterModel
+			{
+				ProductionLineId = productionLineId,
+				FromDate = fromDate,
+				SearchString = searching,
+				PageNumber = pageNumber,
+				PageSize = pageSize,
+				ToDate = toDate,
+			};
+			var repoHearing = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
+			var results = await repoHearing.GetAllAsync(filterModel);
+
+			var userId = "";
+			if (!User.IsInRole("Admin"))
+				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
+			if (productionLines == null)
+			{
+				var repo = _serviceProvider.GetService<IProductionLineRepository>();
+				productionLines = await repo.GetAllAsync(userId);
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			}
+			var dicProductionLine = productionLines.ToDictionary(x => x.Id, x => x.Name);
+			// Create a new Excel workbook
+			using (var workbook = new XLWorkbook())
+			{
+				var worksheet = workbook.Worksheets.Add("WF & MIC SPL Test");
+
+				// Add headers
+				worksheet.Cell(1, 1).Value = "Index";
+				worksheet.Cell(1, 2).Value = "NUM";
+				worksheet.Cell(1, 3).Value = "Model";
+				worksheet.Cell(1, 4).Value = "CH";
+				worksheet.Cell(1, 5).Value = "DateTime";
+				worksheet.Cell(1, 6).Value = "FRF Limit";
+				worksheet.Cell(1, 7).Value = "Speaker1 SPL[1kHz]";
+				worksheet.Cell(1, 8).Value = "THD Limit";
+				worksheet.Cell(1, 9).Value = "Speaker1 Polarity";
+				worksheet.Cell(1, 10).Value = "Speaker1 Impedance[1kHz]";
+				worksheet.Cell(1, 11).Value = "Speaker1 Impedance Limit";
+				worksheet.Cell(1, 12).Value = "MIC1 SENS at 1kHz";
+				worksheet.Cell(1, 13).Value = "MIC1 Current";
+				worksheet.Cell(1, 14).Value = "MIC1 SEQ2 FRF Limit";
+				worksheet.Cell(1, 15).Value = "MIC1 CUR_AVDD";
+				worksheet.Cell(1, 16).Value = "MIC1 CUR_DVDD";
+				worksheet.Cell(1, 17).Value = "Result";
+				worksheet.Cell(1, 18).Value = "Production Line";
+
+				// Add data
+				for (int i = 0; i < results.Items.Count; i++)
+				{
+					var item = results.Items[i];
+					worksheet.Cell(i + 2, 1).Value = i + 1;  // Index
+					worksheet.Cell(i + 2, 2).Value = item.NUM;
+					worksheet.Cell(i + 2, 3).Value = item.Model;
+					worksheet.Cell(i + 2, 4).Value = item.CH;
+					worksheet.Cell(i + 2, 5).Value = item.DateTime;
+					worksheet.Cell(i + 2, 6).Value = item.FRFLimit;
+					worksheet.Cell(i + 2, 7).Value = item.SPL_1kHz;
+					worksheet.Cell(i + 2, 8).Value = item.THDLimit;
+					worksheet.Cell(i + 2, 9).Value = item.Polarity;
+					worksheet.Cell(i + 2, 10).Value = item.Impedance_1kHz;
+					worksheet.Cell(i + 2, 11).Value = item.ImpedanceLimit;
+					worksheet.Cell(i + 2, 12).Value = item.MIC1SENS_1kHz;
+					worksheet.Cell(i + 2, 13).Value = item.MIC1Current;
+					worksheet.Cell(i + 2, 14).Value = item.MIC1SEQ2_FRFLimit;
+					worksheet.Cell(i + 2, 15).Value = item.MIC1CUR_AVDD;
+					worksheet.Cell(i + 2, 16).Value = item.MIC1CUR_DVDD;
+					worksheet.Cell(i + 2, 17).Value = item.Result;
+					worksheet.Cell(i + 2, 18).Value = item.ProductionLineId != null && dicProductionLine.ContainsKey(item.ProductionLineId) ? dicProductionLine[item.ProductionLineId] : "Unknown";
+				}
+
+				// Prepare the file content
+				using (var stream = new MemoryStream())
+				{
+					workbook.SaveAs(stream);
+					var content = stream.ToArray();
+
+					// Return the Excel file
+					return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"HearingsData{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}.xlsx");
+				}
+			}
+		}
+
+		private (double TotalDayPass, double TotalDayFail) GetDayShiftCount(PaginatedList<KT_MIC_WF_SPL> results)
 		{
 			var dayShift = results.Where(x => x.DateTime.TimeOfDay >= new TimeSpan(8, 0, 0) && x.DateTime.TimeOfDay < new TimeSpan(20, 0, 0));
 			var countPass = dayShift.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
 			var countFail = dayShift.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
 			var totalCount = dayShift.Count();
-			ViewData["ToTalDayPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
-			ViewData["ToTalDayFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
+			var totalDayPass = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
+			var totalDayFail = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
+			ViewData["TotalDayPass"] = totalDayPass;
+			ViewData["TotalDayFail"] = totalDayFail;
+			return (totalDayPass, totalDayFail);
 		}
 
-		private void GetNightShiftCount(PaginatedList<KT_MIC_WF_SPL> results)
+		private (double TotalNightPass, double TotalNightFail) GetNightShiftCount(PaginatedList<KT_MIC_WF_SPL> results)
 		{
 			var nightShift = results.Where(x => x.DateTime.TimeOfDay >= new TimeSpan(20, 0, 0) || x.DateTime.TimeOfDay < new TimeSpan(8, 0, 0));
 			var countPass = nightShift.Where(x => x.Result!.Equals("PASS", StringComparison.CurrentCultureIgnoreCase)).Count();
 			var countFail = nightShift.Where(x => x.Result!.Equals("FAIL", StringComparison.CurrentCultureIgnoreCase)).Count();
 			var totalCount = nightShift.Count();
-			ViewData["ToTalNightPass"] = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
-			ViewData["ToTalNightFail"] = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
+			var totalNightPass = totalCount > 0 ? Math.Round((double)countPass / totalCount * 100, 0) : 0;
+			var totalNightFail = totalCount > 0 ? Math.Round((double)countFail / totalCount * 100, 0) : 0;
+			ViewData["TotalNightPass"] = totalNightPass;
+			ViewData["TotalNightFail"] = totalNightFail;
+			return (totalNightPass, totalNightFail);
 		}
 		// GET: KT_MIC_WF_SPL/Details/5
-		public async Task<IActionResult> Details(long id)
+		public async Task<IActionResult> Details(string num)
         {
             var repository = _serviceProvider.GetService<IKT_MIC_WF_SPLRepository>();
-            var entity = await repository.GetByIdAsync(id);
+            var lst = await repository.GetListByNumAsync(num);
 
-			if (entity == null)
+			if (lst.Count == 0)
 			{
 				return NotFound();
 			}
@@ -114,9 +273,8 @@ namespace NFC.Controllers
 				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
 			}
 			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
-			var lstUpdateData = await repository.GetListByNumAsync(entity.NUM);
-			ViewData["HistoryUpdateData"] = lstUpdateData;
-			return View(entity);
+			ViewData["HistoryUpdateData"] = lst.Skip(1);
+			return View(lst.FirstOrDefault());
         }
 
         //// GET: KT_MIC_WF_SPL/Create
