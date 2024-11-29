@@ -20,12 +20,12 @@ namespace NFC.Controllers
 			var cache = _serviceProvider.GetService<IDistributedCache>();
 			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
 
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
 				productionLines = await repo.GetAllAsync(userId);
-				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(7));
 			}
 			return View(productionLines);
         }
@@ -39,7 +39,6 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-
             return View(productionLine);
         }
 
@@ -104,6 +103,9 @@ namespace NFC.Controllers
                 result.Name = productionLine.Name;
                 result.Description = productionLine.Description;
                 await repo.UpdateAsync(result);
+				userId = "";
+				if (!User.IsInRole("Admin"))
+					userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 				await RefreshCache(userId);
 				return RedirectToAction(nameof(Index));
             }
@@ -138,10 +140,10 @@ namespace NFC.Controllers
 		{
 			var repo = _serviceProvider.GetService<IProductionLineRepository>();
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 
 			var productionLines = await repo.GetAllAsync(userId);
-			await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+			await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(7));
 		}
 	}
 }

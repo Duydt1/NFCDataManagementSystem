@@ -42,7 +42,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -116,7 +116,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -153,7 +153,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -253,7 +253,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -262,129 +262,9 @@ namespace NFC.Controllers
 				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
 			}
 			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
-			var lstUpdateData = await repository.GetListByNumAsync(num);
-			ViewData["HistoryUpdateData"] = lstUpdateData.Skip(1);
+			var lstUpdateData = entity.hearing != null ? await repository.GetListByNumAsync(num, entity.hearing.Id) : new List<Hearing>();
+			ViewData["HistoryUpdateData"] = lstUpdateData;
 			return View(entity);
 		}
-
-		
-
-		//// GET: Hearings/Create
-		//public IActionResult Create()
-		//{
-		//	ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Id");
-		//	return View();
-		//}
-
-		//// POST: Hearings/Create
-		//// To protect from overposting attacks, enable the specific properties you want to bind to.
-		//// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		//[HttpPost]
-		//[ValidateAntiForgeryToken]
-		//public async Task<IActionResult> Create([Bind("Speaker1SPL_1kHz,Id,NUM,Model,CH,Result,DateTime,ProductionLineId,CreatedById,CreatedOn,ModifiedById,ModifiedOn")] Hearing hearing)
-		//{
-		//	if (ModelState.IsValid)
-		//	{
-		//		_context.Add(hearing);
-		//		await _context.SaveChangesAsync();
-		//		return RedirectToAction(nameof(Index));
-		//	}
-		//	ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Id", hearing.ProductionLineId);
-		//	return View(hearing);
-		//}
-
-		//// GET: Hearings/Edit/5
-		//public async Task<IActionResult> Edit(long? id)
-		//{
-		//	if (id == null)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	var hearing = await _context.Hearings.FindAsync(id);
-		//	if (hearing == null)
-		//	{
-		//		return NotFound();
-		//	}
-		//	ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Id", hearing.ProductionLineId);
-		//	return View(hearing);
-		//}
-
-		//// POST: Hearings/Edit/5
-		//// To protect from overposting attacks, enable the specific properties you want to bind to.
-		//// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		//[HttpPost]
-		//[ValidateAntiForgeryToken]
-		//public async Task<IActionResult> Edit(long id, [Bind("Speaker1SPL_1kHz,Id,NUM,Model,CH,Result,DateTime,ProductionLineId")] Hearing hearing)
-		//{
-		//	if (id != hearing.Id)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	if (ModelState.IsValid)
-		//	{
-		//		try
-		//		{
-		//			_context.Update(hearing);
-		//			await _context.SaveChangesAsync();
-		//		}
-		//		catch (DbUpdateConcurrencyException)
-		//		{
-		//			if (!HearingExists(hearing.Id))
-		//			{
-		//				return NotFound();
-		//			}
-		//			else
-		//			{
-		//				throw;
-		//			}
-		//		}
-		//		return RedirectToAction(nameof(Index));
-		//	}
-		//	ViewData["ProductionLineId"] = new SelectList(_context.ProductionLines, "Id", "Id", hearing.ProductionLineId);
-		//	return View(hearing);
-		//}
-
-		//// GET: Hearings/Delete/5
-		//public async Task<IActionResult> Delete(long? id)
-		//{
-		//	if (id == null)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	var hearing = await _context.Hearings
-		//		.Include(h => h.CreatedBy)
-		//		.Include(h => h.ModifiedBy)
-		//		.Include(h => h.ProductionLine)
-		//		.FirstOrDefaultAsync(m => m.Id == id);
-		//	if (hearing == null)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	return View(hearing);
-		//}
-
-		//// POST: Hearings/Delete/5
-		//[HttpPost, ActionName("Delete")]
-		//[ValidateAntiForgeryToken]
-		//public async Task<IActionResult> DeleteConfirmed(long id)
-		//{
-		//	var hearing = await _context.Hearings.FindAsync(id);
-		//	if (hearing != null)
-		//	{
-		//		_context.Hearings.Remove(hearing);
-		//	}
-
-		//	await _context.SaveChangesAsync();
-		//	return RedirectToAction(nameof(Index));
-		//}
-
-		//private bool HearingExists(long id)
-		//{
-		//	return _context.Hearings.Any(e => e.Id == id);
-		//}
 	}
 }

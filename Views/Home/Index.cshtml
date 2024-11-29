@@ -16,7 +16,7 @@
 
 			<div class="info-box-content">
 				<span class="info-box-text">Input</span>
-				<span class="info-box-number" id="totalSensor">
+				<span class="info-box-number" id="totalSensor1">
 					@Model.TotalSensor
 				</span>
 			</div>
@@ -54,7 +54,7 @@
 					<tbody>
 						<tr>
 							<td>SENSOR TEST</td>
-							<td id="totalSensor">@Model.TotalSensor</td>
+							<td id="totalSensor2">@Model.TotalSensor</td>
 							<td id="sensorPass">@Model.SensorPass</td>
 							<td id="sensorFail">@Model.SensorFail</td>
 							<td><span id="sensorPercent" class="badge bg-danger">@Model.SensorPercent.ToString("F1") %</span></td>
@@ -352,7 +352,8 @@
 					dataType: "json",
 					success: function (data) {
 						// Assuming `data` is the updated JSON data from your AJAX call
-						$('#totalSensor').text(data.totalSensor);
+						$('#totalSensor1').text(data.totalSensor);
+						$('#totalSensor2').text(data.totalSensor);
 						$('#sensorPass').text(data.sensorPass);
 						$('#sensorFail').text(data.sensorFail);
 						$('#sensorPercent').text(data.sensorPercent.toFixed(1) + ' %');
@@ -382,28 +383,24 @@
 					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.totalPass : 0));
 					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.totalFail : 0));
 					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.percentFail : "0%"));
-					row.append($("<td>").text(item.sensorTest != null ? item.sensorTest.totalUpdate : 0));
 
 					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.total : 0));
 					row.append($("<td>").text(item.ch));
 					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.totalPass : 0));
 					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.totalFail : 0));
 					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.percentFail : "0%"));
-					row.append($("<td>").text(item.wfmicTest != null ? item.wfmicTest.totalUpdate : 0));
 
 					row.append($("<td>").text(item.twTest != null ? item.twTest.total : 0));
 					row.append($("<td>").text(item.ch));
 					row.append($("<td>").text(item.twTest != null ? item.twTest.totalPass : 0));
 					row.append($("<td>").text(item.twTest != null ? item.twTest.totalFail : 0));
 					row.append($("<td>").text(item.twTest != null ? item.twTest.percentFail : "0%"));
-					row.append($("<td>").text(item.twTest != null ? item.twTest.totalUpdate : 0));
 
 					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.total : 0));
 					row.append($("<td>").text(item.ch));
 					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.totalPass : 0));
 					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.totalFail : 0));
 					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.percentFail : "0%"));
-					row.append($("<td>").text(item.hearingTest != null ? item.hearingTest.totalUpdate : 0));
 
 					tableBody.append(row);
 				});

@@ -25,7 +25,7 @@ namespace NFC.Controllers
 			{
 				roles = await repo.GetAllRolesAsync();
 
-				await cache.SetRecordAsync(cacheKey, roles, TimeSpan.FromDays(1), TimeSpan.FromHours(1));
+				await cache.SetRecordAsync(cacheKey, roles, TimeSpan.FromDays(7));
 			}
 
 			return View(roles);
@@ -162,7 +162,7 @@ namespace NFC.Controllers
 			var roles = await repo.GetAllRolesAsync();
 			var cacheKey = $"roles";
 
-			await cache.SetRecordAsync(cacheKey, roles, TimeSpan.FromDays(1), TimeSpan.FromDays(1));
+			await cache.SetRecordAsync(cacheKey, roles);
 		}
 		private async Task<bool> RoleExists(string roleName)
 		{

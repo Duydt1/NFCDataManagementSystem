@@ -108,6 +108,102 @@
 							<td>@Html.DisplayFor(model => model.sensor.SKIN_DIFF)</td>
 						</tr>
 						<tr>
+							<td>SKIN RATIO</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_RATIO)</td>
+						</tr>
+						<tr>
+							<td>T0 TRIM CODE</td>
+							<td>@Html.DisplayFor(model => model.sensor.T0_TRIM_CODE)</td>
+						</tr>
+						<tr>
+							<td>T1 TRIM CODE</td>
+							<td>@Html.DisplayFor(model => model.sensor.T1_TRIM_CODE)</td>
+						</tr>
+						<tr>
+							<td>T0 TRIM FACTOR</td>
+							<td>@Html.DisplayFor(model => model.sensor.T0_TRIM_FACTOR)</td>
+						</tr>
+						<tr>
+							<td>T1 TRIM FACTOR</td>
+							<td>@Html.DisplayFor(model => model.sensor.T1_TRIM_FACTOR)</td>
+						</tr>
+						<tr>
+							<td>CT ADC T0 ON</td>
+							<td>@Html.DisplayFor(model => model.sensor.CT_ADC_T0_ON)</td>
+						</tr>
+						<tr>
+							<td>CT ADC T0 OFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.CT_ADC_T0_OFF)</td>
+						</tr>
+						<tr>
+							<td>CT ADC T1 ON</td>
+							<td>@Html.DisplayFor(model => model.sensor.CT_ADC_T1_ON)</td>
+						</tr>
+						<tr>
+							<td>CT ADC T1 OFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.CT_ADC_T1_OFF)</td>
+						</tr>
+						<tr>
+							<td>CARD ADC T0 ON</td>
+							<td>@Html.DisplayFor(model => model.sensor.CARD_ADC_T0_ON)</td>
+						</tr>
+						<tr>
+							<td>CARD ADC T0 OFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.CARD_ADC_T0_OFF)</td>
+						</tr>
+						<tr>
+							<td>CARD ADC T1 ON</td>
+							<td>@Html.DisplayFor(model => model.sensor.CARD_ADC_T1_ON)</td>
+						</tr>
+						<tr>
+							<td>CARD ADC T1 OFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.CARD_ADC_T1_OFF)</td>
+						</tr>
+						<tr>
+							<td>SKIN ADC T0 ON</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_ADC_T0_ON)</td>
+						</tr>
+						<tr>
+							<td>SKIN ADC T0 OFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_ADC_T0_OFF)</td>
+						</tr>
+						<tr>
+							<td>SKIN ADC T1 ON</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_ADC_T1_ON)</td>
+						</tr>
+						<tr>
+							<td>SKIN ADC T1 OFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_ADC_T1_OFF)</td>
+						</tr>
+						<tr>
+							<td>TYP 1 T0 G4</td>
+							<td>@Html.DisplayFor(model => model.sensor.TYP_1_T0_G4)</td>
+						</tr>
+						<tr>
+							<td>TYP 1 T1 G4</td>
+							<td>@Html.DisplayFor(model => model.sensor.TYP_1_T1_G4)</td>
+						</tr>
+						<tr>
+							<td>TYP 1 T0 TARGET</td>
+							<td>@Html.DisplayFor(model => model.sensor.TYP_1_T0_TARGET)</td>
+						</tr>
+						<tr>
+							<td>TYP 1 T1 TARGET</td>
+							<td>@Html.DisplayFor(model => model.sensor.TYP_1_T1_TARGET)</td>
+						</tr>
+						<tr>
+							<td>POC TEMP</td>
+							<td>@Html.DisplayFor(model => model.sensor.POC_TEMP)</td>
+						</tr>
+						<tr>
+							<td>ACT TEMP</td>
+							<td>@Html.DisplayFor(model => model.sensor.ACT_TEMP)</td>
+						</tr>
+						<tr>
+							<td>SKIN DIFF</td>
+							<td>@Html.DisplayFor(model => model.sensor.SKIN_DIFF)</td>
+						</tr>
+						<tr>
 							<td>MIC 768KHz Peak</td>
 							<td>@Html.DisplayFor(model => model.sensor.MIC_768KHz_Peak)</td>
 						</tr>
@@ -135,6 +231,10 @@
 					</thead>
 					<tbody>
 						<tr>
+							<td>Speaker1 FRF Limit</td>
+							<td>@Html.DisplayFor(model => model.wf.FRFLimit)</td>
+						</tr>
+						<tr>
 							<td>Speaker1 SPL[1kHz]</td>
 							<td>@Html.DisplayFor(model => model.wf.SPL_1kHz)</td>
 						</tr>
@@ -149,6 +249,10 @@
 						<tr>
 							<td>Speaker1 Impedance Limit</td>
 							<td>@Html.DisplayFor(model => model.wf.ImpedanceLimit)</td>
+						</tr>
+						<tr>
+							<td>Speaker1 Impedance[1kHz]</td>
+							<td>@Html.DisplayFor(model => model.wf.Impedance_1kHz)</td>
 						</tr>
 						<tr>
 							<td>MIC1 SEQ2 FRF Limit</td>
@@ -169,6 +273,10 @@
 						<tr>
 							<td>MIC1 CUR_DVDD</td>
 							<td>@Html.DisplayFor(model => model.wf.MIC1CUR_DVDD)</td>
+						</tr>
+						<tr>
+							<td>MIC1 Phase Limit</td>
+							<td>@Html.DisplayFor(model => model.wf.MIC1PHASE_Limit)</td>
 						</tr>
 						<tr>
 							<td>Result</td>
@@ -195,6 +303,10 @@
 						</tr>
 					</thead>
 					<tbody>
+						<tr>
+							<td>Speaker1 FRF Limit</td>
+							<td>@Html.DisplayFor(model => model.tw.FRFLimit)</td>
+						</tr>
 						<tr>
 							<td>Speaker1 SPL[10kHz]</td>
 							<td>@Html.DisplayFor(model => model.tw.SPL_10kHz)</td>
@@ -267,7 +379,7 @@
 							<td>@Html.DisplayFor(model => model.hearing.Rub_Buzz_Limit)</td>
 						</tr>
 						<tr>
-							<td>"Speaker1 Rub&Buzz[Freq Max]</td>
+							<td>Speaker1 Rub&Buzz[Freq Max]</td>
 							<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_FreqMax)</td>
 						</tr>
 						<tr>
@@ -284,7 +396,7 @@
 		</div>
 	</div>
 </div>
-@if (historyUpdateDatas.Count > 0)
+@if (historyUpdateDatas.Count() > 0)
 {
 	<div class="row">
 		<div class="col-12">
@@ -319,27 +431,27 @@
 																		<tbody>
 																			<tr>
 																				<td>Model</td>
-																				<td>@Html.DisplayFor(model => model.hearing.Model)</td>
+																				<td>@Html.DisplayFor(model => item.Model)</td>
 																				<td>CH</td>
-																				<td>@Html.DisplayFor(model => model.hearing.CH)</td>
+																				<td>@Html.DisplayFor(model => item.CH)</td>
 																			</tr>
 																			<tr>
 																				<td>Date Time</td>
-																				<td>@Html.DisplayFor(model => model.hearing.DateTime)</td>
+																				<td>@Html.DisplayFor(model => item.DateTime)</td>
 																				<td>Speaker1 SPL [1kHz]</td>
-																				<td>@Html.DisplayFor(model => model.hearing.Speaker1SPL_1kHz)</td>
+																				<td>@Html.DisplayFor(model => item.Speaker1SPL_1kHz)</td>
 																			</tr>
 																			<tr>
 																				<td>Speaker1 Rub&Buzz Limit</td>
-																				<td>@Html.DisplayFor(model => model.hearing.Rub_Buzz_Limit)</td>
+																				<td>@Html.DisplayFor(model => item.Rub_Buzz_Limit)</td>
 																				<td>"Speaker1 Rub&Buzz[Freq Max]</td>
-																				<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_FreqMax)</td>
+																				<td>@Html.DisplayFor(model => item.Rub_Buz_FreqMax)</td>
 																			</tr>
 																			<tr>
 																				<td>Speaker1 Rub&Buzz[dB Max]</td>
-																				<td>@Html.DisplayFor(model => model.hearing.Rub_Buz_dBMax)</td>
+																				<td>@Html.DisplayFor(model => item.Rub_Buz_dBMax)</td>
 																				<td>Result</td>
-																				<td>@Html.DisplayFor(model => model.hearing.Result)</td>
+																				<td>@Html.DisplayFor(model => item.Result)</td>
 																			</tr>
 																			<tr>
 																				<td><b>Production Line</b></td>

@@ -37,7 +37,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -112,7 +112,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -148,7 +148,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -335,7 +335,7 @@ namespace NFC.Controllers
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
@@ -343,10 +343,12 @@ namespace NFC.Controllers
 				productionLines = await repo.GetAllAsync(userId);
 				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
 			}
+			var entity = lst.FirstOrDefault();
 			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
-			ViewData["HistoryUpdateData"] = lst.Skip(1);
-			return View(lst.FirstOrDefault());
-        }
+			ViewData["HistoryUpdateData"] = lst.Where(x => x.Id != entity.Id).ToList();
+
+			return View(entity);
+		}
 
 		
 

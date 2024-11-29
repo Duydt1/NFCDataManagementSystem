@@ -34,7 +34,7 @@ namespace NFC.Services
 					TWTest = group.FirstOrDefault(item => lstTW.Contains(item)),
 					HearingTest = group.FirstOrDefault(item => lstHearing.Contains(item)),
 				})
-				.OrderBy(x => x.CH)
+				.OrderBy(x => int.Parse(x.CH))
 				.ToList();
 
 			int totalSensor = lstItem.Sum(x => x.SensorTest != null ? x.SensorTest.Total : 0);

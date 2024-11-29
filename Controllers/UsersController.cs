@@ -26,7 +26,7 @@ namespace NFC.Controllers
 			{
 				users = await repo.GetAllUserAsync();
 
-				await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromHours(24));
+				await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromDays(7));
 			}
 
 			return View(users);
@@ -66,15 +66,8 @@ namespace NFC.Controllers
         public async Task<IActionResult> CreateAsync()
         {
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
-			if (productionLines == null)
-			{
-				var repo = _serviceProvider.GetService<IProductionLineRepository>();
-				productionLines = await repo.GetAllAsync(null);
-				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1), TimeSpan.FromHours(1));
-			}
-
 			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
 			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
             ViewData["RoleId"] = new SelectList(roles, "Id", "Name");
@@ -122,7 +115,7 @@ namespace NFC.Controllers
             {
                 return NotFound();
             }
-			var productionLinesCacheKey = $"productionLines_";
+			var productionLinesCacheKey = $"productionLines";
 			var cache = _serviceProvider.GetService<IDistributedCache>();
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
@@ -191,11 +184,10 @@ namespace NFC.Controllers
                     throw ex;
                 }
                 await RefreshRolesCache();
-
 				return RedirectToAction(nameof(Index));
             }
 			var cache = _serviceProvider.GetService<IDistributedCache>();
-			var productionLinesCacheKey = $"productionLines_";
+			var productionLinesCacheKey = $"productionLines";
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			var roles = await cache.GetRecordAsync<List<IdentityRole>>("roles");
 			ViewData["ProductionLineId"] = new SelectList(productionLines, "Id", "Name");
@@ -243,8 +235,9 @@ namespace NFC.Controllers
             if (nfcUser != null)
             {
                 await repoUser.DeleteUserAsync(nfcUser);
-            }
-            return RedirectToAction(nameof(Index));
+			}
+			await RefreshRolesCache();
+			return RedirectToAction(nameof(Index));
         }
 
 		private async Task RefreshRolesCache()
@@ -255,7 +248,7 @@ namespace NFC.Controllers
 			var cacheKey = $"users";
 			var users = await repo.GetAllUserAsync();
 
-			await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromDays(1));
+			await cache.SetRecordAsync(cacheKey, users, TimeSpan.FromDays(7));
 		}
 	}
 }

@@ -1,8 +1,13 @@
 ﻿using Azure;
+using Data.Common;
+using Data.Models;
 using Data.Repositories;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Newtonsoft.Json;
 using NFC.Data.Common;
 using NFC.Data.Entities;
 using NFC.Data.Models;
@@ -42,95 +47,172 @@ namespace NFC.Controllers
 		}
 
 		[HttpGet("Check")]
-		public async Task<string> CheckNUMAsync(string num)
+		public async Task<CheckNumHearingModel> CheckNUMAsync(string num)
 		{
 			var repository = _serviceProvider.GetService<IHearingRepository>();
-			var result = await repository.GetHearingDetailAsync(num);
-			if (result != null)
-			{
-				if(result.hearing != null && result.tw != null && result.wf != null && result.sensor != null)
-				{
-					if(result.hearing.Result.ToUpper() == "PASS" && result.tw.Result.ToUpper() == "PASS" && result.wf.Result.ToUpper() == "PASS" && result.sensor.Result.ToUpper() == "OK")
-						return "OK";
-					else
-						return "NG";
-				}
-				else
-					return "NOT FOUND";
-			}
-			else
-				return "NOT FOUND";
-
-			return "OK";
+			var result = await repository.GetHearingResultAsync(num);
+			return result;
 		}
 
+		[HttpGet("Reload")]
+		public async Task ReloadAsync()
+		{
+			var repository = _serviceProvider.GetService<IHistoryUploadRepository>();
+			var historyUploads = await repository.GetAllFailedAsync();
+			if (historyUploads.Count() > 0)
+			{
+				foreach (var item in historyUploads)
+				{
+					var nfcDatas = await GetJsonFile(item.Type, item.FileContent);
+
+					var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
+					await publishEndpoint.Publish(new MessageUpload
+					{
+						Id = item.Id,
+						Type = item.Type,
+						Title = item.Title,
+						ProductionLineId = (int)item.ProductionLineId,
+						Datas = nfcDatas,
+						UserId = item.CreatedById
+					});
+				}
+			}
+		}
+		private async Task<string> GetJsonFile(int type, string fileContent)
+		{
+			string datas = "";
+			byte[] bytes = Convert.FromBase64String(fileContent);
+			using var ms = new MemoryStream(bytes);
+			using var reader = new StreamReader(ms);
+			switch (type)
+			{
+				case (int)NFCCommon.NFCType.KT_TW_SPL:
+					var lstTW = await NFCReadFile.ReadListKTTWAsync(reader);
+					datas = JsonConvert.SerializeObject(lstTW);
+					break;
+				case (int)NFCCommon.NFCType.KT_MIC_WF_SPL:
+					var lstMIC = await NFCReadFile.ReadListKTMICAsync(reader);
+					datas = JsonConvert.SerializeObject(lstMIC);
+					break;
+				case (int)NFCCommon.NFCType.SENSOR:
+					var lstSensor = await NFCReadFile.ReadListSensorAsync(reader);
+					datas = JsonConvert.SerializeObject(lstSensor);
+					break;
+				case (int)NFCCommon.NFCType.HEARING:
+					var lstHearing = await NFCReadFile.ReadListHearingAsync(reader);
+					datas = JsonConvert.SerializeObject(lstHearing);
+					break;
+			}
+
+			return datas;
+
+		}
 		[HttpPost]
 		public async Task<UploadNFCDataResponse> Upload([FromBody] UploadNFCDataRequest request)
 		{
 			var response = new UploadNFCDataResponse();
-			int productionLineId = 0;
-			var user = new NFCUser();
-			// Get the Authorization header
-			string authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
-
-			// Check if the header is in the format "Basic <credentials>"
-			if (authorizationHeader != null && authorizationHeader.StartsWith("Basic "))
+			var authResult = await AuthenticateAndAuthorizeUserAsync();
+			if (!authResult.IsSuccess)
 			{
-				// Extract the credentials
-				string credentials = authorizationHeader.Substring("Basic ".Length).Trim();
-
-				// Decode the credentials
-				string decodedCredentials = Encoding.UTF8.GetString(Convert.FromBase64String(credentials));
-
-				// Split the credentials into username and password
-				string[] credentialsArray = decodedCredentials.Split(':');
-				string username = credentialsArray[0];
-				string password = credentialsArray[1];
-
-				// Authenticate the user
-				user = await _userManager.FindByNameAsync(username);
-				if (user != null && await _userManager.CheckPasswordAsync(user, password))
-				{
-					var repoIdentity = _serviceProvider.GetService<IIdentityRepository>();
-					var role = !string.IsNullOrEmpty(user.RoleId) ? await repoIdentity.GetRoleAsync(user.RoleId) : null;
-					if (role == null || (!role.Name!.Contains("Create Data") && !role.Name!.Contains("Admin")))
-					{
-						response.Message = "You do not have permission to upload files";
-						response.Code = HttpStatusCode.Forbidden;
-					}
-					else
-					{
-						if (!Enum.IsDefined(typeof(NFCCommon.NFCType), request.NFCType))
-						{
-							response.Message = "Invalid NFCType";
-							response.Code = HttpStatusCode.NotFound;
-						}
-						else
-						{
-							var fileUploadService = _serviceProvider.GetService<IFileUploadService>();
-							response = await fileUploadService.ValidateFileCsvAsync(request.NFCType, request.NFCContent);
-							if (response.Code != HttpStatusCode.BadRequest)
-							{
-								response.Code = HttpStatusCode.OK;
-								response.Message = "File uploaded successfully";
-							}
-						}
-						productionLineId = user.ProductionLineId;
-					}
-				}
-				else
-				{
-					response.Message = "Invalid username or password";
-					response.Code = HttpStatusCode.Unauthorized;
-				}
+				response.Code = authResult.StatusCode;
+				response.Message = authResult.Message;
+				return response;
 			}
-			else
+			var user = authResult.User!;
+			int productionLineId = user.ProductionLineId;
+			if (!Enum.IsDefined(typeof(NFCCommon.NFCType), request.NFCType))
 			{
-				response.Message = "Authorization not found or not Basic Auth types";
-				response.Code = HttpStatusCode.NotAcceptable;
+				response.Message = "Invalid NFCType";
+				response.Code = HttpStatusCode.NotFound;
+				return response;
 			}
+
+			var fileUploadService = _serviceProvider.GetRequiredService<IFileUploadService>();
+			response = await fileUploadService.ValidateFileCsvAsync(request.NFCType, request.NFCContent);
+			if (response.Code == HttpStatusCode.BadRequest)
+			{
+				return response;
+			}
+
+			response.Code = HttpStatusCode.OK;
+			response.Message = "File uploaded successfully";
+
 			await CreateHistoryUploadAsync(request, response, productionLineId, user);
 			return response;
+		}
+
+		private async Task<AuthResult> AuthenticateAndAuthorizeUserAsync()
+		{
+			var result = new AuthResult();
+
+			// Get the Authorization header
+			string authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
+			if (authorizationHeader == null || !authorizationHeader.StartsWith("Basic "))
+			{
+				result.StatusCode = HttpStatusCode.NotAcceptable;
+				result.Message = "Authorization not found or not Basic Auth types";
+				return result;
+			}
+
+			// Decode the credentials
+			string decodedCredentials = Encoding.UTF8.GetString(Convert.FromBase64String(authorizationHeader.Substring("Basic ".Length).Trim()));
+			string[] credentialsArray = decodedCredentials.Split(':');
+			string username = credentialsArray[0];
+			string password = credentialsArray[1];
+
+			// Try to retrieve user from Redis
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var users = await GetUserCacheData();
+			
+			// Authenticate the user
+			var user = users.FirstOrDefault(x => x.UserName == username);
+
+			if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+			{
+				result.StatusCode = HttpStatusCode.Unauthorized;
+				result.Message = "Invalid username or password";
+				return result;
+			}
+			var cacheKey = $"roles";
+			var roles = await GetRoleCacheData();
+
+			var role = roles.FirstOrDefault(x => x.Id == user.RoleId);
+			if (role == null || (!role.Name!.Contains("Create Data") && !role.Name!.Contains("Admin")))
+			{
+				result.StatusCode = HttpStatusCode.Forbidden;
+				result.Message = "You do not have permission to upload files";
+				return result;
+			}
+
+			result.IsSuccess = true;
+			result.User = user;
+			return result;
+		}
+
+		private async Task<List<NFCUser>> GetUserCacheData()
+		{
+			
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var cacheUserKey = $"users";
+			var users = await cache.GetRecordAsync<List<NFCUser>>(cacheUserKey);
+			users ??= await repo.GetAllUserAsync();
+
+			await cache.SetRecordAsync(cacheUserKey, users, TimeSpan.FromDays(7));
+			return users;
+			
+		}
+
+		private async Task<List<IdentityRole>> GetRoleCacheData()
+		{
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+			var cacheKey = $"roles";
+			var roles = await cache.GetRecordAsync<List<IdentityRole>>(cacheKey);
+			roles ??= await repo.GetAllRolesAsync();
+
+			await cache.SetRecordAsync(cacheKey, roles, TimeSpan.FromDays(7));
+			return roles;
 		}
 
 		private async Task<UploadNFCDataResponse> CreateHistoryUploadAsync(UploadNFCDataRequest request, UploadNFCDataResponse response, int productionLineId, NFCUser? user)
@@ -150,21 +232,7 @@ namespace NFC.Controllers
 				};
 				var repoHistoryUpload = _serviceProvider.GetService<IHistoryUploadRepository>();
 				await repoHistoryUpload.CreateAsync(historyUpload);
-				if (response.Code == HttpStatusCode.OK)
-				{
-					var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
-					await publishEndpoint.Publish(new MessageUpload
-					{
-						Id = historyUpload.Id,
-						Type = request.NFCType,
-						Title = response.Title,
-						ProductionLineId = productionLineId,
-						Datas = response.NFCDatas,
-						UserId = historyUpload.CreatedById
-					});
-				}
-				
-
+				await PublishMessageAsync(historyUpload, response);
 			}
 			catch (Exception ex)
 			{
@@ -173,6 +241,29 @@ namespace NFC.Controllers
 			}
 
 			return response;
+		}
+		private async Task PublishMessageAsync(HistoryUpload historyUpload, UploadNFCDataResponse response)
+		{
+			if (response.Code != HttpStatusCode.OK) return;
+
+			var publishEndpoint = _serviceProvider.GetService<IPublishEndpoint>();
+			await publishEndpoint.Publish(new MessageUpload
+			{
+				Id = historyUpload.Id,
+				Type = historyUpload.Type,
+				Title = historyUpload.Title,
+				ProductionLineId = (int)historyUpload.ProductionLineId,
+				Datas = response.NFCDatas,
+				UserId = historyUpload.CreatedById
+			});
+		}
+
+		private class AuthResult
+		{
+			public bool IsSuccess { get; set; }
+			public NFCUser? User { get; set; }
+			public HttpStatusCode StatusCode { get; set; }
+			public string Message { get; set; } = string.Empty;
 		}
 	}
 

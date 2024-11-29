@@ -9,7 +9,8 @@ namespace NFC.Services
     {
         
         Task<UploadNFCDataResponse> ValidateFileCsvAsync(int type, string uploadFile);
-    }
+
+	}
     public class FileUploadService(IServiceProvider serviceProvider, ILogger<FileUploadService> logger) : IFileUploadService
     {
         private readonly ILogger<FileUploadService> _logger = logger;
@@ -49,7 +50,7 @@ namespace NFC.Services
             return reponse;
         }
 
-        private static async Task<UploadNFCDataResponse> ValidateDataKTTW(StreamReader reader)
+		private static async Task<UploadNFCDataResponse> ValidateDataKTTW(StreamReader reader)
         {
             var lstKTTW = await NFCReadFile.ReadListKTTWAsync(reader);
             var result = new UploadNFCDataResponse();

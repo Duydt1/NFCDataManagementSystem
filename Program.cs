@@ -1,6 +1,7 @@
 ﻿using Data.Repositories;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NFC.Data;

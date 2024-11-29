@@ -1,6 +1,7 @@
 using Data.Common;
 using Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,18 +23,18 @@ namespace NFC.Controllers
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         public async Task<IActionResult> IndexAsync(FilterModel filterModel)
 		{
-			var cacheKey = $"users";
+			await GetCacheData();
 			var cache = _serviceProvider.GetService<IDistributedCache>();
 			var userId = "";
 			if (!User.IsInRole("Admin"))
 				userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-			var productionLinesCacheKey = $"productionLines_{userId}";
+			var productionLinesCacheKey = $"productionLines";
 			var repoProductionLine = _serviceProvider.GetService<IProductionLineRepository>();
 			var productionLines = await cache.GetRecordAsync<List<ProductionLine>>(productionLinesCacheKey);
 			if (productionLines == null)
 			{
 				productionLines = await repoProductionLine.GetAllAsync(userId);
-				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(1));
+				await cache.SetRecordAsync(productionLinesCacheKey, productionLines, TimeSpan.FromDays(7));
 			}
 
 			ViewData["ProductionLines"] = new SelectList(productionLines, "Id", "Name", 1);
@@ -87,6 +88,22 @@ namespace NFC.Controllers
 			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 		}
 
+		private async Task GetCacheData()
+		{
+			var cache = _serviceProvider.GetService<IDistributedCache>();
+			var repo = _serviceProvider.GetService<IIdentityRepository>();
+
+			var cacheUserKey = $"users";
+			var users = await cache.GetRecordAsync<List<NFCUser>>(cacheUserKey);
+			users ??= await repo.GetAllUserAsync();
+			await cache.SetRecordAsync(cacheUserKey, users, TimeSpan.FromDays(7));
+
+
+			var cacheKey = $"roles";
+			var roles = await cache.GetRecordAsync<List<IdentityRole>>(cacheKey);
+			roles ??= await repo.GetAllRolesAsync();
+			await cache.SetRecordAsync(cacheKey, roles, TimeSpan.FromDays(7));
+		}
 		
 	}
 }
